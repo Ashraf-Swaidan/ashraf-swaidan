@@ -32,6 +32,7 @@ export function App() {
         <iframe
           title="Line problem solver"
           src="/line_problem_solver.html"
+          data-lenis-prevent
           className="mx-auto block min-h-[420px] w-full max-w-3xl rounded-md border border-border bg-white"
         />
       </GalleryFrame>
@@ -40,6 +41,7 @@ export function App() {
         <iframe
           title="Noise to orchestra"
           src="/noise_to_orchestra.html"
+          data-lenis-prevent
           className="mx-auto block min-h-[420px] w-full max-w-3xl rounded-md border border-border bg-white"
         />
       </GalleryFrame>

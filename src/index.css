@@ -186,3 +186,17 @@
     transform: translateX(0) scaleX(1);
   }
 }
+
+/* Lenis: avoid fixed-height issues; keep native scroll inside [data-lenis-prevent] (e.g. iframes) */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}

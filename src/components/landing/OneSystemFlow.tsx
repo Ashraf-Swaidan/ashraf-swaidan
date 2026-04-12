@@ -6,10 +6,14 @@ import { useRef } from "react"
 gsap.registerPlugin(useGSAP, ScrollTrigger)
 
 /** Lines start slightly skewed, shifted (x/y), and eased back to neutral as they scroll into place. */
-const LINE_SKEW_IN = 18
-/** Initial translation (vw); horizontal matches rect rows on every line, vertical nudges all rows slightly. */
-const LINE_SHIFT_X_VW = 3.2
-const LINE_SHIFT_Y_VW = 1.6
+const LINE_SKEW_IN = 14
+/** Initial translation (vw); horizontal entry, vertical nudges all rows slightly. */
+const LINE_SHIFT_X_VW = 1.65
+const LINE_SHIFT_Y_VW = 1.75
+
+/** Clip when hidden: rect left of word wipes in from the left; rect after word wipes from the word side. */
+const RECT_CLIP_HIDDEN_BEFORE = "inset(0 0 0 100%)"
+const RECT_CLIP_HIDDEN_AFTER = "inset(0 100% 0 0)"
 
 const COL = {
   rectA: "#2563EB",
@@ -37,7 +41,7 @@ const OSF_STYLE = `
   width: 100vw;
   margin-left: calc(50% - 50vw);
   box-sizing: border-box;
-  min-height: min(140vh, 1600px);
+  min-height: min(145vh, 1680px);
   background: ${COL.paper};
   color: ${COL.ink};
   padding-left: 0;
@@ -49,6 +53,8 @@ const OSF_STYLE = `
   -webkit-font-smoothing: antialiased;
   /* All-caps optical line box; rects use same factor so row height isn’t one full em */
   --osf-cap-line: 0.76;
+  /* Slightly smaller than the full line box so rects read a touch lighter */
+  --osf-rect-size: 0.99;
 }
 
 .osf-lines {
@@ -57,13 +63,14 @@ const OSF_STYLE = `
 }
 
 .osf-line {
+  --osf-row-gap: 0.035em;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: baseline;
   justify-content: center;
   flex-wrap: nowrap;
   width: 100%;
-  font-size: clamp(2.75rem, 11vw, 8.5rem);
+  font-size: clamp(2.95rem, 11.75vw, 9rem);
   line-height: var(--osf-cap-line);
   letter-spacing: 0.01em;
   text-transform: uppercase;
@@ -72,7 +79,7 @@ const OSF_STYLE = `
 }
 
 .osf-line:not(:first-child) {
-  margin-top: 0.00em;
+  margin-top: var(--osf-row-gap);
 }
 
 .osf-line--rect-left {
@@ -85,9 +92,9 @@ const OSF_STYLE = `
 
 .osf-rect {
   display: inline-block;
-  vertical-align: middle;
+vertical-align: middle;
   box-sizing: border-box;
-  height: calc(1em * var(--osf-cap-line));
+  height: calc(1em * var(--osf-cap-line) * var(--osf-rect-size));
   width: auto;
   aspect-ratio: 7 / 5.5;
   border-radius: min(0.75vw, 0.06em);
@@ -134,7 +141,7 @@ const OSF_STYLE = `
 
 .osf-conclusion {
   margin: 0;
-  font-size: clamp(2.75rem, 11vw, 8.5rem);
+  font-size: clamp(2.95rem, 11.75vw, 9rem);
   line-height: var(--osf-cap-line);
   letter-spacing: 0.01em;
   text-transform: uppercase;
@@ -178,6 +185,7 @@ export function OneSystemFlow() {
   const rectLoopTlRef = useRef<gsap.core.Timeline | null>(null)
   const footerTlRef = useRef<gsap.core.Timeline | null>(null)
   const lineTlRef = useRef<gsap.core.Timeline[]>([])
+  const rectRevealAnimRef = useRef<gsap.core.Animation[]>([])
 
   useGSAP(
     (_, contextSafe) => {
@@ -193,6 +201,8 @@ export function OneSystemFlow() {
         footerTlRef.current = null
         lineTlRef.current.forEach((tl) => tl.kill())
         lineTlRef.current = []
+        rectRevealAnimRef.current.forEach((anim) => anim.kill())
+        rectRevealAnimRef.current = []
       })
 
       const applyReducedFinal = contextSafe(() => {
@@ -201,6 +211,8 @@ export function OneSystemFlow() {
         const innersReduced = root.querySelectorAll(".osf-rect-inner")
         gsap.set(linesReduced, { skewX: 0, x: 0, y: 0, clearProps: "transform" })
         gsap.set(innersReduced, { skewX: 0, clearProps: "transform" })
+        const rectsReduced = root.querySelectorAll(".osf-rect")
+        gsap.set(rectsReduced, { autoAlpha: 1, scale: 1, clipPath: "none" })
         if (checkPathRef.current) gsap.set(checkPathRef.current, { strokeDashoffset: 0 })
         if (boxFillRef.current) gsap.set(boxFillRef.current, { fill: COL.rectAGreen })
         if (boxInARef.current) gsap.set(boxInARef.current, { clearProps: "all" })
@@ -235,10 +247,10 @@ export function OneSystemFlow() {
       const lines = gsap.utils.toArray<HTMLElement>(root.querySelectorAll(".osf-line"))
       lines.forEach((line, i) => {
         const inners = line.querySelectorAll<HTMLElement>(".osf-rect-inner")
-        const skewInner = -LINE_SKEW_IN
+        const skewInner = LINE_SKEW_IN
         gsap.set(line, {
-          skewX: LINE_SKEW_IN,
-          x: `-${LINE_SHIFT_X_VW}vw`,
+          skewX: -LINE_SKEW_IN,
+          x: `${LINE_SHIFT_X_VW}vw`,
           y: `${LINE_SHIFT_Y_VW}vw`,
           transformOrigin: "50% 88%",
         })
@@ -247,7 +259,7 @@ export function OneSystemFlow() {
           scrollTrigger: {
             trigger: line,
             start: "top bottom",
-            end: "top 40%",
+            end: "top 55%",
             scrub: true,
             invalidateOnRefresh: true,
           },
@@ -260,6 +272,33 @@ export function OneSystemFlow() {
         const st = tl.scrollTrigger
         if (st) st.refreshPriority = i
         lineTlRef.current.push(tl)
+
+        const rectEl = line.querySelector<HTMLElement>(".osf-rect")
+        if (rectEl) {
+          const before = rectEl.classList.contains("osf-rect--before")
+          gsap.set(rectEl, {
+            autoAlpha: 0,
+            scale: 0.93,
+            transformOrigin: before ? "0% 50%" : "100% 50%",
+            clipPath: before ? RECT_CLIP_HIDDEN_BEFORE : RECT_CLIP_HIDDEN_AFTER,
+          })
+          const reveal = gsap.to(rectEl, {
+            autoAlpha: 1,
+            scale: 1,
+            clipPath: "inset(0% 0% 0% 0%)",
+            duration: 0.68,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: line,
+              start: "top 86%",
+              toggleActions: "play none none reverse",
+              invalidateOnRefresh: true,
+            },
+          })
+          const rst = reveal.scrollTrigger
+          if (rst) rst.refreshPriority = i + 0.25
+          rectRevealAnimRef.current.push(reveal)
+        }
       })
 
       const buildStoryTimeline = contextSafe(() => {
@@ -341,7 +380,7 @@ export function OneSystemFlow() {
         const tl = gsap.timeline({
           defaults: { ease: "power2.out" },
           repeat: -1,
-          repeatDelay: 0.45,
+          repeatDelay: 0.3,
         })
 
         tl.addLabel("rectA")
@@ -468,6 +507,7 @@ export function OneSystemFlow() {
 
       const loopTl = buildStoryTimeline()
       if (loopTl) {
+        loopTl.timeScale(1.18)
         rectLoopTlRef.current = loopTl
         loopTl.play(0)
       }
@@ -482,8 +522,8 @@ export function OneSystemFlow() {
           scrollTrigger: {
             trigger: footer,
             start: "top 88%",
-            end: "top 52%",
-            scrub: 1,
+            end: "top 62%",
+            scrub: 0.65,
             invalidateOnRefresh: true,
           },
         })
@@ -524,7 +564,13 @@ export function OneSystemFlow() {
             <span className="osf-rect-inner">
               <div
                 ref={boxInARef}
-                style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
               >
                 <svg width="90%" height="90%" viewBox="0 0 40 32" style={{ overflow: "visible" }}>
                   <rect

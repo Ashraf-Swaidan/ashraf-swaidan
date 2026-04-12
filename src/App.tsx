@@ -1,4 +1,4 @@
-import { OneSystemFlow } from "./components/landing/OneSystemFlow"
+import { OneSystemFlow } from "./components/landing/one-system-flow/OneSystemFlow"
 import { RopeUntangle } from "./components/landing/RopeUntangle"
 
 function GalleryFrame({

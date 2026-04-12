@@ -1,0 +1,31 @@
+.wallets-rect__stack {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 8% 10%;
+  gap: 5px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: clamp(7px, 1.35vw, 11px);
+}
+
+.wallets-rect__row {
+  border-bottom: 1px solid var(--wallets-line, rgb(44, 24, 16));
+  padding-bottom: 3px;
+  color: var(--wallets-line, rgb(44, 24, 16));
+  opacity: 0.55;
+}
+
+.wallets-rect__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 2px;
+  color: var(--wallets-line, rgb(44, 24, 16));
+  opacity: 0.55;
+}
+
+.wallets-rect__amount {
+  font-weight: 700;
+}

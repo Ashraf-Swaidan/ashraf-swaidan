@@ -1,0 +1,123 @@
+@font-face {
+  font-family: "Druk Cond Super";
+  src: url("/fonts/DrukCond-Super-Cy-Gr-Web.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+.osf-root {
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  box-sizing: border-box;
+  min-height: min(145vh, 1680px);
+  background: #ffffff;
+  color: #0a0a0a;
+  padding-left: 0;
+  padding-right: 0;
+  padding-bottom: 12vh;
+  overflow-x: hidden;
+  font-family: "Druk Cond Super", "Anton", ui-sans-serif, sans-serif;
+  font-feature-settings: "kern" 1;
+  -webkit-font-smoothing: antialiased;
+  --osf-cap-line: 0.76;
+  --osf-rect-size: 0.99;
+}
+
+.osf-lines {
+  position: relative;
+  z-index: 0;
+}
+
+.osf-line {
+  --osf-row-gap: 0.035em;
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: center;
+  flex-wrap: nowrap;
+  width: 100%;
+  font-size: clamp(2.95rem, 11.75vw, 9rem);
+  line-height: var(--osf-cap-line);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform-origin: 50% 88%;
+}
+
+.osf-line:not(:first-child) {
+  margin-top: var(--osf-row-gap);
+}
+
+.osf-line--rect-left {
+  flex-direction: row;
+}
+
+.osf-word {
+  display: inline-block;
+}
+
+.osf-rect {
+  display: inline-block;
+  vertical-align: baseline;
+  box-sizing: border-box;
+  height: calc(1em * var(--osf-cap-line) * var(--osf-rect-size));
+  width: auto;
+  aspect-ratio: 8 / 5.5;
+  border-radius: min(0.75vw, 0.06em);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.osf-rect--after {
+  margin-left: 0.12em;
+}
+
+.osf-rect--before {
+  margin-right: 0.12em;
+}
+
+.osf-rect-inner {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.osf-footer {
+  margin-top: 10vh;
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15em;
+  padding: 0 4vw;
+}
+
+.osf-rule {
+  height: 2px;
+  width: min(92vw, 1200px);
+  background: #0a0a0a;
+  transform-origin: center center;
+  transform: scaleX(0);
+}
+
+.osf-conclusion {
+  margin: 0;
+  font-size: clamp(2.95rem, 11.75vw, 9rem);
+  line-height: var(--osf-cap-line);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  text-align: center;
+  width: 100%;
+  opacity: 0;
+}
+
+.osf-period {
+  color: rgb(232, 168, 122);
+}

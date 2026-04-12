@@ -7,7 +7,7 @@ gsap.registerPlugin(useGSAP, ScrollTrigger)
 
 /** Lines start slightly skewed, shifted (x/y), and eased back to neutral as they scroll into place. */
 const LINE_SKEW_IN = 18
-/** Initial translation (vw); horizontal alternates per row, vertical nudges all rows slightly. */
+/** Initial translation (vw); horizontal matches rect rows on every line, vertical nudges all rows slightly. */
 const LINE_SHIFT_X_VW = 3.2
 const LINE_SHIFT_Y_VW = 1.6
 
@@ -236,10 +236,9 @@ export function OneSystemFlow() {
       lines.forEach((line, i) => {
         const inners = line.querySelectorAll<HTMLElement>(".osf-rect-inner")
         const skewInner = -LINE_SKEW_IN
-        const xSign = i % 2 === 0 ? 1 : -1
         gsap.set(line, {
           skewX: LINE_SKEW_IN,
-          x: `${xSign * LINE_SHIFT_X_VW}vw`,
+          x: `-${LINE_SHIFT_X_VW}vw`,
           y: `${LINE_SHIFT_Y_VW}vw`,
           transformOrigin: "50% 88%",
         })

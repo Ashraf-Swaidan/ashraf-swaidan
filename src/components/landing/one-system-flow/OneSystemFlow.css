@@ -11,12 +11,12 @@
   width: 100vw;
   margin-left: calc(50% - 50vw);
   box-sizing: border-box;
-  min-height: min(145vh, 1680px);
+  min-height: min(185vh, 2200px);
   background: #ffffff;
   color: #0a0a0a;
   padding-left: 0;
   padding-right: 0;
-  padding-bottom: 12vh;
+  padding-bottom: 22vh;
   overflow-x: hidden;
   font-family: "Druk Cond Super", "Anton", ui-sans-serif, sans-serif;
   font-feature-settings: "kern" 1;
@@ -50,12 +50,28 @@
   margin-top: var(--osf-row-gap);
 }
 
+.osf-line:first-child {
+  padding-top: 0.06em;
+}
+
 .osf-line--rect-left {
   flex-direction: row;
 }
 
 .osf-word {
   display: inline-block;
+}
+
+.osf-word--accent {
+  color: #ee8651;
+}
+
+.osf-word--one-system {
+  color: #bc94f2;
+  text-decoration-line: underline;
+  text-decoration-color: #000000;
+  text-decoration-thickness: 0.06em;
+  text-underline-offset: 0.08em;
 }
 
 .osf-rect {
@@ -87,37 +103,3 @@
   overflow: hidden;
 }
 
-.osf-footer {
-  margin-top: 10vh;
-  width: 100%;
-  max-width: 100vw;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.15em;
-  padding: 0 4vw;
-}
-
-.osf-rule {
-  height: 2px;
-  width: min(92vw, 1200px);
-  background: #0a0a0a;
-  transform-origin: center center;
-  transform: scaleX(0);
-}
-
-.osf-conclusion {
-  margin: 0;
-  font-size: clamp(2.95rem, 11.75vw, 9rem);
-  line-height: var(--osf-cap-line);
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
-  text-align: center;
-  width: 100%;
-  opacity: 0;
-}
-
-.osf-period {
-  color: rgb(232, 168, 122);
-}

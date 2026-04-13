@@ -322,7 +322,7 @@ export function SystemConvergence() {
               >
                 {TAGLINE.split("").map((ch, i) => (
                   <span key={`${uid}-t${i}`} className="sys-tag-char inline-block opacity-0">
-                    {ch === " " ? "\u00a0" : ch}
+                    {ch === " " ? "\0u00a0" : ch}
                   </span>
                 ))}
               </p>

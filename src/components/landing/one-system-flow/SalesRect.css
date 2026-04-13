@@ -8,6 +8,51 @@
 }
 
 .sales-rect__svg {
-  width: 88%;
-  height: 88%;
+  width: 97%;
+  height: 97%;
+}
+
+.sales-rect__micro {
+  font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+  font-size: 5.45px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  fill: rgb(35, 0, 42);
+}
+
+.sales-rect__micro--soft {
+  font-size: 4.35px;
+  font-weight: 600;
+  opacity: 0.72;
+}
+
+.sales-rect__micro--header {
+  font-size: 3.95px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  opacity: 0.55;
+}
+
+.sales-rect__checkout-col {
+  font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+  font-size: 4.35px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  fill: rgb(35, 0, 42);
+  opacity: 0.58;
+}
+
+.sales-rect__checkout-qty {
+  font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+  font-size: 7.35px;
+  font-weight: 800;
+  fill: rgb(35, 0, 42);
+}
+
+.sales-rect__btn-label {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 6.65px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  fill: rgb(237, 226, 246);
 }

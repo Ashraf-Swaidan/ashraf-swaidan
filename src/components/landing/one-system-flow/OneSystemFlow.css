@@ -9,8 +9,11 @@
 /* Mobile-first: large type + long vertical runway so scroll pacing matches desktop. */
 .osf-root {
   position: relative;
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
+  /* Avoid `100vw`: it includes the vertical scrollbar width and is wider than the layout, which causes a few px of horizontal overflow on most desktop browsers. */
+  width: 100%;
+  max-width: 100%;
+  margin-left: 0;
+  margin-right: 0;
   box-sizing: border-box;
   min-height: min(215vh, 2600px);
   background: #ffffff;
@@ -74,6 +77,45 @@
   text-decoration-color: #000000;
   text-decoration-thickness: 0.06em;
   text-underline-offset: 0.08em;
+}
+
+/* Receipt-style cents on the final S; fade/slide in via GSAP on scroll */
+.osf-word--expenses {
+  white-space: nowrap;
+}
+
+/* Inline flow + bottom alignment: same line box as EXPENSES caps (no flex reflow). */
+.osf-expenses-last {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.osf-expenses-final-s,
+.osf-expenses-cents {
+  display: inline-block;
+  vertical-align: bottom;
+}
+
+.osf-expenses-final-s {
+  line-height: inherit;
+}
+
+.osf-expenses-cents {
+  box-sizing: content-box;
+  margin-left: 0.05em;
+  padding-bottom: 0.03em;
+  /* Receipt-style cents — keep smaller than caps. */
+  width: 4.25ch;
+  min-width: 4.25ch;
+  font-size: 0.2em;
+  font-weight: 500;
+  line-height: 1;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  /* Monospace so every digit update keeps identical advance width — stops the word “vibrating”. */
+  font-family: ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace;
+  color: #16a34a;
+  opacity: 0;
 }
 
 .osf-rect {
@@ -152,7 +194,7 @@
 
   .osf-line {
     --osf-row-gap: 0.035em;
-    font-size: clamp(2.95rem, 11.75vw, 9rem);
+    font-size: clamp(3.5rem, 13.25vw, 11rem);
     letter-spacing: 0.01em;
   }
 

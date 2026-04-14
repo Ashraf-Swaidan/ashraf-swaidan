@@ -229,8 +229,13 @@ export function OneSystemFlow() {
           <span className="osf-word">WALLETS</span>
         </div>
 
-        <div className="osf-line">
-          <span className="osf-word osf-word--one-system">ONE SYSTEM.</span>
+        <div className="osf-line osf-line--one-system">
+          <div className="osf-expand-pin-target">
+            <span className="osf-word osf-word--one-system">ONE SYSTEM.</span>
+            <div className="osf-expand-anchor">
+              <div className="osf-expand-plate" />
+            </div>
+          </div>
         </div>
       </div>
     </div>

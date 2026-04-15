@@ -1,9 +1,11 @@
 import { HeroSection } from "./components/landing/HeroSection"
+import { IntroSection } from "./components/landing/IntroSection"
 import { OneSystemFlow } from "./components/landing/one-system-flow/OneSystemFlow"
 
 export function App() {
   return (
     <div className="min-h-svh bg-background text-foreground">
+      <IntroSection />
       <HeroSection />
 
       <section className="border-t border-border">

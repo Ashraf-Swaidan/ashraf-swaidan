@@ -8,42 +8,103 @@ import { AnimatedWord } from "@/components/landing/AnimatedWord"
 import {
   HERO_MARQUEE_COLOR_CYCLE,
   HERO_MARQUEE_SEGMENTS,
-  HERO_ROW_WASHES,
   type HeroLoudImportance,
+  type HeroSoftImportance,
 } from "@/components/landing/hero-marquee-data"
 import { COL } from "@/components/landing/one-system-flow/colors"
 import { cn } from "@/lib/utils"
 
 gsap.registerPlugin(useGSAP, ScrollTrigger)
 
+// Swap this value while testing different background typefaces.
+// Keep marquee text size constant across breakpoints.
+const HERO_MARQUEE_FONT_SIZE = "12.5rem"
+const HERO_VIBRANT_ORANGE = "#ff7a00"
+const HERO_LEBANESE_COLOR = "#84cc16"
+const HERO_PRIMARY_COLOR_CYCLE = [
+  COL.ink,
+  HERO_VIBRANT_ORANGE,
+  COL.lavender,
+  COL.plum,
+  "#ff4fa3",
+] as const
+const HERO_SECONDARY_COLOR_CYCLE = [
+  "#7c3aed",
+  "#c026d3",
+  COL.plum,
+] as const
+const HERO_MARQUEE_LOUD_FONTS = [
+  '"Druk Cond Super", "Anton", var(--font-hero-intro), sans-serif',
+  "var(--font-hero-intro)",
+  "var(--font-hero-quote)",
+  "var(--font-hero-greeting)",
+  '"Druk Cond Super", "Anton", var(--font-hero-intro), sans-serif',
+]
+const HERO_MARQUEE_SOFT_FONTS = [
+  "var(--font-hero-quote)",
+  '"Druk Cond Super", "Anton", var(--font-hero-intro), sans-serif',
+  "var(--font-hero-intro)",
+  '"Druk Cond Super", "Anton", var(--font-hero-intro), sans-serif',
+  "var(--font-hero-greeting)",
+]
+const HERO_MARQUEE_SEPARATOR_FONTS = [
+  "var(--font-hero-intro)",
+  '"Druk Cond Super", "Anton", var(--font-hero-intro), sans-serif',
+  "var(--font-hero-quote)",
+]
+const HERO_BUILDER_FONT = '"Druk Cond Super", "Anton", var(--font-hero-intro), sans-serif'
+const HERO_FIGURING_FONT = "var(--font-hero-greeting)"
+const HERO_SHOW_FOREGROUND = false
+
+function getMarqueeFontFamily(fonts: string[], idx: number) {
+  return fonts[idx % fonts.length]
+}
+
 function MarqueeWords({ reduceMotion }: { reduceMotion: boolean }) {
   let loudSoftIdx = 0
   let sepIdx = 0
+  let primaryIdx = 0
+  let secondaryIdx = 0
 
   return (
     <>
       {HERO_MARQUEE_SEGMENTS.map((seg, i) => {
         if (seg.t === "l") {
-          const c =
-            HERO_MARQUEE_COLOR_CYCLE[
-              loudSoftIdx % HERO_MARQUEE_COLOR_CYCLE.length
-            ]
-          loudSoftIdx++
           const importance: HeroLoudImportance = seg.importance ?? "secondary"
-          const fontSize = importance === "primary" ? "1.15em" : "1em"
+          const isPrimary = importance === "primary"
+          const c = isPrimary
+            ? HERO_PRIMARY_COLOR_CYCLE[primaryIdx++ % HERO_PRIMARY_COLOR_CYCLE.length]
+            : HERO_SECONDARY_COLOR_CYCLE[secondaryIdx++ % HERO_SECONDARY_COLOR_CYCLE.length]
+          const wordColor = seg.text.toLowerCase() === "lebanese" ? HERO_LEBANESE_COLOR : c
+          loudSoftIdx++
+          const fontFamily =
+            seg.text.toLowerCase() === "builder"
+              ? HERO_BUILDER_FONT
+              : seg.text.toLowerCase() === "figuring"
+                ? HERO_FIGURING_FONT
+              : getMarqueeFontFamily(HERO_MARQUEE_LOUD_FONTS, loudSoftIdx - 1)
+          const baseFontSize = isPrimary ? 1.15 : 0.78
+          const fontSize = `${baseFontSize}em`
           const loudClass =
-            "inline-block font-black uppercase tracking-[-0.04em]"
+            isPrimary
+              ? "inline-block font-black uppercase tracking-[0.02em]"
+              : "inline-block font-semibold lowercase tracking-[0.008em] opacity-90"
+          const isDeveloperWord = seg.text.toLowerCase() === "developer"
 
           if (seg.theme) {
             return (
               <AnimatedWord
                 key={i}
                 text={seg.text}
-                color={c}
+                color={wordColor}
                 theme={seg.theme}
                 reduceMotion={reduceMotion}
-                className={loudClass}
-                style={{ fontSize }}
+                className={cn(loudClass, isDeveloperWord && "tracking-[0.002em]")}
+                style={{
+                  fontFamily,
+                  fontSize,
+                  ...(isDeveloperWord ? { marginRight: "-0.03em" } : {}),
+                }}
               />
             )
           }
@@ -51,24 +112,36 @@ function MarqueeWords({ reduceMotion }: { reduceMotion: boolean }) {
           return (
             <span
               key={i}
-              className={loudClass}
-              style={{ color: c, fontSize }}
+              className={cn(loudClass, isDeveloperWord && "tracking-[0.002em]")}
+              style={{
+                color: wordColor,
+                fontFamily,
+                fontSize,
+                ...(isDeveloperWord ? { marginRight: "-0.03em" } : {}),
+              }}
             >
               {seg.text}
             </span>
           )
         }
         if (seg.t === "s") {
+          const importance: HeroSoftImportance = seg.importance ?? "normal"
+          const isLow = importance === "low"
           const c =
-            HERO_MARQUEE_COLOR_CYCLE[
-              loudSoftIdx % HERO_MARQUEE_COLOR_CYCLE.length
+            HERO_SECONDARY_COLOR_CYCLE[
+              loudSoftIdx % HERO_SECONDARY_COLOR_CYCLE.length
             ]
           loudSoftIdx++
+          const fontFamily = getMarqueeFontFamily(HERO_MARQUEE_SOFT_FONTS, loudSoftIdx - 1)
+          const fontSize = isLow ? "0.62em" : "0.72em"
           return (
             <span
               key={i}
-              className="px-[0.12em] font-medium normal-case tracking-tight"
-              style={{ color: c, opacity: 0.98, fontSize: "0.85em" }}
+              className={cn(
+                "px-[0.12em] normal-case tracking-[0.01em]",
+                isLow ? "font-normal" : "font-medium",
+              )}
+              style={{ color: c, opacity: isLow ? 0.62 : 0.98, fontFamily, fontSize }}
             >
               {seg.text}
             </span>
@@ -78,11 +151,13 @@ function MarqueeWords({ reduceMotion }: { reduceMotion: boolean }) {
           const c =
             HERO_MARQUEE_COLOR_CYCLE[sepIdx % HERO_MARQUEE_COLOR_CYCLE.length]
           sepIdx++
+          const fontFamily = getMarqueeFontFamily(HERO_MARQUEE_SEPARATOR_FONTS, sepIdx - 1)
+          const fontSize = "0.72em"
           return (
             <span
               key={i}
               className="px-[0.2em] font-light"
-              style={{ color: c, opacity: 0.9 }}
+              style={{ color: c, opacity: 0.9, fontFamily, fontSize }}
             >
               ·
             </span>
@@ -97,6 +172,7 @@ function MarqueeWords({ reduceMotion }: { reduceMotion: boolean }) {
 type MarqueeRowProps = {
   direction: "left" | "right"
   duration: number
+  phaseOffset?: number
   className?: string
   reduceMotion: boolean
   tweenRef: MutableRefObject<(gsap.core.Tween | null)[]>
@@ -107,6 +183,7 @@ type MarqueeRowProps = {
 function MarqueeRow({
   direction,
   duration,
+  phaseOffset = 0,
   className,
   reduceMotion,
   tweenRef,
@@ -158,6 +235,7 @@ function MarqueeRow({
             repeat: -1,
           })
         }
+        tween.totalProgress(gsap.utils.wrap(0, 1, phaseOffset))
         list[tweenIndex] = tween
       }
 
@@ -175,7 +253,7 @@ function MarqueeRow({
     },
     {
       scope: rootRef,
-      dependencies: [direction, duration, reduceMotion, tweenIndex],
+      dependencies: [direction, duration, phaseOffset, reduceMotion, tweenIndex],
       revertOnUpdate: true,
     },
   )
@@ -192,7 +270,10 @@ function MarqueeRow({
     >
       <div
         ref={trackRef}
-        className="flex w-max whitespace-nowrap will-change-transform font-sans max-md:text-[clamp(3.25rem,19vw,7.5rem)] md:text-[clamp(4.5rem,17vw,11.5rem)] lg:text-[clamp(5rem,16vw,12.5rem)]"
+        className="flex w-max whitespace-nowrap will-change-transform"
+        style={{
+          fontSize: HERO_MARQUEE_FONT_SIZE,
+        }}
       >
         <span
           data-marquee-segment
@@ -265,9 +346,9 @@ export function HeroSection() {
   )
 
   const rowConfigs = [
-    { direction: "left" as const, duration: 85, tweenIndex: 0 },
-    { direction: "right" as const, duration: 115, tweenIndex: 1 },
-    { direction: "left" as const, duration: 145, tweenIndex: 2 },
+    { direction: "left" as const, duration: 85, tweenIndex: 0, phaseOffset: 0 },
+    { direction: "right" as const, duration: 115, tweenIndex: 1, phaseOffset: 0.36 },
+    { direction: "left" as const, duration: 145, tweenIndex: 2, phaseOffset: 0.68 },
   ]
 
   return (
@@ -282,17 +363,16 @@ export function HeroSection() {
         aria-hidden
       >
         <div className="flex h-full flex-col items-stretch justify-center gap-1 py-8 md:gap-1.5 md:py-12">
-          {rowConfigs.map((row, idx) => (
+          {rowConfigs.map((row) => (
             <div key={row.tweenIndex} className="relative shrink-0">
               <div
                 className="pointer-events-none absolute inset-0 z-0"
-                style={{
-                  background: `linear-gradient(90deg, ${HERO_ROW_WASHES[idx]} 0%, transparent 62%)`,
-                }}
+                style={{ background: "transparent" }}
               />
               <MarqueeRow
                 direction={row.direction}
                 duration={row.duration}
+                phaseOffset={row.phaseOffset}
                 className="shrink-0"
                 reduceMotion={reduceMotion}
                 tweenRef={marqueeTweensRef}
@@ -305,86 +385,53 @@ export function HeroSection() {
         </div>
       </div>
 
-      <motion.div
-        className="relative z-10 flex min-h-svh items-center justify-center px-5 sm:px-8"
-        initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={
-          reduceMotion
-            ? { duration: 0 }
-            : { duration: 0.6, ease: [0.22, 1, 0.36, 1] }
-        }
-      >
-        <div
-          className="w-full max-w-md rounded-[1.35rem] border border-[var(--color-hero-glass-border)] bg-[var(--color-hero-glass)] px-6 py-4 shadow-[0_20px_60px_-12px_rgb(0_0_0_/_14%)] backdrop-blur-2xl backdrop-saturate-200 sm:max-w-lg sm:rounded-[1.5rem] sm:px-7 sm:py-5"
+      {HERO_SHOW_FOREGROUND ? (
+        <motion.div
+          className="relative z-10 flex min-h-svh items-center justify-center px-5 sm:px-8"
+          initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={
+            reduceMotion
+              ? { duration: 0 }
+              : { duration: 0.6, ease: [0.22, 1, 0.36, 1] }
+          }
         >
-          <div className="text-left">
-            <p
-              className="max-w-[28ch] text-pretty text-[clamp(0.98rem,2.55vw,1.08rem)] font-normal leading-[1.55] tracking-[0.01em] text-[var(--color-hero-ink)]/86"
-              style={{ fontFamily: "var(--font-hero-quote)" }}
-            >
-              There is a lot we can do through screens.
-            </p>
-            <p
-              className="mt-2 max-w-[26ch] text-pretty text-[clamp(1.14rem,3.1vw,1.38rem)] font-medium leading-[1.38] tracking-[-0.03em] text-[var(--color-hero-ink)]"
-              style={{ fontFamily: "var(--font-hero-quote)", fontOpticalSizing: "auto" }}
-            >
-              It seems there&apos;s{" "}
-              <span style={{ color: COL.brown }}>never enough</span> of it.
-            </p>
-          </div>
+          <div
+            className="w-full max-w-md rounded-[1.35rem] border border-[var(--color-hero-glass-border)] bg-[var(--color-hero-glass)] px-6 py-4 shadow-[0_20px_60px_-12px_rgb(0_0_0_/_14%)] backdrop-blur-2xl backdrop-saturate-200 sm:max-w-lg sm:rounded-[1.5rem] sm:px-7 sm:py-5"
+          >
+            <div className="text-left">
+              <p
+                className="max-w-[28ch] text-pretty text-[clamp(0.98rem,2.55vw,1.08rem)] font-normal leading-[1.55] tracking-[0.01em] text-[var(--color-hero-ink)]/86"
+                style={{ fontFamily: "var(--font-hero-quote)" }}
+              >
+                There is a lot we can do through screens.
+              </p>
+              <p
+                className="mt-2 max-w-[26ch] text-pretty text-[clamp(1.14rem,3.1vw,1.38rem)] font-medium leading-[1.38] tracking-[-0.03em] text-[var(--color-hero-ink)]"
+                style={{ fontFamily: "var(--font-hero-quote)", fontOpticalSizing: "auto" }}
+              >
+                It seems there&apos;s{" "}
+                <span style={{ color: COL.brown }}>never enough</span> of it.
+              </p>
+            </div>
 
-          <div className="mt-4 text-left">
-            <p
-              className="text-[clamp(1.75rem,4.2vw,2.2rem)] font-semibold leading-tight text-[var(--color-hero-ink)]"
-              style={{ fontFamily: "var(--font-hero-greeting)" }}
-            >
-              Hey there
-            </p>
-            <p
-              className="mt-1.5 text-[clamp(1rem,2.5vw,1.125rem)] font-normal leading-snug tracking-normal text-[var(--color-hero-ink)]/92"
-              style={{ fontFamily: "var(--font-hero-intro)" }}
-            >
-              I am Ashraf Swaidan, I do a lot of stuff.
-            </p>
+            <div className="mt-4 text-left">
+              <p
+                className="text-[clamp(1.75rem,4.2vw,2.2rem)] font-semibold leading-tight text-[var(--color-hero-ink)]"
+                style={{ fontFamily: "var(--font-hero-greeting)" }}
+              >
+                Hey there
+              </p>
+              <p
+                className="mt-1.5 text-[clamp(1rem,2.5vw,1.125rem)] font-normal leading-snug tracking-normal text-[var(--color-hero-ink)]/92"
+                style={{ fontFamily: "var(--font-hero-intro)" }}
+              >
+                I am Ashraf Swaidan, I do a lot of stuff.
+              </p>
+            </div>
           </div>
-        </div>
-      </motion.div>
-
-      <motion.div
-        className="pointer-events-none absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-2"
-        initial={false}
-        animate={{
-          opacity: hasScrolled ? 0 : 1,
-          y: hasScrolled ? 6 : 0,
-        }}
-        transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
-        aria-hidden
-      >
-        <div className="flex flex-col items-center gap-1.5">
-          <span className="h-7 w-px origin-top bg-black/20" />
-          <motion.span
-            className="block h-2 w-2 rotate-45 border-r border-b border-black/30"
-            animate={
-              reduceMotion
-                ? undefined
-                : {
-                    y: [0, 5, 0],
-                    opacity: [0.35, 0.85, 0.35],
-                  }
-            }
-            transition={
-              reduceMotion
-                ? undefined
-                : {
-                    duration: 2.4,
-                    repeat: Number.POSITIVE_INFINITY,
-                    ease: "easeInOut",
-                  }
-            }
-          />
-        </div>
-      </motion.div>
+        </motion.div>
+      ) : null}
     </section>
   )
 }

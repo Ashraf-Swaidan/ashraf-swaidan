@@ -26,10 +26,11 @@ export type HeroMarqueeTheme =
 
 /** Size emphasis for loud words: primary slightly larger, secondary baseline. */
 export type HeroLoudImportance = "primary" | "secondary"
+export type HeroSoftImportance = "normal" | "low"
 
 export type HeroMarqueeSeg =
   | { t: "l"; text: string; importance?: HeroLoudImportance; theme?: HeroMarqueeTheme }
-  | { t: "s"; text: string }
+  | { t: "s"; text: string; importance?: HeroSoftImportance }
   | { t: "sep" }
   | { t: "sp" }
 
@@ -40,7 +41,7 @@ export const HERO_MARQUEE_SEGMENTS: HeroMarqueeSeg[] = [
   { t: "sep" },
   { t: "s", text: "sometime" },
   { t: "sp" },
-  { t: "l", text: "Animator", importance: "primary", theme: "animator" },
+  { t: "l", text: "Animator", importance: "secondary", theme: "animator" },
   { t: "sep" },
   { t: "l", text: "Accidental", importance: "secondary" },
   { t: "sp" },
@@ -56,7 +57,7 @@ export const HERO_MARQUEE_SEGMENTS: HeroMarqueeSeg[] = [
   { t: "sep" },
   { t: "l", text: "Occasional", importance: "secondary" },
   { t: "sp" },
-  { t: "l", text: "Blender", importance: "primary", theme: "blender" },
+  { t: "l", text: "Blender", importance: "secondary", theme: "blender" },
   { t: "sp" },
   { t: "l", text: "Hobbyist", importance: "secondary" },
   { t: "sep" },
@@ -72,9 +73,7 @@ export const HERO_MARQUEE_SEGMENTS: HeroMarqueeSeg[] = [
   { t: "sp" },
   { t: "s", text: "finder" },
   { t: "sep" },
-  { t: "l", text: "Lebanese", importance: "primary", theme: "lebanese" },
-  { t: "sep" },
-  { t: "s", text: "introvert" },
+  { t: "l", text: "Lebanese", importance: "primary" },
   { t: "sep" },
   { t: "s", text: "still" },
   { t: "sp" },

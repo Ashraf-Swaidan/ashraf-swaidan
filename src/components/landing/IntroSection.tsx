@@ -1,17 +1,12 @@
 import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useGSAP } from "@gsap/react"
 import { useReducedMotion } from "motion/react"
-import {
-  useEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-  type KeyboardEvent as ReactKeyboardEvent,
-} from "react"
+import { useRef, type CSSProperties } from "react"
 
 import { cn } from "@/lib/utils"
 
-gsap.registerPlugin(useGSAP)
+gsap.registerPlugin(useGSAP, ScrollTrigger)
 
 export type IntroCardTransform = {
   x: number
@@ -20,9 +15,8 @@ export type IntroCardTransform = {
   rotateY: number
   rotateX: number
   scale: number
+  autoAlpha: number
 }
-
-type IntroCardKind = "media" | "work" | "design" | "quote" | "stat"
 
 type IntroCardSurface = {
   skewX: number
@@ -34,49 +28,60 @@ type IntroCardSurface = {
   radiusClassName?: string
 }
 
-type IntroCardInteraction = {
-  radius: number
-  scatterX: number
-  scatterY: number
-  liftZ: number
-  scaleBoost: number
-  followX: number
-  followY: number
-  rotateX: number
-  rotateY: number
-}
-
 type IntroCardDef = {
   id: string
-  kind: IntroCardKind
   className: string
-  origin: IntroCardTransform
-  layout: IntroCardTransform
+  stacked: IntroCardTransform
+  skewed: IntroCardTransform
+  collapse: IntroCardTransform
   surface: IntroCardSurface
-  interaction: IntroCardInteraction
   panelClass?: string
-  badgeClassName?: string
-  publishChip?: boolean
 }
 
-type IntroControlDef = {
-  id: string
-  label: string
-  ariaLabel: string
-  className: string
-  outerClassName: string
-  innerClassName: string
-  contentClassName?: string
-  transform: string
-}
+const INTRO_QUOTE = "YOU CAN JUST DO THINGS"
+const INTRO_PIN_DISTANCE_FACTOR = 3.2
+const INTRO_CARET_HEIGHT_RATIO = 1
+const INTRO_FIELD_SCALE = 1.2
+const INTRO_FIELD_SCALE_MOBILE = 1.02
+
+const INTRO_STAGE_DURATIONS = {
+  stacked: 18,
+  skewed: 30,
+  collapse: 26,
+  typing: 26,
+} as const
 
 const INTRO_CARDS: IntroCardDef[] = [
   {
     id: "left-screen",
-    kind: "media",
     className: "w-[8rem] sm:w-[10rem] aspect-[4/5]",
-    origin: { x: 0, y: 0, z: -36, rotateY: 0, rotateX: 0, scale: 0.72 },
-    layout: { x: -304, y: -74, z: -124, rotateY: -34, rotateX: 4, scale: 0.82 },
+    stacked: {
+      x: -112,
+      y: -36,
+      z: -54,
+      rotateY: -18,
+      rotateX: 6,
+      scale: 0.78,
+      autoAlpha: 1,
+    },
+    skewed: {
+      x: -304,
+      y: -74,
+      z: -124,
+      rotateY: -34,
+      rotateX: 4,
+      scale: 0.82,
+      autoAlpha: 1,
+    },
+    collapse: {
+      x: 0,
+      y: -112,
+      z: 16,
+      rotateY: 0,
+      rotateX: 0,
+      scale: 0.38,
+      autoAlpha: 0.18,
+    },
     surface: {
       skewX: -5.8,
       skewY: 1.1,
@@ -86,27 +91,39 @@ const INTRO_CARDS: IntroCardDef[] = [
       origin: "82% 45%",
       radiusClassName: "rounded-[1.55rem]",
     },
-    interaction: {
-      radius: 164,
-      scatterX: 13,
-      scatterY: 11,
-      liftZ: 18,
-      scaleBoost: 0.008,
-      followX: 2.2,
-      followY: 1.8,
-      rotateX: 1.4,
-      rotateY: 1.8,
-    },
     panelClass:
       "bg-[radial-gradient(ellipse_at_18%_65%,rgb(143_167_255_/_0.3),transparent_58%),radial-gradient(ellipse_at_72%_36%,rgb(146_230_205_/_0.22),transparent_62%),linear-gradient(180deg,rgb(23_24_34)_0%,rgb(15_16_24)_100%)]",
-    badgeClassName: "right-2.5 top-2",
   },
   {
     id: "bunny-top",
-    kind: "media",
     className: "w-[10.4rem] sm:w-[12.8rem] aspect-[5/4]",
-    origin: { x: 0, y: 0, z: -24, rotateY: 0, rotateX: 0, scale: 0.72 },
-    layout: { x: -54, y: -146, z: 38, rotateY: -8, rotateX: 8, scale: 1.01 },
+    stacked: {
+      x: -34,
+      y: -118,
+      z: 46,
+      rotateY: -4,
+      rotateX: 9,
+      scale: 0.96,
+      autoAlpha: 1,
+    },
+    skewed: {
+      x: -54,
+      y: -146,
+      z: 38,
+      rotateY: -8,
+      rotateX: 8,
+      scale: 1.01,
+      autoAlpha: 1,
+    },
+    collapse: {
+      x: 0,
+      y: -80,
+      z: 12,
+      rotateY: 0,
+      rotateX: 0,
+      scale: 0.46,
+      autoAlpha: 0.24,
+    },
     surface: {
       skewX: -3.2,
       skewY: -1.7,
@@ -116,27 +133,39 @@ const INTRO_CARDS: IntroCardDef[] = [
       origin: "86% 22%",
       radiusClassName: "rounded-[1.8rem]",
     },
-    interaction: {
-      radius: 172,
-      scatterX: 12,
-      scatterY: 11,
-      liftZ: 20,
-      scaleBoost: 0.009,
-      followX: 2.2,
-      followY: 1.8,
-      rotateX: 1.3,
-      rotateY: 1.5,
-    },
     panelClass:
       "bg-[linear-gradient(180deg,rgb(245_241_239)_0%,rgb(237_231_228)_100%)]",
-    badgeClassName: "right-3 top-2.5",
   },
   {
     id: "earth-top-right",
-    kind: "media",
     className: "w-[8.7rem] sm:w-[10.8rem] aspect-[4/3]",
-    origin: { x: 0, y: 0, z: -18, rotateY: 0, rotateX: 0, scale: 0.72 },
-    layout: { x: 176, y: -148, z: 12, rotateY: 17, rotateX: 7, scale: 0.93 },
+    stacked: {
+      x: 96,
+      y: -92,
+      z: 18,
+      rotateY: 12,
+      rotateX: 8,
+      scale: 0.84,
+      autoAlpha: 1,
+    },
+    skewed: {
+      x: 176,
+      y: -148,
+      z: 12,
+      rotateY: 17,
+      rotateX: 7,
+      scale: 0.93,
+      autoAlpha: 1,
+    },
+    collapse: {
+      x: 0,
+      y: -46,
+      z: 9,
+      rotateY: 0,
+      rotateX: 0,
+      scale: 0.34,
+      autoAlpha: 0.16,
+    },
     surface: {
       skewX: 4.9,
       skewY: -1.2,
@@ -146,27 +175,39 @@ const INTRO_CARDS: IntroCardDef[] = [
       origin: "18% 40%",
       radiusClassName: "rounded-[1.7rem]",
     },
-    interaction: {
-      radius: 160,
-      scatterX: 12,
-      scatterY: 10,
-      liftZ: 18,
-      scaleBoost: 0.008,
-      followX: 2,
-      followY: 1.8,
-      rotateX: 1.2,
-      rotateY: 1.8,
-    },
     panelClass:
       "bg-[radial-gradient(circle_at_40%_35%,rgb(208_194_255_/_0.52),transparent_48%),radial-gradient(circle_at_56%_62%,rgb(81_119_189_/_0.4),transparent_66%),linear-gradient(180deg,rgb(28_19_39)_0%,rgb(20_16_30)_100%)]",
-    badgeClassName: "right-3 top-2.5",
   },
   {
     id: "publish-tree",
-    kind: "media",
     className: "w-[10.8rem] sm:w-[13rem] aspect-[16/10]",
-    origin: { x: 0, y: 0, z: -8, rotateY: 0, rotateX: 0, scale: 0.72 },
-    layout: { x: 88, y: -58, z: 92, rotateY: 7, rotateX: 2, scale: 1.01 },
+    stacked: {
+      x: 36,
+      y: -10,
+      z: 80,
+      rotateY: 7,
+      rotateX: 3,
+      scale: 0.93,
+      autoAlpha: 1,
+    },
+    skewed: {
+      x: 88,
+      y: -58,
+      z: 92,
+      rotateY: 7,
+      rotateX: 2,
+      scale: 1.01,
+      autoAlpha: 1,
+    },
+    collapse: {
+      x: 0,
+      y: -12,
+      z: 6,
+      rotateY: 0,
+      rotateX: 0,
+      scale: 0.42,
+      autoAlpha: 0.22,
+    },
     surface: {
       skewX: 3.4,
       skewY: -1.1,
@@ -176,28 +217,39 @@ const INTRO_CARDS: IntroCardDef[] = [
       origin: "14% 42%",
       radiusClassName: "rounded-[1.8rem]",
     },
-    interaction: {
-      radius: 170,
-      scatterX: 13,
-      scatterY: 11,
-      liftZ: 24,
-      scaleBoost: 0.01,
-      followX: 2.2,
-      followY: 2,
-      rotateX: 1.2,
-      rotateY: 1.6,
-    },
     panelClass:
       "bg-[radial-gradient(ellipse_at_52%_48%,rgb(254_202_141_/_0.95),transparent_32%),linear-gradient(180deg,rgb(244_237_229)_0%,rgb(238_228_216)_100%)]",
-    badgeClassName: "right-3 top-2.5",
-    publishChip: true,
   },
   {
     id: "right-slab",
-    kind: "media",
     className: "w-[3.6rem] sm:w-[4.4rem] aspect-[9/26]",
-    origin: { x: 0, y: 0, z: -2, rotateY: 0, rotateX: 0, scale: 0.72 },
-    layout: { x: 302, y: -30, z: -92, rotateY: 29, rotateX: 2, scale: 0.82 },
+    stacked: {
+      x: 130,
+      y: 6,
+      z: -60,
+      rotateY: 18,
+      rotateX: 1,
+      scale: 0.72,
+      autoAlpha: 1,
+    },
+    skewed: {
+      x: 302,
+      y: -30,
+      z: -92,
+      rotateY: 29,
+      rotateX: 2,
+      scale: 0.82,
+      autoAlpha: 1,
+    },
+    collapse: {
+      x: 0,
+      y: 22,
+      z: 4,
+      rotateY: 0,
+      rotateX: 0,
+      scale: 0.3,
+      autoAlpha: 0.14,
+    },
     surface: {
       skewX: 4.1,
       skewY: 0,
@@ -207,27 +259,39 @@ const INTRO_CARDS: IntroCardDef[] = [
       origin: "16% 50%",
       radiusClassName: "rounded-[1.45rem]",
     },
-    interaction: {
-      radius: 138,
-      scatterX: 8,
-      scatterY: 9,
-      liftZ: 14,
-      scaleBoost: 0.006,
-      followX: 1.6,
-      followY: 1.8,
-      rotateX: 1.2,
-      rotateY: 1.5,
-    },
     panelClass:
       "bg-[linear-gradient(180deg,rgb(39_42_56)_0%,rgb(17_18_28)_100%)] before:absolute before:inset-y-[18%] before:left-[42%] before:w-[15%] before:rounded-full before:bg-gradient-to-b before:from-white/45 before:to-transparent",
-    badgeClassName: "right-1.5 top-1.5",
   },
   {
     id: "balloons-left-bottom",
-    kind: "media",
     className: "w-[10.2rem] sm:w-[12.5rem] aspect-[11/12]",
-    origin: { x: 0, y: 0, z: 8, rotateY: 0, rotateX: 0, scale: 0.72 },
-    layout: { x: -206, y: 90, z: 42, rotateY: -21, rotateX: -6, scale: 1.01 },
+    stacked: {
+      x: -102,
+      y: 82,
+      z: 18,
+      rotateY: -16,
+      rotateX: -4,
+      scale: 0.88,
+      autoAlpha: 1,
+    },
+    skewed: {
+      x: -206,
+      y: 90,
+      z: 42,
+      rotateY: -21,
+      rotateX: -6,
+      scale: 1.01,
+      autoAlpha: 1,
+    },
+    collapse: {
+      x: 0,
+      y: 54,
+      z: 2,
+      rotateY: 0,
+      rotateX: 0,
+      scale: 0.45,
+      autoAlpha: 0.2,
+    },
     surface: {
       skewX: -4.3,
       skewY: 1.4,
@@ -237,27 +301,39 @@ const INTRO_CARDS: IntroCardDef[] = [
       origin: "82% 30%",
       radiusClassName: "rounded-[1.75rem]",
     },
-    interaction: {
-      radius: 178,
-      scatterX: 14,
-      scatterY: 13,
-      liftZ: 22,
-      scaleBoost: 0.01,
-      followX: 2.4,
-      followY: 2,
-      rotateX: 1.4,
-      rotateY: 1.8,
-    },
     panelClass:
       "bg-[radial-gradient(circle_at_24%_34%,rgb(255_255_255)_0%,rgb(245_245_245)_16%,transparent_20%),radial-gradient(circle_at_46%_28%,rgb(255_123_123)_0%,rgb(255_123_123)_15%,transparent_18%),radial-gradient(circle_at_62%_52%,rgb(255_255_255)_0%,rgb(244_244_244)_16%,transparent_20%),radial-gradient(circle_at_74%_26%,rgb(250_166_166)_0%,rgb(250_166_166)_13%,transparent_16%),linear-gradient(180deg,rgb(246_243_242)_0%,rgb(239_233_230)_100%)]",
-    badgeClassName: "left-3 top-3",
   },
   {
     id: "nebula-center-bottom",
-    kind: "media",
     className: "w-[9rem] sm:w-[11.2rem] aspect-[11/12]",
-    origin: { x: 0, y: 0, z: 16, rotateY: 0, rotateX: 0, scale: 0.72 },
-    layout: { x: 4, y: 106, z: 68, rotateY: -3, rotateX: -5, scale: 1.01 },
+    stacked: {
+      x: -2,
+      y: 106,
+      z: 58,
+      rotateY: -2,
+      rotateX: -4,
+      scale: 0.9,
+      autoAlpha: 1,
+    },
+    skewed: {
+      x: 4,
+      y: 106,
+      z: 68,
+      rotateY: -3,
+      rotateX: -5,
+      scale: 1.01,
+      autoAlpha: 1,
+    },
+    collapse: {
+      x: 0,
+      y: 90,
+      z: 1,
+      rotateY: 0,
+      rotateX: 0,
+      scale: 0.4,
+      autoAlpha: 0.18,
+    },
     surface: {
       skewX: -2,
       skewY: 0.9,
@@ -267,27 +343,39 @@ const INTRO_CARDS: IntroCardDef[] = [
       origin: "54% 42%",
       radiusClassName: "rounded-[1.8rem]",
     },
-    interaction: {
-      radius: 170,
-      scatterX: 13,
-      scatterY: 12,
-      liftZ: 24,
-      scaleBoost: 0.01,
-      followX: 2.2,
-      followY: 2.1,
-      rotateX: 1.3,
-      rotateY: 1.3,
-    },
     panelClass:
       "bg-[radial-gradient(circle_at_50%_50%,rgb(255_220_240_/_0.78)_0%,rgb(227_179_206_/_0.4)_22%,transparent_48%),radial-gradient(circle_at_44%_48%,rgb(255_255_255_/_0.42)_0%,transparent_40%),linear-gradient(180deg,rgb(23_15_31)_0%,rgb(15_11_23)_100%)]",
-    badgeClassName: "left-1/2 top-3 -translate-x-1/2",
   },
   {
     id: "dna-right-bottom",
-    kind: "media",
     className: "w-[4.95rem] sm:w-[6.15rem] aspect-[11/26]",
-    origin: { x: 0, y: 0, z: 24, rotateY: 0, rotateX: 0, scale: 0.72 },
-    layout: { x: 216, y: 114, z: 34, rotateY: 16, rotateX: -4, scale: 0.95 },
+    stacked: {
+      x: 94,
+      y: 92,
+      z: -4,
+      rotateY: 10,
+      rotateX: -3,
+      scale: 0.8,
+      autoAlpha: 1,
+    },
+    skewed: {
+      x: 216,
+      y: 114,
+      z: 34,
+      rotateY: 16,
+      rotateX: -4,
+      scale: 0.95,
+      autoAlpha: 1,
+    },
+    collapse: {
+      x: 0,
+      y: 126,
+      z: 0,
+      rotateY: 0,
+      rotateX: 0,
+      scale: 0.34,
+      autoAlpha: 0.15,
+    },
     surface: {
       skewX: -7.2,
       skewY: 0.5,
@@ -297,122 +385,10 @@ const INTRO_CARDS: IntroCardDef[] = [
       origin: "100% 50%",
       radiusClassName: "rounded-[1.5rem]",
     },
-    interaction: {
-      radius: 146,
-      scatterX: 10,
-      scatterY: 10,
-      liftZ: 16,
-      scaleBoost: 0.007,
-      followX: 1.8,
-      followY: 1.8,
-      rotateX: 1.2,
-      rotateY: 1.6,
-    },
     panelClass:
       "bg-[repeating-linear-gradient(158deg,rgb(117_234_255)_0_7%,rgb(250_132_186)_7%_14%,rgb(255_227_132)_14%_21%,rgb(132_143_255)_21%_28%)]",
-    badgeClassName: "left-2 top-2",
   },
 ]
-
-const INTRO_CONTROLS: IntroControlDef[] = [
-  {
-    id: "share",
-    label: "Share",
-    ariaLabel: "Share project",
-    className: "left-[7%] top-[42%]",
-    outerClassName:
-      "rounded-full bg-[#183771]/95 px-[0.22rem] py-[0.18rem] shadow-[0_18px_44px_-26px_rgb(9_18_37/0.88)] ring-1 ring-[#4c6bb5]/28",
-    innerClassName:
-      "rounded-full bg-[#183771] px-4 py-2 text-[0.76rem] font-semibold tracking-[-0.03em] text-[#dae8ff] transition duration-300 group-hover:-translate-y-[1px] group-hover:bg-[#21458b]",
-    transform: "translateZ(332px) rotate(-4deg)",
-  },
-  {
-    id: "set",
-    label: "SET",
-    ariaLabel: "Selected works hub",
-    className: "left-1/2 top-[2.6%] -translate-x-1/2",
-    outerClassName:
-      "rounded-full bg-zinc-900/94 px-[0.2rem] py-[0.2rem] shadow-[0_16px_38px_-24px_rgb(0_0_0/0.92)] ring-1 ring-white/10",
-    innerClassName:
-      "rounded-full bg-zinc-900 px-4 py-3 text-[0.84rem] font-semibold tracking-[-0.04em] text-zinc-100 transition duration-300 group-hover:scale-[1.02] group-hover:bg-zinc-800",
-    transform: "translateZ(340px) rotate(1deg)",
-  },
-  {
-    id: "plus",
-    label: "+",
-    ariaLabel: "Open quick action",
-    className: "bottom-[8%] left-[11%]",
-    outerClassName:
-      "rounded-full bg-white/8 p-[0.16rem] shadow-[0_18px_36px_-24px_rgb(0_0_0/0.9)] ring-1 ring-white/12 backdrop-blur-md",
-    innerClassName:
-      "flex size-12 items-center justify-center rounded-full bg-white/10 text-xl font-semibold text-zinc-100 transition duration-300 group-hover:scale-[1.04] group-hover:bg-white/14",
-    contentClassName: "leading-none",
-    transform: "translateZ(346px) rotate(-6deg)",
-  },
-  {
-    id: "open",
-    label: "Open",
-    ariaLabel: "Open selected work",
-    className: "bottom-[13.5%] left-1/2 -translate-x-1/2",
-    outerClassName:
-      "rounded-full bg-white/10 px-[0.2rem] py-[0.2rem] shadow-[0_18px_40px_-24px_rgb(0_0_0/0.92)] ring-1 ring-white/14 backdrop-blur-md",
-    innerClassName:
-      "rounded-full bg-zinc-900/92 px-6 py-2.5 text-[0.84rem] font-semibold tracking-[-0.03em] text-white transition duration-300 group-hover:-translate-y-[1px] group-hover:bg-zinc-800",
-    transform: "translateZ(348px) rotate(-2deg)",
-  },
-  {
-    id: "explore",
-    label: "Explore",
-    ariaLabel: "Explore more work",
-    className: "bottom-[7.5%] right-[9%]",
-    outerClassName:
-      "rounded-full bg-white/9 px-[0.2rem] py-[0.2rem] shadow-[0_18px_40px_-24px_rgb(0_0_0/0.92)] ring-1 ring-white/14 backdrop-blur-md",
-    innerClassName:
-      "rounded-full bg-zinc-900/94 px-5 py-2.5 text-[0.82rem] font-semibold tracking-[-0.03em] text-zinc-100 transition duration-300 group-hover:-translate-y-[1px] group-hover:bg-zinc-800",
-    transform: "translateZ(344px) rotate(2deg)",
-  },
-]
-
-function kindLabel(kind: IntroCardKind): string {
-  switch (kind) {
-    case "work":
-      return "Work"
-    case "design":
-      return "Design"
-    case "quote":
-      return "Quote"
-    case "stat":
-      return "Stat"
-    default:
-      return "Media"
-  }
-}
-
-function GlobeIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden
-    >
-      <path
-        d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-    </svg>
-  )
-}
 
 function applyCardTransform(el: HTMLElement, t: IntroCardTransform) {
   gsap.set(el, {
@@ -426,6 +402,9 @@ function applyCardTransform(el: HTMLElement, t: IntroCardTransform) {
     rotationY: t.rotateY,
     rotationX: t.rotateX,
     scale: t.scale,
+    scaleX: 1,
+    scaleY: 1,
+    autoAlpha: t.autoAlpha,
     transformOrigin: "50% 50%",
     force3D: true,
   })
@@ -451,91 +430,354 @@ function getSurfaceContentStyle(surface: IntroCardSurface): CSSProperties {
 export function IntroSection() {
   const rootRef = useRef<HTMLElement>(null)
   const fieldRef = useRef<HTMLDivElement>(null)
+  const eyebrowRef = useRef<HTMLParagraphElement>(null)
   const cardRefs = useRef<(HTMLElement | null)[]>([])
-  const controlRefs = useRef<(HTMLButtonElement | null)[]>([])
-  const scatterDoneRef = useRef(false)
-
+  const typingPanelRef = useRef<HTMLDivElement>(null)
+  const quoteRowRef = useRef<HTMLDivElement>(null)
+  const quoteTextRef = useRef<HTMLSpanElement>(null)
+  const quoteMeasureRef = useRef<HTMLSpanElement>(null)
+  const caretRef = useRef<HTMLSpanElement>(null)
   const prefersReducedMotion = useReducedMotion()
   const reduceMotion = Boolean(prefersReducedMotion)
-  const [activeId, setActiveId] = useState<string | null>(null)
-  const [hoveredId, setHoveredId] = useState<string | null>(null)
 
   useGSAP(
     () => {
+      const root = rootRef.current
       const field = fieldRef.current
+      const eyebrow = eyebrowRef.current
       const cards = cardRefs.current.filter(Boolean) as HTMLElement[]
-      const controls = controlRefs.current.filter(
-        Boolean
-      ) as HTMLButtonElement[]
+      const typingPanel = typingPanelRef.current
+      const quoteRow = quoteRowRef.current
+      const quoteText = quoteTextRef.current
+      const quoteMeasure = quoteMeasureRef.current
+      const caret = caretRef.current
 
-      if (!field || cards.length === 0) return
+      if (
+        !root ||
+        !field ||
+        !eyebrow ||
+        !typingPanel ||
+        !quoteRow ||
+        !quoteText ||
+        !quoteMeasure ||
+        !caret
+      ) {
+        return
+      }
 
-      scatterDoneRef.current = false
+      let quoteWidth = 0
+      let charWidths: number[] = []
+      let caretBlinkTween: gsap.core.Tween | null = null
+      const getFieldScale = () =>
+        window.innerWidth < 640 ? INTRO_FIELD_SCALE_MOBILE : INTRO_FIELD_SCALE
+
+      const syncQuoteMetrics = () => {
+        gsap.set(field, {
+          scale: getFieldScale(),
+          transformOrigin: "50% 50%",
+        })
+        charWidths = [0]
+        quoteMeasure.textContent = ""
+        for (let i = 1; i <= INTRO_QUOTE.length; i += 1) {
+          quoteMeasure.textContent = INTRO_QUOTE.slice(0, i)
+          charWidths[i] = quoteMeasure.scrollWidth
+        }
+        quoteMeasure.textContent = INTRO_QUOTE
+        quoteWidth = charWidths[INTRO_QUOTE.length] ?? quoteMeasure.scrollWidth
+        const quoteHeight = quoteText.getBoundingClientRect().height || 96
+        const caretHeight = Math.min(
+          Math.max(quoteHeight * 0.94, 46),
+          quoteHeight * 1.18
+        ) * INTRO_CARET_HEIGHT_RATIO
+        const caretWidth = Math.min(Math.max(quoteHeight * 0.12, 8), 20)
+        gsap.set(caret, {
+          width: caretWidth,
+          height: caretHeight,
+          borderRadius: Math.max(caretWidth / 2, 6),
+        })
+      }
 
       const ctx = gsap.context(() => {
+        syncQuoteMetrics()
+
         if (reduceMotion) {
+          gsap.set(field, {
+            scale: getFieldScale(),
+            transformOrigin: "50% 50%",
+          })
           cards.forEach((el, index) => {
             const def = INTRO_CARDS[index]
             if (!def) return
-            gsap.set(el, { autoAlpha: 1 })
-            applyCardTransform(el, def.layout)
+            applyCardTransform(el, {
+              ...def.collapse,
+              autoAlpha: 0,
+            })
           })
-          gsap.set(controls, { autoAlpha: 1, scale: 1 })
-          scatterDoneRef.current = true
+          gsap.set(eyebrow, { autoAlpha: 0 })
+          gsap.set(typingPanel, { autoAlpha: 1, scale: 1 })
+          gsap.set(quoteRow, { autoAlpha: 1 })
+          gsap.set(quoteText, { textContent: INTRO_QUOTE })
+          gsap.set(caret, {
+            autoAlpha: 1,
+            scale: 1,
+            x: quoteWidth,
+            xPercent: -50,
+            opacity: 1,
+            transformOrigin: "50% 50%",
+          })
           return
         }
 
         cards.forEach((el, index) => {
           const def = INTRO_CARDS[index]
           if (!def) return
-          gsap.set(el, { autoAlpha: 0.84 })
-          applyCardTransform(el, def.origin)
+          applyCardTransform(el, def.stacked)
         })
 
-        gsap.set(controls, { autoAlpha: 0, y: 10, scale: 0.94 })
+        gsap.set(field, {
+          rotateX: 1.4,
+          rotateZ: -0.4,
+          scale: getFieldScale(),
+          transformOrigin: "50% 50%",
+          transformStyle: "preserve-3d",
+        })
+        gsap.set(eyebrow, { autoAlpha: 1, y: 0 })
+        gsap.set(typingPanel, {
+          autoAlpha: 0,
+          scale: 1,
+          transformOrigin: "50% 50%",
+        })
+        gsap.set(quoteRow, { autoAlpha: 1 })
+          gsap.set(quoteText, { textContent: "" })
+        gsap.set(caret, {
+          autoAlpha: 0,
+          x: 0,
+          xPercent: -50,
+          scaleX: 0.42,
+          scaleY: 0.82,
+          rotate: 0,
+          opacity: 1,
+          transformOrigin: "50% 50%",
+        })
 
-        const tl = gsap.timeline({
-          defaults: { ease: "power2.out" },
-          onComplete: () => {
-            scatterDoneRef.current = true
+        caretBlinkTween = gsap.to(caret, {
+          opacity: 0.28,
+          duration: 0.55,
+          ease: "power1.inOut",
+          repeat: -1,
+          yoyo: true,
+          paused: true,
+        })
+
+        const timeline = gsap.timeline({
+          defaults: { ease: "power2.inOut" },
+          scrollTrigger: {
+            trigger: root,
+            start: "top top",
+            end: () =>
+              `+=${Math.max(window.innerHeight * INTRO_PIN_DISTANCE_FACTOR, 2200)}`,
+            pin: true,
+            scrub: 0.8,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+            onRefresh: syncQuoteMetrics,
+            onUpdate: (self) => {
+              if (!caretBlinkTween) return
+
+              if (self.progress > 0.9) {
+                if (!caretBlinkTween.isActive()) caretBlinkTween.play()
+              } else {
+                caretBlinkTween.pause(0)
+              }
+            },
           },
         })
 
-        tl.to(
+        timeline.to({}, { duration: INTRO_STAGE_DURATIONS.stacked })
+
+        timeline.to(
           cards,
           {
-            x: (index) => INTRO_CARDS[index]!.layout.x,
-            y: (index) => INTRO_CARDS[index]!.layout.y,
-            z: (index) => INTRO_CARDS[index]!.layout.z,
-            rotationY: (index) => INTRO_CARDS[index]!.layout.rotateY,
-            rotationX: (index) => INTRO_CARDS[index]!.layout.rotateX,
-            scale: (index) => INTRO_CARDS[index]!.layout.scale,
-            autoAlpha: 1,
-            duration: 1,
-            ease: "power4.out",
-            stagger: { amount: 0.32, from: "center" },
+            x: (index) => INTRO_CARDS[index]!.skewed.x,
+            y: (index) => INTRO_CARDS[index]!.skewed.y,
+            z: (index) => INTRO_CARDS[index]!.skewed.z,
+            rotationY: (index) => INTRO_CARDS[index]!.skewed.rotateY,
+            rotationX: (index) => INTRO_CARDS[index]!.skewed.rotateX,
+            scale: (index) => INTRO_CARDS[index]!.skewed.scale,
+            autoAlpha: (index) => INTRO_CARDS[index]!.skewed.autoAlpha,
+            duration: INTRO_STAGE_DURATIONS.skewed,
+            stagger: { amount: 6, from: "center" },
           },
-          0.02
+          INTRO_STAGE_DURATIONS.stacked
         )
 
-        tl.to(
-          controls,
+        timeline.to(
+          eyebrow,
           {
-            autoAlpha: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.42,
-            ease: "power3.out",
-            stagger: 0.04,
+            autoAlpha: 0,
+            y: -12,
+            duration: 8,
+            ease: "power1.out",
           },
-          "-=0.42"
+          INTRO_STAGE_DURATIONS.stacked + INTRO_STAGE_DURATIONS.skewed * 0.84
         )
-      }, field)
+
+        const collapseStart =
+        INTRO_STAGE_DURATIONS.stacked + INTRO_STAGE_DURATIONS.skewed
+      const collapseDuration = INTRO_STAGE_DURATIONS.collapse
+
+      // Fade in the typing panel slightly before the implode finishes
+      timeline.to(
+        typingPanel,
+        {
+          autoAlpha: 1,
+          duration: INTRO_STAGE_DURATIONS.collapse * 0.34,
+          ease: "power2.out",
+        },
+        collapseStart + 1.2
+      )
+
+      // PHASE 1: Pull everything to the centerline, start crushing width
+      timeline.to(
+        cards,
+        {
+          x: 0,
+          y: 0,
+          z: 0,
+          rotationY: 0,
+          rotationX: 0,
+          scaleX: 0.06,
+          scaleY: 0.6,
+          autoAlpha: 0.85,
+          duration: collapseDuration * 0.7,
+          ease: "power2.inOut",
+          stagger: { amount: 4, from: "center" },
+        },
+        collapseStart
+      )
+
+      // PHASE 2: Final snap - all cards become one vertical line simultaneously
+      timeline.to(
+        cards,
+        {
+          scaleX: 0.012,
+          scaleY: 1.4,
+          autoAlpha: 1,
+          duration: collapseDuration * 0.22,
+          ease: "power3.in",
+          stagger: 0,
+        },
+        collapseStart + collapseDuration * 0.7
+      )
+
+      // PHASE 3: White flash dissolve - line expands vertically then vanishes
+      timeline.to(
+        cards,
+        {
+          autoAlpha: 0,
+          scaleY: 2.2,
+          duration: collapseDuration * 0.06,
+          ease: "power4.out",
+          stagger: 0,
+        },
+        collapseStart + collapseDuration * 0.92
+      )
+
+      // Hard hide after flash
+      timeline.set(
+        cards,
+        { visibility: "hidden" },
+        collapseStart + collapseDuration
+      )
+
+      // THE CARET HANDOFF — caret is already at full size; just fade it in
+      // as the cards reach their thinnest point so they appear to BECOME the cursor
+      timeline.to(
+        caret,
+        {
+          autoAlpha: 1,
+          scaleX: 0.42,
+          scaleY: 0.82,
+          duration: collapseDuration * 0.1,
+          ease: "power1.out",
+        },
+        collapseStart + collapseDuration * 0.74
+      )
+
+      timeline.to(
+        caret,
+        {
+          scaleX: 1.12,
+          scaleY: 1,
+          duration: collapseDuration * 0.14,
+          ease: "power2.out",
+        },
+        collapseStart + collapseDuration * 0.84
+      )
+
+      timeline.to(
+        caret,
+        {
+          scaleX: 1,
+          scaleY: 1,
+          duration: collapseDuration * 0.06,
+          ease: "sine.out",
+        },
+        collapseStart + collapseDuration * 0.98
+      )
+
+        const typingStart = collapseStart + INTRO_STAGE_DURATIONS.collapse
+
+        timeline.to(
+          caret,
+          {
+            scale: 1.02,
+            rotate: 0.4,
+            duration: 1.35,
+            ease: "sine.inOut",
+            yoyo: true,
+            repeat: 1,
+          },
+          typingStart + 0.25
+        )
+
+        const typedState = { count: 0 }
+        timeline.to(
+          typedState,
+          {
+            count: INTRO_QUOTE.length,
+            duration: INTRO_STAGE_DURATIONS.typing * 0.82,
+            ease: `steps(${INTRO_QUOTE.length})`,
+            onUpdate: () => {
+              const count = Math.min(
+                INTRO_QUOTE.length,
+                Math.max(0, Math.round(typedState.count))
+              )
+              quoteText.textContent = INTRO_QUOTE.slice(0, count)
+              gsap.set(caret, { x: charWidths[count] ?? quoteWidth })
+            },
+          },
+          typingStart + 1.45
+        )
+
+        timeline.to(
+          caret,
+          {
+            x: () => quoteWidth,
+            duration: 0.22,
+            ease: "power1.out",
+          },
+          typingStart + 1.45 + INTRO_STAGE_DURATIONS.typing * 0.82
+        )
+
+        if ("fonts" in document) {
+          void document.fonts.ready.then(() => ScrollTrigger.refresh())
+        }
+      }, root)
 
       return () => {
-        gsap.killTweensOf(cards)
+        caretBlinkTween?.kill()
         ctx.revert()
-        scatterDoneRef.current = false
       }
     },
     {
@@ -544,17 +786,6 @@ export function IntroSection() {
       revertOnUpdate: true,
     }
   )
-
-  const onCardClick = (id: string) => {
-    setActiveId((prev) => (prev === id ? null : id))
-  }
-
-  const onCardKeyDown = (e: ReactKeyboardEvent, id: string) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault()
-      onCardClick(id)
-    }
-  }
 
   return (
     <section
@@ -566,7 +797,7 @@ export function IntroSection() {
       )}
     >
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.88]"
+        className="pointer-events-none absolute inset-0 opacity-[0.9]"
         aria-hidden
         style={{
           background: `
@@ -585,8 +816,9 @@ export function IntroSection() {
         }}
       />
 
-      <div className="relative z-[1] flex min-h-svh flex-col items-center justify-center px-4 pt-14 pb-10 sm:px-6 sm:pt-16">
+      <div className="relative z-[1] flex min-h-svh flex-col items-center justify-center px-4 py-12 sm:px-6 sm:py-16">
         <p
+          ref={eyebrowRef}
           className="mb-6 max-w-xl text-center text-[0.72rem] font-medium tracking-[0.28em] text-zinc-500 uppercase sm:text-[0.75rem]"
           style={{ fontFamily: "var(--font-hero-intro)" }}
         >
@@ -599,161 +831,92 @@ export function IntroSection() {
         >
           <div
             ref={fieldRef}
-            className="relative h-[min(560px,66vh)] w-full max-w-[min(100%,48rem)] sm:h-[min(620px,70vh)] sm:max-w-[49rem]"
-            style={{
-              transformStyle: "preserve-3d",
-              transform: "rotateX(1.4deg) rotateZ(-0.4deg)",
-            }}
+            className="relative h-[min(620px,72vh)] w-full max-w-[min(100%,56rem)] sm:h-[min(700px,76vh)] sm:max-w-[58rem]"
+            style={{ transformStyle: "preserve-3d" }}
           >
-            {INTRO_CARDS.map((card, index) => {
-              const selected = activeId === card.id
-              const hovered = hoveredId === card.id
-
-              return (
-                <article
-                  key={card.id}
-                  ref={(el) => {
-                    cardRefs.current[index] = el
-                  }}
-                  role="button"
-                  tabIndex={0}
-                  aria-pressed={selected}
-                  aria-label={`${kindLabel(card.kind)} card: ${card.id}. Press to focus.`}
-                  onClick={() => onCardClick(card.id)}
-                  onKeyDown={(e) => onCardKeyDown(e, card.id)}
-                  onMouseEnter={() => setHoveredId(card.id)}
-                  onMouseLeave={() =>
-                    setHoveredId((prev) => (prev === card.id ? null : prev))
-                  }
-                  onFocus={() => setHoveredId(card.id)}
-                  onBlur={() =>
-                    setHoveredId((prev) => (prev === card.id ? null : prev))
-                  }
+            {INTRO_CARDS.map((card, index) => (
+              <article
+                key={card.id}
+                ref={(el) => {
+                  cardRefs.current[index] = el
+                }}
+                aria-hidden
+                className={cn(
+                  "pointer-events-none absolute will-change-[transform,opacity] [transform-style:preserve-3d]",
+                  card.className
+                )}
+              >
+                <div
                   className={cn(
-                    "absolute cursor-pointer will-change-transform [transform-style:preserve-3d]",
-                    "focus-visible:z-[40] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgb(231_148_255)]/80",
-                    card.className
+                    "pointer-events-none absolute inset-0 [transform-style:preserve-3d]",
+                    card.surface.radiusClassName ?? "rounded-[1.75rem]"
                   )}
+                  style={getSurfaceStyle(card.surface)}
                 >
                   <div
                     className={cn(
-                      "pointer-events-none absolute inset-0 [transform-style:preserve-3d]",
-                      card.surface.radiusClassName ?? "rounded-[1.75rem]"
+                      "relative h-full w-full overflow-hidden ring-1 ring-white/[0.16]",
+                      "shadow-[0_28px_72px_-28px_rgb(0_0_0/0.88)]",
+                      card.surface.radiusClassName ?? "rounded-[1.75rem]",
+                      card.panelClass ?? "bg-zinc-950/50 backdrop-blur-xl"
                     )}
-                    style={getSurfaceStyle(card.surface)}
                   >
                     <div
-                      className={cn(
-                        "relative h-full w-full overflow-hidden ring-1 ring-white/[0.17]",
-                        "shadow-[0_26px_68px_-28px_rgb(0_0_0/0.84)] transition-[box-shadow,filter,ring-color] duration-300",
-                        hovered &&
-                          "shadow-[0_34px_86px_-28px_rgb(0_0_0/0.9)] ring-white/[0.26] saturate-[1.05]",
-                        selected &&
-                          "shadow-[0_38px_92px_-30px_rgb(14_6_20/0.95)] ring-[rgb(231_148_255)]/48",
-                        card.surface.radiusClassName ?? "rounded-[1.75rem]",
-                        card.panelClass ?? "bg-zinc-950/50 backdrop-blur-xl"
-                      )}
-                    >
-                      <div
-                        className="pointer-events-none absolute inset-0 opacity-75 mix-blend-screen"
-                        aria-hidden
-                        style={{
-                          background:
-                            "radial-gradient(circle at 18% 14%, rgb(255 255 255 / 0.22) 0%, transparent 34%), radial-gradient(circle at 82% 12%, rgb(255 255 255 / 0.1) 0%, transparent 28%)",
-                        }}
-                      />
-                      <div
-                        className="pointer-events-none absolute inset-0 opacity-[0.22]"
-                        aria-hidden
-                        style={{
-                          background:
-                            "linear-gradient(180deg, rgb(255 255 255 / 0.16) 0%, transparent 24%, transparent 76%, rgb(255 255 255 / 0.04) 100%)",
-                        }}
-                      />
-
-                      <div
-                        className="relative flex h-full w-full flex-col justify-between px-3 pt-3 pb-3 sm:px-3.5 sm:pt-3.5 sm:pb-3.5"
-                        style={getSurfaceContentStyle(card.surface)}
-                      >
-                        <span
-                          className={cn(
-                            "absolute z-[3] rounded-[0.55rem] bg-black/48 px-1.5 py-[0.22rem] text-[0.56rem] font-medium tracking-[0.06em] text-white/78 uppercase ring-1 ring-white/15",
-                            card.badgeClassName ?? "top-2.5 right-2.5"
-                          )}
-                          style={{ fontFamily: "var(--font-hero-intro)" }}
-                        >
-                          {card.id}
-                        </span>
-
-                        {card.publishChip ? (
-                          <span
-                            className="absolute top-3 left-3 inline-flex items-center gap-2 rounded-full bg-white px-3.5 py-1.5 text-[0.82rem] font-semibold text-zinc-900 shadow-[0_10px_22px_-18px_rgb(0_0_0/0.6)]"
-                            style={{ fontFamily: "var(--font-hero-intro)" }}
-                          >
-                            <GlobeIcon className="size-3.5 text-zinc-900" />
-                            Publish
-                          </span>
-                        ) : null}
-                      </div>
-                    </div>
+                      className="pointer-events-none absolute inset-0 opacity-75 mix-blend-screen"
+                      aria-hidden
+                      style={{
+                        background:
+                          "radial-gradient(circle at 18% 14%, rgb(255 255 255 / 0.22) 0%, transparent 34%), radial-gradient(circle at 82% 12%, rgb(255 255 255 / 0.1) 0%, transparent 28%)",
+                      }}
+                    />
+                    <div
+                      className="pointer-events-none absolute inset-0 opacity-[0.22]"
+                      aria-hidden
+                      style={{
+                        background:
+                          "linear-gradient(180deg, rgb(255 255 255 / 0.16) 0%, transparent 24%, transparent 76%, rgb(255 255 255 / 0.04) 100%)",
+                      }}
+                    />
+                    <div
+                      className="absolute inset-0"
+                      style={getSurfaceContentStyle(card.surface)}
+                    />
                   </div>
-                </article>
-              )
-            })}
+                </div>
+              </article>
+            ))}
 
             <div
-              className="pointer-events-none absolute inset-0 z-[90]"
-              style={{ transformStyle: "preserve-3d" }}
+              ref={typingPanelRef}
+              className="pointer-events-none absolute inset-0 z-[72] overflow-visible"
             >
-              {INTRO_CONTROLS.map((control, index) => (
-                <button
-                  key={control.id}
-                  ref={(el) => {
-                    controlRefs.current[index] = el
-                  }}
-                  type="button"
-                  aria-label={control.ariaLabel}
-                  className={cn(
-                    "group pointer-events-auto absolute transition-transform duration-300 hover:scale-[1.015]",
-                    control.className
-                  )}
+              <div
+                ref={quoteRowRef}
+                className="absolute top-1/2 left-1/2 z-[80] max-w-[calc(100vw-1.5rem)] -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-white"
+              >
+                <span
+                  ref={quoteTextRef}
+                  className="block text-[clamp(1.85rem,7.1vw+0.12rem,9.35rem)] font-semibold tracking-[-0.01em] text-white/98 uppercase"
+                  style={{ fontFamily: "var(--font-hero-intro)" }}
                 >
-                  <span
-                    className="block will-change-transform"
-                    style={{ transform: control.transform }}
-                  >
-                    <span className={cn("block", control.outerClassName)}>
-                      <span
-                        className={cn(
-                          "block [transform:skewX(-8deg)_scaleX(0.97)]",
-                          control.innerClassName
-                        )}
-                      >
-                        <span
-                          className={cn(
-                            "block [transform:skewX(8deg)]",
-                            control.contentClassName
-                          )}
-                          style={{ fontFamily: "var(--font-hero-intro)" }}
-                        >
-                          {control.label}
-                        </span>
-                      </span>
-                    </span>
-                  </span>
-                </button>
-              ))}
+                  {INTRO_QUOTE}
+                </span>
+                <span
+                  ref={quoteMeasureRef}
+                  className="absolute top-0 left-0 -z-10 block opacity-0 text-[clamp(1.85rem,7.1vw+0.12rem,9.35rem)] font-semibold tracking-[-0.01em] uppercase"
+                  style={{ fontFamily: "var(--font-hero-intro)" }}
+                  aria-hidden
+                >
+                  {INTRO_QUOTE}
+                </span>
+                <span
+                  ref={caretRef}
+                  className="absolute top-1/2 left-0 block -translate-y-1/2 rounded-full bg-white shadow-[0_0_56px_rgb(255_255_255/0.28)]"
+                />
+              </div>
             </div>
           </div>
         </div>
-
-        <p
-          className="mt-8 max-w-md text-center text-[0.8rem] leading-relaxed text-zinc-600"
-          style={{ fontFamily: "var(--font-hero-quote)" }}
-        >
-          Placeholder tiles - swap in real projects, renders, and copy when
-          you&apos;re ready.
-        </p>
       </div>
 
       <div

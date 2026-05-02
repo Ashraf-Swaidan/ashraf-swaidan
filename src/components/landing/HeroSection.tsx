@@ -2,7 +2,7 @@ import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useGSAP } from "@gsap/react"
 import { motion, useReducedMotion } from "motion/react"
-import { useEffect, useRef, useState, type MutableRefObject, type ReactNode } from "react"
+import { useEffect, useRef, type MutableRefObject, type ReactNode } from "react"
 
 import { AnimatedWord } from "@/components/landing/AnimatedWord"
 import {
@@ -299,16 +299,11 @@ export function HeroSection() {
 
   const marqueeTweensRef = useRef<(gsap.core.Tween | null)[]>([null, null, null])
 
-  const [hasScrolled, setHasScrolled] = useState(false)
-
   useEffect(() => {
     const st = ScrollTrigger.create({
       trigger: document.body,
       start: "top top",
       end: "max",
-      onUpdate: (self) => {
-        if (self.scroll() > 12) setHasScrolled(true)
-      },
     })
     return () => {
       st.kill()

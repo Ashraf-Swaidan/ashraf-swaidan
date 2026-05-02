@@ -49,6 +49,7 @@ const INTRO_STAGE_DURATIONS = {
   skewed: 30,
   collapse: 26,
   typing: 26,
+  quoteHold: 14,
 } as const
 
 const INTRO_CARDS: IntroCardDef[] = [
@@ -427,7 +428,7 @@ function getSurfaceContentStyle(surface: IntroCardSurface): CSSProperties {
   }
 }
 
-export function IntroSection() {
+export function FooterSection() {
   const rootRef = useRef<HTMLElement>(null)
   const fieldRef = useRef<HTMLDivElement>(null)
   const eyebrowRef = useRef<HTMLParagraphElement>(null)
@@ -768,6 +769,14 @@ export function IntroSection() {
             ease: "power1.out",
           },
           typingStart + 1.45 + INTRO_STAGE_DURATIONS.typing * 0.82
+        )
+
+        // Keep the finished quote pinned a bit longer for readability.
+        timeline.to(
+          {},
+          {
+            duration: INTRO_STAGE_DURATIONS.quoteHold,
+          }
         )
 
         if ("fonts" in document) {

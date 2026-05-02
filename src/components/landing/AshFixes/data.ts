@@ -1,0 +1,40 @@
+import type { Problem } from "./types"
+
+export const PROBLEMS: Problem[] = [
+  {
+    id: "sales-guy",
+    tone: "sales",
+    cursor: "arrow",
+    label: "Sales tracking",
+    steps: ["Open Excel", "Find last file", "Fix formula", "Copy sheet", "Email report"],
+    struggleLine: "I just need the numbers to make sense.",
+    ashLine: "Let me turn this into one live dashboard.",
+    position: { x: 4, y: 10 },
+    rotate: -3,
+    color: "#ff6b35",
+  },
+  {
+    id: "inventory-lady",
+    tone: "stock",
+    cursor: "hand",
+    label: "Stock check",
+    steps: ["Walk warehouse", "Count boxes", "Write paper", "Type sheet", "Find mismatch"],
+    struggleLine: "This count changes before I finish typing it.",
+    ashLine: "We can scan once and keep stock live.",
+    position: { x: 61, y: 12 },
+    rotate: 2,
+    color: "#3f9f62",
+  },
+  {
+    id: "finance-bro",
+    tone: "expense",
+    cursor: "ibeam",
+    label: "Expense report",
+    steps: ["Gather receipts", "Photo each", "Name files", "Upload drive", "Match card"],
+    struggleLine: "This is somehow still not submitted.",
+    ashLine: "Watch this become categorized on arrival.",
+    position: { x: 54, y: 58 },
+    rotate: -4,
+    color: "#c98221",
+  },
+]

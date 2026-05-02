@@ -11,6 +11,8 @@ import { WalletsRect } from "./WalletsRect"
 
 gsap.registerPlugin(useGSAP, ScrollTrigger)
 
+type PrioritizedScrollTrigger = ScrollTrigger & { refreshPriority: number }
+
 const LINE_SKEW_IN = 14
 const LINE_SHIFT_X_VW = 1.65
 const LINE_SHIFT_Y_VW = 1.75
@@ -77,7 +79,7 @@ export function OneSystemFlow() {
         })
         tl.to(line, { skewX: 0, x: 0, y: 0, duration: 1, ease: "none" }, 0)
         const st = tl.scrollTrigger
-        if (st) st.refreshPriority = i
+        if (st) (st as PrioritizedScrollTrigger).refreshPriority = i
         lineTlRef.current.push(tl)
 
         const rectEl = line.querySelector<HTMLElement>(".osf-rect")
@@ -104,7 +106,7 @@ export function OneSystemFlow() {
             },
           })
           const rst = reveal.scrollTrigger
-          if (rst) rst.refreshPriority = i + 0.25
+          if (rst) (rst as PrioritizedScrollTrigger).refreshPriority = i + 0.25
           rectRevealAnimRef.current.push(reveal)
         }
       })
@@ -150,7 +152,7 @@ export function OneSystemFlow() {
         })
 
         const cst = centsTl.scrollTrigger
-        if (cst) cst.refreshPriority = 0.5
+        if (cst) (cst as PrioritizedScrollTrigger).refreshPriority = 0.5
         rectRevealAnimRef.current.push(centsTl)
       }
 

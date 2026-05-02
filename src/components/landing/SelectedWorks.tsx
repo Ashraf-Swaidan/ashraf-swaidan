@@ -1,4 +1,4 @@
-import { useState, useRef, type CSSProperties } from "react"
+import { useRef, useState, type CSSProperties } from "react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useGSAP } from "@gsap/react"
@@ -8,8 +8,6 @@ import { cn } from "@/lib/utils"
 
 gsap.registerPlugin(useGSAP, ScrollTrigger)
 
-type SelectedWorksMode = "scroll" | "manual"
-
 type WorkProject = {
   id: string
   title: string
@@ -17,59 +15,81 @@ type WorkProject = {
   imageSrc: string
   videoSrc: string
   href: string
-  eyebrow: string
 }
 
-type SelectedWorksProps = {
-  mode?: SelectedWorksMode
+type RailPair = {
+  baseIndex: number
+  nextIndex: number
+}
+
+type LayoutMetrics = {
+  isDesktop: boolean
+  isTablet: boolean
+  headerExitY: number
+  mediaStartY: number
+  mediaMidY: number
+  mediaFinalY: number
+  mediaStartScale: number
+  mediaFinalScale: number
+  mediaShiftX: number
+  railStartX: number
+  railStartY: number
+  cropStart: number
 }
 
 const PROJECTS: WorkProject[] = [
   {
     id: "duwit",
-    eyebrow: "AI execution system",
     title: "Duwit",
     description:
-      "A goal-to-completion AI product that turns vague ambition into roadmaps, task coaching, memory, and real execution momentum.",
+      "A goal-to-completion AI system that turns vague ambition into roadmaps, task coaching, memory, and actual momentum.",
     imageSrc: "/assets/lap-animation-assets/lap1.jpg",
     videoSrc: "/assets/lap-animation-assets/video1.mp4",
     href: "#",
   },
   {
     id: "papion",
-    eyebrow: "Operations backbone",
     title: "Papion System",
     description:
-      "A business operations platform built around live inventory, finance, customers, suppliers, and practical cross-platform workflows.",
+      "A live operations product built around inventory, finance, customers, suppliers, and workflows that remove friction instead of adding it.",
     imageSrc: "/assets/lap-animation-assets/lap2.jpg",
     videoSrc: "/assets/lap-animation-assets/video2.mp4",
     href: "#",
   },
   {
     id: "coducation",
-    eyebrow: "Learning surface",
     title: "Coducation",
     description:
-      "A teaching-first build that compresses technical onboarding into clearer flows, faster understanding, and stronger learner confidence.",
+      "A teaching-first product direction focused on clearer learning surfaces, stronger onboarding, and faster user understanding.",
     imageSrc: "/assets/lap-animation-assets/lap3.jpg",
     videoSrc: "/assets/lap-animation-assets/video1.mp4",
     href: "#",
   },
   {
     id: "akanan",
-    eyebrow: "Media and product",
     title: "Akanan TV",
     description:
-      "A motion-aware product showcase exploring narrative pacing, clean interface framing, and memorable visual handoff between states.",
+      "A narrative-heavy media interface exploring motion pacing, visual continuity, and cleaner handoff between content states.",
     imageSrc: "/assets/lap-animation-assets/lap4.jpg",
     videoSrc: "/assets/lap-animation-assets/video2.mp4",
     href: "#",
   },
 ]
 
-const INTRO_SHARE = 0.34
-const HIDDEN_CLIP = "inset(100% 0% 0% 0%)"
-const VISIBLE_CLIP = "inset(0% 0% 0% 0%)"
+const ZONES = {
+  groupMoveEnd: 0.1,
+  headerExitEnd: 0.21,
+  mediaExpandEnd: 0.32,
+  handoffEnd: 0.42,
+} as const
+
+const RAIL_TEXT_TIMING = {
+  outgoingFadeStart: 0.08,
+  outgoingFadeEnd: 0.5,
+  incomingRevealStart: 0.38,
+  incomingRevealEnd: 0.72,
+} as const
+
 const SCREEN_BOX_STYLE: CSSProperties = {
   left: `${(385 / 1600) * 100}%`,
   top: `${(259 / 1200) * 100}%`,
@@ -77,561 +97,457 @@ const SCREEN_BOX_STYLE: CSSProperties = {
   height: `${(532 / 1200) * 100}%`,
 }
 
-function getPreviewScale() {
-  return window.innerWidth >= 1024 ? 0.46 : window.innerWidth >= 768 ? 0.58 : 0.74
+const DISPLAY_FONT = "'Cormorant Garamond', Georgia, serif"
+const BODY_FONT = "'Lora', Georgia, serif"
+
+function clamp01(value: number) {
+  return Math.max(0, Math.min(1, value))
 }
 
-function getPreviewYOffset() {
-  return window.innerWidth >= 1024 ? 112 : window.innerWidth >= 768 ? 88 : 64
+function mapRange(value: number, start: number, end: number) {
+  if (end <= start) return 0
+  return clamp01((value - start) / (end - start))
 }
 
-function getContentOffsetX() {
-  return window.innerWidth >= 1024 ? 72 : 0
+function mix(from: number, to: number, amount: number) {
+  return from + (to - from) * amount
+}
+
+function easeOutCubic(value: number) {
+  const t = clamp01(value)
+  return 1 - (1 - t) ** 3
+}
+
+function easeInOutSine(value: number) {
+  const t = clamp01(value)
+  return -(Math.cos(Math.PI * t) - 1) / 2
 }
 
 function getScrollDistance() {
-  return Math.max(window.innerHeight * 5.4, 3600)
+  return Math.max(window.innerHeight * 7.8, 5600)
 }
 
-function clampIndex(index: number) {
-  return Math.max(0, Math.min(PROJECTS.length - 1, index))
+function getLayoutMetrics(): LayoutMetrics {
+  const width = window.innerWidth
+  const height = window.innerHeight
+  const isDesktop = width >= 1024
+  const isTablet = width >= 768 && width < 1024
+
+  if (isDesktop) {
+    return {
+      isDesktop,
+      isTablet,
+      headerExitY: -Math.min(430, height * 0.5),
+      mediaStartY: Math.min(190, height * 0.24),
+      mediaMidY: -Math.min(58, height * 0.08),
+      mediaFinalY: 0,
+      mediaStartScale: width >= 1440 ? 0.58 : 0.64,
+      mediaFinalScale: 1,
+      mediaShiftX: width >= 1440 ? -300 : width >= 1280 ? -250 : -190,
+      railStartX: 88,
+      railStartY: 18,
+      cropStart: 22,
+    }
+  }
+
+  return {
+    isDesktop,
+    isTablet,
+    headerExitY: -Math.min(330, height * 0.44),
+    mediaStartY: isTablet ? Math.min(150, height * 0.2) : Math.min(120, height * 0.18),
+    mediaMidY: isTablet ? -24 : -12,
+    mediaFinalY: isTablet ? 0 : -10,
+    mediaStartScale: isTablet ? 0.66 : 0.78,
+    mediaFinalScale: isTablet ? 0.9 : 0.86,
+    mediaShiftX: 0,
+    railStartX: 0,
+    railStartY: 34,
+    cropStart: 18,
+  }
 }
 
-export function SelectedWorks({ mode = "scroll" }: SelectedWorksProps) {
+function getCurrentProjectIndex(baseIndex: number, localProgress: number) {
+  return Math.min(PROJECTS.length - 1, baseIndex + (localProgress >= 0.56 ? 1 : 0))
+}
+
+export function SelectedWorks() {
   const rootRef = useRef<HTMLElement>(null)
-  const introBlockRef = useRef<HTMLDivElement>(null)
-  const topLabelRef = useRef<HTMLDivElement>(null)
-  const stageTransformRef = useRef<HTMLDivElement>(null)
-  const contentPanelRef = useRef<HTMLDivElement>(null)
-  const contentInnerRef = useRef<HTMLDivElement>(null)
+  const headerRef = useRef<HTMLDivElement>(null)
+  const titleRef = useRef<HTMLHeadingElement>(null)
+  const mediaShellRef = useRef<HTMLDivElement>(null)
+  const mediaCropRef = useRef<HTMLDivElement>(null)
+  const railRef = useRef<HTMLDivElement>(null)
+  const currentRailRef = useRef<HTMLDivElement>(null)
+  const nextRailRef = useRef<HTMLDivElement>(null)
   const progressFillRef = useRef<HTMLSpanElement>(null)
-  const previewGlowRef = useRef<HTMLDivElement>(null)
-  const stageCanvasRef = useRef<HTMLDivElement>(null)
-  const manualControlsRef = useRef<HTMLDivElement>(null)
-  const imageRefs = useRef<(HTMLImageElement | null)[]>([])
-  const videoRefs = useRef<(HTMLVideoElement | null)[]>([])
-  const switchProjectRef = useRef<(nextIndex: number) => void>(() => {})
-  const activeIndexRef = useRef(0)
-  const queuedIndexRef = useRef<number | null>(null)
-  const transitioningRef = useRef(false)
-  const transitionTimelineRef = useRef<gsap.core.Timeline | null>(null)
+  const sceneRefs = useRef<(HTMLDivElement | null)[]>([])
+  const paginationRefs = useRef<(HTMLSpanElement | null)[]>([])
+  const pairRef = useRef<RailPair>({ baseIndex: 0, nextIndex: 1 })
+  const progressIndexRef = useRef(0)
   const prefersReducedMotion = useReducedMotion()
   const reduceMotion = Boolean(prefersReducedMotion)
-  const [activeIndex, setActiveIndex] = useState(0)
-  const [contentIndex, setContentIndex] = useState(0)
+  const [railPair, setRailPair] = useState<RailPair>({ baseIndex: 0, nextIndex: 1 })
+  const [progressIndex, setProgressIndex] = useState(0)
 
   useGSAP(
     () => {
       const root = rootRef.current
-      const introBlock = introBlockRef.current
-      const topLabel = topLabelRef.current
-      const stageTransform = stageTransformRef.current
-      const contentPanel = contentPanelRef.current
-      const contentInner = contentInnerRef.current
+      const header = headerRef.current
+      const title = titleRef.current
+      const mediaShell = mediaShellRef.current
+      const mediaCrop = mediaCropRef.current
+      const rail = railRef.current
+      const currentRail = currentRailRef.current
+      const nextRail = nextRailRef.current
       const progressFill = progressFillRef.current
-      const previewGlow = previewGlowRef.current
-      const stageCanvas = stageCanvasRef.current
-      const manualControls = manualControlsRef.current
-      const images = imageRefs.current.slice(0, PROJECTS.length).filter(Boolean) as HTMLImageElement[]
-      const videos = videoRefs.current.slice(0, PROJECTS.length).filter(Boolean) as HTMLVideoElement[]
+      const scenes = sceneRefs.current.filter(Boolean) as HTMLDivElement[]
+      const paginationItems = paginationRefs.current.filter(Boolean) as HTMLSpanElement[]
 
       if (
         !root ||
-        !introBlock ||
-        !topLabel ||
-        !stageTransform ||
-        !contentPanel ||
-        !contentInner ||
+        !header ||
+        !title ||
+        !mediaShell ||
+        !mediaCrop ||
+        !rail ||
+        !currentRail ||
+        !nextRail ||
         !progressFill ||
-        !previewGlow ||
-        !stageCanvas ||
-        images.length !== PROJECTS.length ||
-        videos.length !== PROJECTS.length
+        scenes.length !== PROJECTS.length ||
+        paginationItems.length !== PROJECTS.length
       ) {
         return
       }
 
       const totalProjects = PROJECTS.length
-      activeIndexRef.current = 0
-      queuedIndexRef.current = null
-      transitioningRef.current = false
-      transitionTimelineRef.current?.kill()
+      let metrics = getLayoutMetrics()
 
-      const setLayerState = (
-        collection: HTMLElement[],
-        visibleIndex: number,
-        elevatedIndex: number | null = null,
-      ) => {
-        collection.forEach((element, index) => {
+      pairRef.current = { baseIndex: 0, nextIndex: 1 }
+      progressIndexRef.current = 0
+
+      gsap.set(rail, {
+        opacity: 0,
+        pointerEvents: "none",
+        visibility: "hidden",
+      })
+
+      const setHeaderY = gsap.quickSetter(header, "y", "px")
+      const setTitleScale = gsap.quickSetter(title, "scale")
+      const setMediaX = gsap.quickSetter(mediaShell, "x", "px")
+      const setMediaY = gsap.quickSetter(mediaShell, "y", "px")
+      const setMediaScale = gsap.quickSetter(mediaShell, "scale")
+      const setRailX = gsap.quickSetter(rail, "x", "px")
+      const setRailY = gsap.quickSetter(rail, "y", "px")
+      const setRailYPercent = gsap.quickSetter(rail, "yPercent")
+      const setRailOpacity = gsap.quickSetter(rail, "opacity")
+      const setProgressScale = gsap.quickSetter(progressFill, "scaleX")
+
+      const setRailPresence = (visibility: number) => {
+        const clampedVisibility = clamp01(visibility)
+
+        setRailOpacity(clampedVisibility)
+        gsap.set(rail, {
+          pointerEvents: clampedVisibility > 0.92 ? "auto" : "none",
+          visibility: clampedVisibility > 0.01 ? "visible" : "hidden",
+        })
+      }
+
+      const setRailLayoutAnchor = () => {
+        setRailYPercent(metrics.isDesktop ? -50 : 0)
+      }
+
+      const syncPairState = (baseIndex: number, nextIndex: number) => {
+        const currentPair = pairRef.current
+        if (currentPair.baseIndex === baseIndex && currentPair.nextIndex === nextIndex) return
+
+        pairRef.current = { baseIndex, nextIndex }
+        setRailPair({ baseIndex, nextIndex })
+      }
+
+      const syncProgressIndex = (nextIndex: number) => {
+        if (progressIndexRef.current === nextIndex) return
+        progressIndexRef.current = nextIndex
+        setProgressIndex(nextIndex)
+      }
+
+      const setStaticProject = (index: number) => {
+        scenes.forEach((element, elementIndex) => {
           gsap.set(element, {
-            clipPath: index === visibleIndex ? VISIBLE_CLIP : HIDDEN_CLIP,
-            autoAlpha: 1,
-            zIndex:
-              index === elevatedIndex ? 6 : index === visibleIndex ? 4 : 1,
-            scale: 1,
-            transformOrigin: "50% 50%",
-            willChange: "clip-path, transform",
-            force3D: true,
+            autoAlpha: elementIndex === index ? 1 : 0,
+            clipPath: elementIndex === index ? "inset(0% 0% 0% 0%)" : "inset(100% 0% 0% 0%)",
+            zIndex: elementIndex === index ? 4 : 1,
           })
         })
       }
 
-      const syncProgressBar = (progress: number) => {
-        gsap.set(progressFill, {
-          scaleX: gsap.utils.clamp(0, 1, progress),
-          transformOrigin: "0% 50%",
+      const setPagination = (activeIndex: number, localProgress: number) => {
+        paginationItems.forEach((element, index) => {
+          const isActive = index === activeIndex
+          const isIncoming = index === activeIndex + 1 && localProgress > 0.74
+
+          gsap.set(element, {
+            height: isActive ? mix(20, 44, clamp01(localProgress)) : isIncoming ? 16 : 10,
+            opacity: isActive ? 1 : isIncoming ? 0.72 : 0.5,
+            scale: isActive ? 1 : 0.9,
+          })
         })
       }
 
-      const applyFinalLayout = () => {
-        gsap.set(introBlock, {
-          autoAlpha: 0,
-          y: -220,
-          scale: 0.62,
-          transformOrigin: "50% 50%",
-          pointerEvents: "none",
-        })
-        gsap.set(topLabel, { autoAlpha: 1, y: 0 })
-        gsap.set(stageTransform, {
-          x: 0,
-          y: 0,
-          scale: 1,
-          transformOrigin: "50% 50%",
-        })
-        gsap.set(contentPanel, { autoAlpha: 1, x: 0, y: 0 })
-        gsap.set(previewGlow, { autoAlpha: 0.88, scale: 1 })
-      }
-
-      const applyIntroLayout = () => {
-        gsap.set(introBlock, {
-          autoAlpha: 1,
-          y: 0,
-          scale: 1,
-          transformOrigin: "50% 50%",
-          pointerEvents: "auto",
-        })
-        gsap.set(topLabel, { autoAlpha: 0, y: -16 })
-        gsap.set(stageTransform, {
-          x: 0,
-          y: getPreviewYOffset(),
-          scale: getPreviewScale(),
-          transformOrigin: "50% 50%",
-        })
-        gsap.set(contentPanel, {
-          autoAlpha: 0,
-          x: getContentOffsetX(),
-          y: 24,
-        })
-        gsap.set(previewGlow, {
-          autoAlpha: 0.64,
-          scale: 0.88,
-          transformOrigin: "50% 50%",
-        })
-      }
-
-      const finishTransition = (nextIndex: number) => {
-        setLayerState(images, nextIndex)
-        setLayerState(videos, nextIndex)
-        activeIndexRef.current = nextIndex
-        transitioningRef.current = false
-        transitionTimelineRef.current = null
-        setActiveIndex(nextIndex)
-
-        if (queuedIndexRef.current !== null && queuedIndexRef.current !== nextIndex) {
-          const queuedIndex = queuedIndexRef.current
-          queuedIndexRef.current = null
-          requestProjectChange(queuedIndex)
-          return
-        }
-
-        queuedIndexRef.current = null
-      }
-
-      const requestProjectChange = (nextIndexInput: number) => {
-        const nextIndex = clampIndex(nextIndexInput)
-
-        if (nextIndex === activeIndexRef.current && !transitioningRef.current) {
-          return
-        }
-
-        if (transitioningRef.current) {
-          queuedIndexRef.current = nextIndex
-          return
-        }
-
-        const currentIndex = activeIndexRef.current
-        const currentImage = images[currentIndex]
-        const nextImage = images[nextIndex]
-        const currentVideo = videos[currentIndex]
-        const nextVideo = videos[nextIndex]
-
-        if (!currentImage || !nextImage || !currentVideo || !nextVideo) {
-          return
-        }
-
-        transitioningRef.current = true
-        queuedIndexRef.current = null
-        transitionTimelineRef.current?.kill()
-
-        gsap.set([currentImage, currentVideo], { zIndex: 4, autoAlpha: 1 })
-        gsap.set([nextImage, nextVideo], {
-          zIndex: 6,
-          clipPath: HIDDEN_CLIP,
-          autoAlpha: 1,
-          scale: 1,
-        })
-
-        const transitionDuration = reduceMotion ? 0.02 : 0.8
-        const textFadeDuration = reduceMotion ? 0.01 : 0.2
-        const pulseScale = reduceMotion ? 1 : 1.045
-
-        const timeline = gsap.timeline({
-          defaults: { ease: "power3.inOut" },
-          onComplete: () => finishTransition(nextIndex),
-        })
-
-        timeline.to(
-          stageTransform,
-          {
-            scale: pulseScale,
-            duration: reduceMotion ? 0.01 : 0.28,
-          },
-          0,
+      const setTextMasks = (localProgress: number) => {
+        const outgoingProgress = mapRange(
+          localProgress,
+          RAIL_TEXT_TIMING.outgoingFadeStart,
+          RAIL_TEXT_TIMING.outgoingFadeEnd,
         )
-
-        timeline.to(
-          contentInner,
-          {
-            autoAlpha: 0,
-            y: -16,
-            duration: textFadeDuration,
-            ease: "power2.out",
-          },
-          0.02,
+        const incomingProgress = mapRange(
+          localProgress,
+          RAIL_TEXT_TIMING.incomingRevealStart,
+          RAIL_TEXT_TIMING.incomingRevealEnd,
         )
+        const outgoingEase = easeOutCubic(outgoingProgress)
+        const outgoingY = easeInOutSine(outgoingProgress)
+        const incomingEase = easeOutCubic(incomingProgress)
+        const incomingY = easeInOutSine(incomingProgress)
 
-        timeline.to(
-          [nextImage, nextVideo],
-          {
-            clipPath: VISIBLE_CLIP,
-            duration: transitionDuration,
-          },
-          0.08,
-        )
-
-        timeline.add(() => {
-          setContentIndex(nextIndex)
-          setActiveIndex(nextIndex)
-        }, reduceMotion ? 0.02 : 0.38)
-
-        timeline.fromTo(
-          contentInner,
-          {
-            autoAlpha: 0,
-            y: 20,
-          },
-          {
-            autoAlpha: 1,
-            y: 0,
-            duration: reduceMotion ? 0.01 : 0.34,
-            ease: "power2.out",
-          },
-          reduceMotion ? 0.02 : 0.45,
-        )
-
-        timeline.to(
-          stageTransform,
-          {
-            scale: 1,
-            duration: reduceMotion ? 0.01 : 0.36,
-          },
-          reduceMotion ? 0.02 : 0.44,
-        )
-
-        transitionTimelineRef.current = timeline
+        gsap.set(currentRail, {
+          autoAlpha: 1 - outgoingEase,
+          y: mix(0, -48, outgoingY),
+        })
+        gsap.set(nextRail, {
+          autoAlpha: incomingEase,
+          y: mix(52, 0, incomingY),
+        })
       }
 
-      switchProjectRef.current = requestProjectChange
+      const applyContinuousProjects = (showcaseProgress: number) => {
+        const projectFloat = clamp01(showcaseProgress) * (totalProjects - 1)
+        const baseIndex = Math.min(totalProjects - 2, Math.floor(projectFloat))
+        const nextIndex = Math.min(totalProjects - 1, baseIndex + 1)
+        const localProgress = clamp01(projectFloat - baseIndex)
+        const revealInset = 100 - localProgress * 100
+        const activeIndex = getCurrentProjectIndex(baseIndex, localProgress)
 
-      setLayerState(images, 0)
-      setLayerState(videos, 0)
-      gsap.set(contentInner, { autoAlpha: 1, y: 0 })
-      gsap.set(stageCanvas, { transformPerspective: 1200, transformOrigin: "50% 50%" })
-      syncProgressBar(0)
+        syncPairState(baseIndex, nextIndex)
+        syncProgressIndex(activeIndex)
 
-      if (mode === "manual") {
-        applyFinalLayout()
-        gsap.set(manualControls, { autoAlpha: 1, y: 0 })
-        return () => {
-          transitionTimelineRef.current?.kill()
-        }
+        scenes.forEach((element, elementIndex) => {
+          const clipPath =
+            elementIndex === baseIndex
+              ? "inset(0% 0% 0% 0%)"
+              : elementIndex === nextIndex
+                ? `inset(${revealInset}% 0% 0% 0%)`
+                : "inset(100% 0% 0% 0%)"
+
+          gsap.set(element, {
+            autoAlpha: elementIndex === baseIndex || elementIndex === nextIndex ? 1 : 0,
+            clipPath,
+            zIndex: elementIndex === nextIndex ? 5 : elementIndex === baseIndex ? 4 : 1,
+            force3D: true,
+          })
+        })
+
+        setPagination(baseIndex, localProgress)
+        setTextMasks(localProgress)
       }
 
-      gsap.set(manualControls, { autoAlpha: 0, y: 16 })
-
-      let introTimeline: gsap.core.Timeline | null = null
+      const applyFinalReadableLayout = () => {
+        metrics = getLayoutMetrics()
+        setHeaderY(metrics.headerExitY)
+        setTitleScale(0.7)
+        setMediaX(metrics.mediaShiftX)
+        setMediaY(metrics.mediaFinalY)
+        setMediaScale(metrics.mediaFinalScale)
+        setRailLayoutAnchor()
+        setRailPresence(1)
+        setRailX(0)
+        setRailY(0)
+        setProgressScale(0)
+        gsap.set(mediaCrop, { clipPath: "inset(0% 0% 0% 0% round 1.85rem)" })
+        gsap.set([currentRail, nextRail], { clearProps: "transform,opacity,visibility" })
+        gsap.set(currentRail, { autoAlpha: 1, y: 0 })
+        gsap.set(nextRail, { autoAlpha: 0, y: 52 })
+        setStaticProject(0)
+        setPagination(0, 0)
+      }
 
       if (reduceMotion) {
-        applyFinalLayout()
-
-        const reducedMotionTrigger = ScrollTrigger.create({
-          trigger: root,
-          start: "top top",
-          end: () => `+=${getScrollDistance()}`,
-          pin: true,
-          scrub: false,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            const progress = gsap.utils.clamp(0, 1, self.progress)
-            syncProgressBar(progress)
-            const nextIndex =
-              progress >= 1 ? totalProjects - 1 : Math.min(totalProjects - 1, Math.floor(progress * totalProjects))
-            requestProjectChange(nextIndex)
-          },
-        })
-
-        return () => {
-          transitionTimelineRef.current?.kill()
-          reducedMotionTrigger.kill()
-        }
+        applyFinalReadableLayout()
+        return
       }
 
-      applyIntroLayout()
+      const updateScene = (rawProgress: number) => {
+        const progress = clamp01(rawProgress)
+        const groupMove = mapRange(progress, 0, ZONES.groupMoveEnd)
+        const headerExit = mapRange(progress, ZONES.groupMoveEnd, ZONES.headerExitEnd)
+        const mediaExpand = mapRange(progress, ZONES.headerExitEnd, ZONES.mediaExpandEnd)
+        const handoff = mapRange(progress, ZONES.mediaExpandEnd, ZONES.handoffEnd)
+        const showcaseProgress = mapRange(progress, ZONES.handoffEnd, 1)
 
-      introTimeline = gsap.timeline({
-        defaults: { ease: "power3.inOut" },
-        scrollTrigger: {
-          trigger: root,
-          start: "top top",
-          end: () => `+=${getScrollDistance()}`,
-          pin: true,
-          scrub: 0.7,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            const rawProgress = gsap.utils.clamp(0, 1, self.progress)
-            const showcaseProgress = gsap.utils.clamp(
-              0,
-              1,
-              (rawProgress - INTRO_SHARE) / (1 - INTRO_SHARE),
-            )
-            syncProgressBar(showcaseProgress)
+        const groupLift = mix(0, metrics.mediaMidY, easeInOutSine(groupMove))
+        const headerY = groupLift + mix(0, metrics.headerExitY, easeInOutSine(headerExit))
+        const mediaY = progress < ZONES.headerExitEnd
+          ? mix(metrics.mediaStartY, metrics.mediaMidY, easeInOutSine(mapRange(progress, 0, ZONES.headerExitEnd)))
+          : mix(metrics.mediaMidY, metrics.mediaFinalY, easeInOutSine(mediaExpand))
+        const mediaScale = mix(metrics.mediaStartScale, metrics.mediaFinalScale, easeOutCubic(mediaExpand))
+        const mediaX = mix(0, metrics.mediaShiftX, easeInOutSine(handoff))
+        const cropInset = mix(metrics.cropStart, 0, easeInOutSine(mediaExpand))
+        const railVisibility = easeOutCubic(handoff)
 
-            const nextIndex =
-              showcaseProgress >= 1
-                ? totalProjects - 1
-                : Math.min(totalProjects - 1, Math.floor(showcaseProgress * totalProjects))
+        setHeaderY(headerY)
+        setTitleScale(mix(1, 0.7, easeOutCubic(mapRange(progress, 0, ZONES.headerExitEnd))))
+        setMediaX(mediaX)
+        setMediaY(mediaY)
+        setMediaScale(mediaScale)
+        setRailLayoutAnchor()
+        setRailPresence(railVisibility)
+        setRailX(mix(metrics.railStartX, 0, easeOutCubic(handoff)))
+        setRailY(mix(metrics.railStartY, 0, easeOutCubic(handoff)))
+        setProgressScale(railVisibility > 0 ? mix(0, 0.16, railVisibility) + showcaseProgress * 0.84 : 0)
 
-            requestProjectChange(nextIndex)
-          },
-        },
+        gsap.set(mediaCrop, {
+          clipPath: `inset(${cropInset}% 0% ${cropInset}% 0% round 1.85rem)`,
+        })
+
+        if (progress < ZONES.handoffEnd) {
+          syncPairState(0, 1)
+          syncProgressIndex(0)
+          setStaticProject(0)
+          setPagination(0, 0)
+          gsap.set(currentRail, { autoAlpha: 1, y: 0 })
+          gsap.set(nextRail, { autoAlpha: 0, y: 52 })
+          return
+        }
+
+        applyContinuousProjects(showcaseProgress)
+      }
+
+      gsap.set([header, mediaShell, rail, scenes, paginationItems, currentRail, nextRail], {
+        force3D: true,
       })
+      gsap.set(title, { transformOrigin: "50% 0%" })
+      gsap.set(progressFill, { transformOrigin: "0% 50%" })
+      updateScene(0)
 
-      introTimeline.to(
-        introBlock,
-        {
-          y: -240,
-          scale: 0.58,
-          autoAlpha: 0.18,
-          duration: 1,
+      const trigger = ScrollTrigger.create({
+        trigger: root,
+        start: "top top",
+        end: () => `+=${getScrollDistance()}`,
+        pin: true,
+        scrub: 0.22,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+        onRefresh: (self) => {
+          metrics = getLayoutMetrics()
+          updateScene(self.progress)
         },
-        0,
-      )
-
-      introTimeline.to(
-        stageTransform,
-        {
-          y: 0,
-          scale: 1,
-          duration: 1.15,
-          ease: "power2.inOut",
-        },
-        0.05,
-      )
-
-      introTimeline.to(
-        previewGlow,
-        {
-          autoAlpha: 0.9,
-          scale: 1,
-          duration: 0.9,
-        },
-        0.08,
-      )
-
-      introTimeline.to(
-        topLabel,
-        {
-          autoAlpha: 1,
-          y: 0,
-          duration: 0.55,
-        },
-        0.34,
-      )
-
-      introTimeline.to(
-        contentPanel,
-        {
-          autoAlpha: 1,
-          x: 0,
-          y: 0,
-          duration: 0.92,
-        },
-        0.28,
-      )
-
-      introTimeline.to({}, { duration: 1.85 })
+        onUpdate: (self) => updateScene(self.progress),
+      })
 
       if ("fonts" in document) {
         void document.fonts.ready.then(() => ScrollTrigger.refresh())
       }
 
       return () => {
-        transitionTimelineRef.current?.kill()
-        introTimeline?.kill()
+        trigger.kill()
       }
     },
     {
       scope: rootRef,
-      dependencies: [mode, reduceMotion],
+      dependencies: [reduceMotion],
       revertOnUpdate: true,
     },
   )
 
-  const project = PROJECTS[contentIndex]
-  const isManual = mode === "manual"
+  const currentProject = PROJECTS[railPair.baseIndex]
+  const nextProject = PROJECTS[railPair.nextIndex]
 
   return (
     <section
       ref={rootRef}
       className={cn(
-        "relative isolate overflow-hidden bg-[#0b0908] text-[#f7eee4]",
-        "selection:bg-[#ffb98a]/30 selection:text-white",
+        "relative isolate overflow-hidden bg-white text-[#31420e]",
+        "selection:bg-[#cdd8a9]/55 selection:text-[#233107]",
       )}
       aria-labelledby="selected-works-heading"
     >
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.95]"
+        className="pointer-events-none absolute inset-0 opacity-80"
         aria-hidden
         style={{
           background: `
-            radial-gradient(circle at 18% 22%, rgb(185 113 58 / 0.22) 0%, transparent 28%),
-            radial-gradient(circle at 78% 16%, rgb(244 224 197 / 0.08) 0%, transparent 24%),
-            radial-gradient(circle at 50% 54%, rgb(255 166 113 / 0.08) 0%, transparent 38%),
-            linear-gradient(180deg, #090706 0%, #0d0a09 42%, #080605 100%)
+            linear-gradient(90deg, rgb(49 66 14 / 0.07) 1px, transparent 1px),
+            radial-gradient(circle at 50% 22%, rgb(159 196 221 / 0.16) 0%, transparent 24%),
+            linear-gradient(180deg, #ffffff 0%, #ffffff 56%, #ffffff 100%)
           `,
+          backgroundSize: "20vw 100%, auto, auto",
         }}
       />
+
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.08] mix-blend-screen"
+        className="pointer-events-none absolute inset-0 opacity-[0.05] mix-blend-multiply"
         aria-hidden
         style={{
           backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.65'/%3E%3C/svg%3E\")",
+            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.8'/%3E%3C/svg%3E\")",
         }}
       />
 
       <div className="relative z-[1] min-h-svh">
         <div
-          ref={topLabelRef}
-          className="pointer-events-none absolute inset-x-0 top-0 z-30 flex items-center justify-between px-5 pt-5 sm:px-7 sm:pt-7 lg:px-10"
+          ref={headerRef}
+          className="pointer-events-none absolute inset-x-0 top-[clamp(4.5rem,11vh,7rem)] z-20 mx-auto flex max-w-[96rem] flex-col items-center px-5 text-center"
         >
-          <p
-            className="text-[0.7rem] uppercase tracking-[0.32em] text-[#f7eee4]/74"
-            style={{ fontFamily: "var(--font-hero-intro)" }}
+          <h2
+            ref={titleRef}
+            id="selected-works-heading"
+            className="whitespace-nowrap text-[4.4rem] font-medium leading-[0.92] text-[#31420e] sm:text-[6rem] md:text-[7.5rem] lg:text-[9rem] xl:text-[10.5rem]"
+            style={{ fontFamily: DISPLAY_FONT }}
           >
-            Selected work
-          </p>
+            Selected Works
+          </h2>
           <p
-            className="text-[0.7rem] uppercase tracking-[0.28em] text-[#f7eee4]/48"
-            style={{ fontFamily: "var(--font-hero-intro)" }}
+            className="mt-5 max-w-[42rem] text-[1.25rem] leading-[1.5] text-[#31420e]/76 md:text-[1.55rem]"
+            style={{ fontFamily: BODY_FONT }}
           >
-            Systems 04
+            Works Made For the Better.
           </p>
         </div>
 
-        <div className="relative flex min-h-svh items-center px-4 py-10 sm:px-6 lg:px-10">
-          <div
-            ref={introBlockRef}
-            className="pointer-events-none absolute inset-x-0 top-[12svh] z-20 mx-auto flex max-w-4xl flex-col items-center px-4 text-center"
-          >
-            <p
-              className="mb-4 text-[0.72rem] uppercase tracking-[0.35em] text-[#f7eee4]/60"
-              style={{ fontFamily: "var(--font-hero-intro)" }}
+        <div className="relative mx-auto min-h-svh w-full max-w-[100rem] px-4 py-8 sm:px-6 lg:px-10">
+          <div className="absolute inset-x-4 top-1/2 flex -translate-y-1/2 items-center justify-center sm:inset-x-6 lg:inset-x-10">
+            <div
+              ref={mediaShellRef}
+              className="relative z-10 w-[min(100%,76rem)] max-w-[calc((100svh-3rem)*1.333)] lg:w-[min(58vw,68rem)] lg:max-w-[calc((100svh-5rem)*1.333)]"
             >
-              Product systems, motion, interface craft
-            </p>
-            <h2
-              id="selected-works-heading"
-              className="max-w-[10ch] text-balance text-[clamp(3.4rem,8vw,7.9rem)] leading-[0.86] tracking-[-0.06em] text-[#fff4e8]"
-              style={{ fontFamily: "var(--font-hero)" }}
-            >
-              Selected Works
-            </h2>
-            <p
-              className="mt-5 max-w-[44ch] text-pretty text-[clamp(1rem,2.3vw,1.18rem)] leading-[1.62] text-[#f7eee4]/72"
-              style={{ fontFamily: "var(--font-hero-quote)", fontOpticalSizing: "auto" }}
-            >
-              A pinned, state-driven showcase where each project shifts as one scene:
-              environment, laptop screen, and story panel moving in lockstep.
-            </p>
-          </div>
-
-          <div className="grid w-full grid-cols-1 items-center gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(20rem,0.78fr)] lg:gap-10">
-            <div className="relative flex min-h-[52svh] items-center justify-center lg:justify-start">
               <div
-                ref={stageTransformRef}
-                className="relative z-10 w-full max-w-[min(100%,72rem)]"
+                ref={mediaCropRef}
+                className="overflow-hidden rounded-[1.85rem] shadow-[0_34px_78px_rgb(49_66_14/0.12)]"
               >
-                <div
-                  ref={previewGlowRef}
-                  className="pointer-events-none absolute inset-[-8%] -z-10 rounded-[2.75rem] blur-3xl"
-                  aria-hidden
-                  style={{
-                    background:
-                      "radial-gradient(circle at 50% 50%, rgb(248 168 116 / 0.25) 0%, rgb(248 168 116 / 0.08) 40%, transparent 72%)",
-                  }}
-                />
-
-                <div
-                  ref={stageCanvasRef}
-                  className="relative overflow-hidden rounded-[2.1rem] border border-white/10 bg-[#120f0d] shadow-[0_35px_140px_rgb(0_0_0/0.55)]"
-                >
-                  <div className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-20 bg-gradient-to-b from-white/8 to-transparent" />
-                  <div className="pointer-events-none absolute inset-0 z-[1] rounded-[inherit] ring-1 ring-white/10" />
-
+                <div className="relative overflow-hidden rounded-[1.85rem] border border-[#31420e]/10 bg-[#ebeee0]">
                   <div className="relative aspect-[1600/1200] w-full">
-                    <div className="absolute inset-0 z-[2] overflow-hidden">
-                      {PROJECTS.map((item, index) => (
+                    {PROJECTS.map((item, index) => (
+                      <div
+                        key={item.id}
+                        ref={(element) => {
+                          sceneRefs.current[index] = element
+                        }}
+                        className="absolute inset-0 overflow-hidden"
+                        style={{
+                          clipPath: index === 0 ? "inset(0% 0% 0% 0%)" : "inset(100% 0% 0% 0%)",
+                          zIndex: index === 0 ? 4 : 1,
+                        }}
+                      >
                         <img
-                          key={item.id}
-                          ref={(element) => {
-                            imageRefs.current[index] = element
-                          }}
                           src={item.imageSrc}
                           alt=""
                           aria-hidden
                           className="absolute inset-0 h-full w-full object-cover"
-                          style={{
-                            clipPath: index === 0 ? VISIBLE_CLIP : HIDDEN_CLIP,
-                            zIndex: index === 0 ? 4 : 1,
-                          }}
                         />
-                      ))}
-                    </div>
-
-                    <div
-                      className="absolute z-[4] overflow-hidden rounded-[0.3rem] bg-black shadow-[0_12px_34px_rgb(0_0_0/0.32)]"
-                      style={SCREEN_BOX_STYLE}
-                    >
-                      <div className="absolute inset-0 overflow-hidden rounded-[inherit]">
-                        {PROJECTS.map((item, index) => (
+                        <div
+                          className="absolute z-[2] overflow-hidden rounded-[0.28rem] bg-black"
+                          style={SCREEN_BOX_STYLE}
+                        >
                           <video
-                            key={`${item.id}-video`}
-                            ref={(element) => {
-                              videoRefs.current[index] = element
-                            }}
                             className="absolute inset-0 h-full w-full object-cover"
                             src={item.videoSrc}
                             muted
@@ -640,147 +556,124 @@ export function SelectedWorks({ mode = "scroll" }: SelectedWorksProps) {
                             playsInline
                             preload="metadata"
                             aria-hidden
+                          />
+                          <div
+                            className="pointer-events-none absolute inset-0 mix-blend-screen"
+                            aria-hidden
                             style={{
-                              clipPath: index === 0 ? VISIBLE_CLIP : HIDDEN_CLIP,
-                              zIndex: index === 0 ? 4 : 1,
+                              background:
+                                "linear-gradient(180deg, rgb(255 255 255 / 0.16) 0%, transparent 18%, transparent 82%, rgb(255 255 255 / 0.06) 100%)",
                             }}
                           />
-                        ))}
+                        </div>
                       </div>
-                      <div
-                        className="pointer-events-none absolute inset-0 mix-blend-screen"
-                        aria-hidden
-                        style={{
-                          background:
-                            "linear-gradient(180deg, rgb(255 255 255 / 0.12) 0%, transparent 16%, transparent 78%, rgb(255 255 255 / 0.04) 100%)",
-                        }}
-                      />
-                    </div>
+                    ))}
 
                     <div
-                      className="pointer-events-none absolute inset-0 z-[5] rounded-[inherit]"
+                      className="pointer-events-none absolute inset-0 z-[7] rounded-[inherit]"
                       aria-hidden
                       style={{
                         background:
-                          "linear-gradient(180deg, rgb(255 255 255 / 0.08) 0%, transparent 14%, transparent 84%, rgb(255 255 255 / 0.03) 100%)",
+                          "linear-gradient(180deg, rgb(255 255 255 / 0.12) 0%, transparent 16%, transparent 84%, rgb(49 66 14 / 0.05) 100%)",
                       }}
                     />
-                  </div>
-                </div>
-              </div>
-            </div>
 
-            <div
-              ref={contentPanelRef}
-              className="relative z-20 self-center lg:max-w-[28rem]"
-            >
-              <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-[0_28px_90px_rgb(0_0_0/0.24)] backdrop-blur-xl sm:p-6">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="min-w-0">
-                    <p
-                      className="text-[0.72rem] uppercase tracking-[0.3em] text-[#f7eee4]/56"
-                      style={{ fontFamily: "var(--font-hero-intro)" }}
-                    >
-                      Progress
-                    </p>
-                    <p
-                      className="mt-2 text-[0.98rem] leading-none text-[#fff1e5]"
-                      style={{ fontFamily: "var(--font-hero-quote)", fontOpticalSizing: "auto" }}
-                    >
-                      {String(activeIndex + 1).padStart(2, "0")} / {String(PROJECTS.length).padStart(2, "0")}
-                    </p>
+                    <div className="absolute bottom-[18%] left-[7.5%] z-10 flex flex-col items-center gap-2">
+                      {PROJECTS.map((item, index) => (
+                        <span
+                          key={`${item.id}-pagination`}
+                          ref={(element) => {
+                            paginationRefs.current[index] = element
+                          }}
+                          className="block w-2.5 rounded-full bg-white shadow-[0_1px_8px_rgb(49_66_14/0.22)]"
+                          style={{ height: index === 0 ? 20 : 10, opacity: index === 0 ? 1 : 0.5 }}
+                        />
+                      ))}
+                    </div>
                   </div>
-                  <div className="h-px flex-1 overflow-hidden rounded-full bg-white/10">
-                    <span
-                      ref={progressFillRef}
-                      className="block h-full origin-left bg-[linear-gradient(90deg,#f4d4b8_0%,#f59e72_48%,#ffd1a3_100%)]"
-                    />
-                  </div>
-                </div>
-
-                <div
-                  ref={contentInnerRef}
-                  className="mt-8 will-change-[transform,opacity]"
-                >
-                  <p
-                    className="text-[0.72rem] uppercase tracking-[0.32em] text-[#f7eee4]/58"
-                    style={{ fontFamily: "var(--font-hero-intro)" }}
-                  >
-                    {project.eyebrow}
-                  </p>
-                  <h3
-                    className="mt-3 text-balance text-[clamp(2rem,4.6vw,3.2rem)] leading-[0.95] tracking-[-0.05em] text-[#fff4e8]"
-                    style={{ fontFamily: "var(--font-hero)" }}
-                  >
-                    {project.title}
-                  </h3>
-                  <p
-                    className="mt-4 max-w-[30ch] text-pretty text-[1rem] leading-[1.72] text-[#f7eee4]/72 sm:text-[1.05rem]"
-                    style={{ fontFamily: "var(--font-hero-quote)", fontOpticalSizing: "auto" }}
-                  >
-                    {project.description}
-                  </p>
-                  <a
-                    href={project.href}
-                    className="mt-8 inline-flex items-center gap-3 rounded-full border border-[#f7d4bb]/18 bg-[#f7d4bb]/8 px-5 py-3 text-[0.82rem] uppercase tracking-[0.22em] text-[#fff4e8] transition hover:bg-[#f7d4bb]/14"
-                    style={{ fontFamily: "var(--font-hero-intro)" }}
-                  >
-                    View case study
-                    <span aria-hidden className="text-base leading-none">
-                      ↗
-                    </span>
-                  </a>
                 </div>
               </div>
             </div>
           </div>
 
-          <div
-            ref={manualControlsRef}
-            className={cn(
-              "absolute inset-x-0 bottom-6 z-30 flex items-center justify-center",
-              isManual ? "" : "pointer-events-none",
-            )}
+          <aside
+            ref={railRef}
+            className="absolute inset-x-5 bottom-[5svh] z-20 mx-auto w-[calc(100vw-2.5rem)] max-w-[34rem] sm:inset-x-8 sm:w-[calc(100vw-4rem)] lg:inset-x-auto lg:right-10 lg:top-1/2 lg:w-[min(31rem,33vw)] lg:max-w-none lg:-translate-y-1/2 xl:right-16"
+            aria-label="Project information"
           >
-            <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/35 px-3 py-2 backdrop-blur-xl">
-              <button
-                type="button"
-                onClick={() => {
-                  switchProjectRef.current(activeIndexRef.current - 1)
-                }}
-                className="rounded-full border border-white/10 px-3 py-2 text-[0.72rem] uppercase tracking-[0.22em] text-[#f7eee4]/80"
-                style={{ fontFamily: "var(--font-hero-intro)" }}
+            <div className="mb-8 flex items-start gap-4 lg:mb-11">
+              <p
+                className="shrink-0 text-[3.15rem] leading-none text-[#31420e] md:text-[3.8rem]"
+                style={{ fontFamily: DISPLAY_FONT }}
               >
-                Prev
-              </button>
-              <div className="flex items-center gap-2">
-                {PROJECTS.map((item, index) => (
-                  <button
-                    key={`${item.id}-dot`}
-                    type="button"
-                    onClick={() => {
-                      switchProjectRef.current(index)
-                    }}
-                    className={cn(
-                      "h-2.5 rounded-full transition-all",
-                      activeIndex === index ? "w-8 bg-[#f7d4bb]" : "w-2.5 bg-white/24",
-                    )}
-                    aria-label={`Show project ${index + 1}`}
-                  />
-                ))}
+                {String(progressIndex + 1).padStart(2, "0")}
+              </p>
+              <p
+                className="pt-2 text-[1rem] leading-none text-[#31420e]/46"
+                style={{ fontFamily: BODY_FONT }}
+              >
+                / {String(PROJECTS.length).padStart(2, "0")}
+              </p>
+              <div className="mt-6 h-px flex-1 overflow-hidden bg-[#31420e]/12">
+                <span
+                  ref={progressFillRef}
+                  className="block h-full origin-left bg-[#31420e]"
+                />
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  switchProjectRef.current(activeIndexRef.current + 1)
-                }}
-                className="rounded-full border border-white/10 px-3 py-2 text-[0.72rem] uppercase tracking-[0.22em] text-[#f7eee4]/80"
-                style={{ fontFamily: "var(--font-hero-intro)" }}
-              >
-                Next
-              </button>
             </div>
-          </div>
+
+            <div className="relative min-h-[22rem] overflow-hidden lg:min-h-[25rem]">
+              <div
+                ref={currentRailRef}
+                className="absolute inset-x-0 top-0 will-change-transform"
+              >
+                <p
+                  className="text-[3.1rem] font-medium leading-[0.98] text-[#31420e] md:text-[4rem] lg:text-[4.45rem]"
+                  style={{ fontFamily: DISPLAY_FONT }}
+                >
+                  {currentProject.title}
+                </p>
+                <p
+                  className="mt-7 max-w-[27rem] text-[1.02rem] leading-[1.64] text-[#31420e]/78 md:text-[1.08rem]"
+                  style={{ fontFamily: BODY_FONT }}
+                >
+                  {currentProject.description}
+                </p>
+                <a
+                  href={currentProject.href}
+                  className="mt-8 inline-flex rounded-full border border-[#31420e] px-7 py-3 text-[1rem] leading-none text-[#31420e] transition hover:bg-[#31420e] hover:text-[#f7f7f0]"
+                  style={{ fontFamily: BODY_FONT }}
+                >
+                  View project
+                </a>
+              </div>
+
+              <div
+                ref={nextRailRef}
+                className="absolute inset-x-0 top-0 will-change-transform"
+              >
+                <p
+                  className="text-[3.1rem] font-medium leading-[0.98] text-[#31420e] md:text-[4rem] lg:text-[4.45rem]"
+                  style={{ fontFamily: DISPLAY_FONT }}
+                >
+                  {nextProject.title}
+                </p>
+                <p
+                  className="mt-7 max-w-[27rem] text-[1.02rem] leading-[1.64] text-[#31420e]/78 md:text-[1.08rem]"
+                  style={{ fontFamily: BODY_FONT }}
+                >
+                  {nextProject.description}
+                </p>
+                <a
+                  href={nextProject.href}
+                  className="mt-8 inline-flex rounded-full border border-[#31420e] px-7 py-3 text-[1rem] leading-none text-[#31420e] transition hover:bg-[#31420e] hover:text-[#f7f7f0]"
+                  style={{ fontFamily: BODY_FONT }}
+                >
+                  View project
+                </a>
+              </div>
+            </div>
+          </aside>
         </div>
       </div>
     </section>

@@ -45,7 +45,7 @@ export function App() {
         <OneSystemFlow />
       </section>
 
-      <FooterSection />
+      {/* <FooterSection /> */}
     </div>
   )
 }

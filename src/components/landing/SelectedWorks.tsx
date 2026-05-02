@@ -1,4 +1,5 @@
 import { useRef, useState, type CSSProperties } from "react"
+import { flushSync } from "react-dom"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useGSAP } from "@gsap/react"
@@ -97,8 +98,8 @@ const SCREEN_BOX_STYLE: CSSProperties = {
   height: `${(532 / 1200) * 100}%`,
 }
 
-const DISPLAY_FONT = "'Cormorant Garamond', Georgia, serif"
-const BODY_FONT = "'Lora', Georgia, serif"
+const DISPLAY_FONT = "'Barlow Condensed', sans-serif"
+const BODY_FONT = "var(--font-drh-body)"
 
 function clamp01(value: number) {
   return Math.max(0, Math.min(1, value))
@@ -261,7 +262,9 @@ export function SelectedWorks() {
         if (currentPair.baseIndex === baseIndex && currentPair.nextIndex === nextIndex) return
 
         pairRef.current = { baseIndex, nextIndex }
-        setRailPair({ baseIndex, nextIndex })
+        flushSync(() => {
+          setRailPair({ baseIndex, nextIndex })
+        })
       }
 
       const syncProgressIndex = (nextIndex: number) => {
@@ -362,7 +365,7 @@ export function SelectedWorks() {
         setRailX(0)
         setRailY(0)
         setProgressScale(0)
-        gsap.set(mediaCrop, { clipPath: "inset(0% 0% 0% 0% round 1.85rem)" })
+        gsap.set(mediaCrop, { clipPath: "inset(0% 0% 0% 0% round 1.65rem)" })
         gsap.set([currentRail, nextRail], { clearProps: "transform,opacity,visibility" })
         gsap.set(currentRail, { autoAlpha: 1, y: 0 })
         gsap.set(nextRail, { autoAlpha: 0, y: 52 })
@@ -405,7 +408,7 @@ export function SelectedWorks() {
         setProgressScale(railVisibility > 0 ? mix(0, 0.16, railVisibility) + showcaseProgress * 0.84 : 0)
 
         gsap.set(mediaCrop, {
-          clipPath: `inset(${cropInset}% 0% ${cropInset}% 0% round 1.85rem)`,
+          clipPath: `inset(${cropInset}% 0% ${cropInset}% 0% round 1.65rem)`,
         })
 
         if (progress < ZONES.handoffEnd) {
@@ -465,26 +468,28 @@ export function SelectedWorks() {
     <section
       ref={rootRef}
       className={cn(
-        "relative isolate overflow-hidden bg-white text-[#31420e]",
-        "selection:bg-[#cdd8a9]/55 selection:text-[#233107]",
+        "relative isolate overflow-hidden bg-[var(--color-drh-bg)] text-[var(--color-drh-ink)]",
+        "selection:bg-[var(--color-drh-accent-orange)]/18 selection:text-[var(--color-drh-ink)]",
       )}
       aria-labelledby="selected-works-heading"
     >
       <div
-        className="pointer-events-none absolute inset-0 opacity-80"
+        className="pointer-events-none absolute inset-0 opacity-95"
         aria-hidden
         style={{
           background: `
-            linear-gradient(90deg, rgb(49 66 14 / 0.07) 1px, transparent 1px),
-            radial-gradient(circle at 50% 22%, rgb(159 196 221 / 0.16) 0%, transparent 24%),
-            linear-gradient(180deg, #ffffff 0%, #ffffff 56%, #ffffff 100%)
+            linear-gradient(90deg, rgb(10 10 10 / 0.055) 1px, transparent 1px),
+            linear-gradient(180deg, rgb(10 10 10 / 0.045) 1px, transparent 1px),
+            radial-gradient(circle at 78% 24%, rgb(10 10 10 / 0.055) 0%, transparent 24%),
+            radial-gradient(circle at 18% 78%, rgb(10 10 10 / 0.035) 0%, transparent 22%),
+            linear-gradient(180deg, var(--color-drh-bg) 0%, var(--color-drh-bg) 100%)
           `,
-          backgroundSize: "20vw 100%, auto, auto",
+          backgroundSize: "72px 72px, 72px 72px, auto, auto, auto",
         }}
       />
 
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.05] mix-blend-multiply"
+        className="pointer-events-none absolute inset-0 opacity-[0.045] mix-blend-multiply"
         aria-hidden
         style={{
           backgroundImage:
@@ -500,14 +505,14 @@ export function SelectedWorks() {
           <h2
             ref={titleRef}
             id="selected-works-heading"
-            className="whitespace-nowrap text-[4.4rem] font-medium leading-[0.92] text-[#31420e] sm:text-[6rem] md:text-[7.5rem] lg:text-[9rem] xl:text-[10.5rem]"
-            style={{ fontFamily: DISPLAY_FONT }}
+            className="whitespace-nowrap text-[4.2rem] font-semibold uppercase leading-[0.86] tracking-[-0.025em] text-[var(--color-drh-ink)] sm:text-[5.8rem] md:text-[7.4rem] lg:text-[9rem] xl:text-[10.2rem]"
+            style={{ fontFamily: DISPLAY_FONT, fontStretch: "condensed" }}
           >
             Selected Works
           </h2>
           <p
-            className="mt-5 max-w-[42rem] text-[1.25rem] leading-[1.5] text-[#31420e]/76 md:text-[1.55rem]"
-            style={{ fontFamily: BODY_FONT }}
+            className="mt-5 max-w-[42rem] text-[1.08rem] leading-[1.55] text-[var(--color-drh-ink)]/64 md:text-[1.28rem]"
+            style={{ fontFamily: BODY_FONT, fontVariationSettings: '"opsz" 64, "wght" 430' }}
           >
             Works Made For the Better.
           </p>
@@ -521,9 +526,9 @@ export function SelectedWorks() {
             >
               <div
                 ref={mediaCropRef}
-                className="overflow-hidden rounded-[1.85rem] shadow-[0_34px_78px_rgb(49_66_14/0.12)]"
+                className="overflow-hidden rounded-[1.65rem] shadow-[0_34px_78px_rgb(10_10_10/0.11)]"
               >
-                <div className="relative overflow-hidden rounded-[1.85rem] border border-[#31420e]/10 bg-[#ebeee0]">
+                <div className="relative overflow-hidden rounded-[1.65rem] border border-[var(--color-drh-ink)]/10 bg-[var(--color-drh-surface)]">
                   <div className="relative aspect-[1600/1200] w-full">
                     {PROJECTS.map((item, index) => (
                       <div
@@ -574,7 +579,7 @@ export function SelectedWorks() {
                       aria-hidden
                       style={{
                         background:
-                          "linear-gradient(180deg, rgb(255 255 255 / 0.12) 0%, transparent 16%, transparent 84%, rgb(49 66 14 / 0.05) 100%)",
+                          "linear-gradient(180deg, rgb(255 255 255 / 0.12) 0%, transparent 16%, transparent 84%, rgb(10 10 10 / 0.04) 100%)",
                       }}
                     />
 
@@ -585,7 +590,7 @@ export function SelectedWorks() {
                           ref={(element) => {
                             paginationRefs.current[index] = element
                           }}
-                          className="block w-2.5 rounded-full bg-white shadow-[0_1px_8px_rgb(49_66_14/0.22)]"
+                          className="block w-2.5 rounded-full bg-white shadow-[0_1px_8px_rgb(10_10_10/0.22)]"
                           style={{ height: index === 0 ? 20 : 10, opacity: index === 0 ? 1 : 0.5 }}
                         />
                       ))}
@@ -603,21 +608,21 @@ export function SelectedWorks() {
           >
             <div className="mb-8 flex items-start gap-4 lg:mb-11">
               <p
-                className="shrink-0 text-[3.15rem] leading-none text-[#31420e] md:text-[3.8rem]"
+                className="shrink-0 text-[3.15rem] leading-none text-[var(--color-drh-ink)] md:text-[3.8rem]"
                 style={{ fontFamily: DISPLAY_FONT }}
               >
                 {String(progressIndex + 1).padStart(2, "0")}
               </p>
               <p
-                className="pt-2 text-[1rem] leading-none text-[#31420e]/46"
-                style={{ fontFamily: BODY_FONT }}
+                className="pt-2 text-[1rem] leading-none text-[var(--color-drh-ink)]/42"
+                style={{ fontFamily: BODY_FONT, fontVariationSettings: '"opsz" 64, "wght" 420' }}
               >
                 / {String(PROJECTS.length).padStart(2, "0")}
               </p>
-              <div className="mt-6 h-px flex-1 overflow-hidden bg-[#31420e]/12">
+              <div className="mt-6 h-px flex-1 overflow-hidden bg-[var(--color-drh-ink)]/12">
                 <span
                   ref={progressFillRef}
-                  className="block h-full origin-left bg-[#31420e]"
+                  className="block h-full origin-left bg-[var(--color-drh-accent-orange)]"
                 />
               </div>
             </div>
@@ -628,21 +633,21 @@ export function SelectedWorks() {
                 className="absolute inset-x-0 top-0 will-change-transform"
               >
                 <p
-                  className="text-[3.1rem] font-medium leading-[0.98] text-[#31420e] md:text-[4rem] lg:text-[4.45rem]"
+                  className="text-[3.05rem] font-semibold uppercase leading-[0.88] tracking-[-0.02em] text-[var(--color-drh-ink)] md:text-[3.8rem] lg:text-[4.3rem]"
                   style={{ fontFamily: DISPLAY_FONT }}
                 >
                   {currentProject.title}
                 </p>
                 <p
-                  className="mt-7 max-w-[27rem] text-[1.02rem] leading-[1.64] text-[#31420e]/78 md:text-[1.08rem]"
-                  style={{ fontFamily: BODY_FONT }}
+                  className="mt-7 max-w-[27rem] text-[1.02rem] leading-[1.68] text-[var(--color-drh-ink)]/66 md:text-[1.08rem]"
+                  style={{ fontFamily: BODY_FONT, fontVariationSettings: '"opsz" 64, "wght" 410' }}
                 >
                   {currentProject.description}
                 </p>
                 <a
                   href={currentProject.href}
-                  className="mt-8 inline-flex rounded-full border border-[#31420e] px-7 py-3 text-[1rem] leading-none text-[#31420e] transition hover:bg-[#31420e] hover:text-[#f7f7f0]"
-                  style={{ fontFamily: BODY_FONT }}
+                  className="mt-8 inline-flex rounded-full border border-[var(--color-drh-ink)] px-7 py-3 text-[0.9rem] font-semibold uppercase leading-none tracking-[0.16em] text-[var(--color-drh-ink)] transition hover:border-[var(--color-drh-accent-orange)] hover:bg-[var(--color-drh-accent-orange)] hover:text-white"
+                  style={{ fontFamily: DISPLAY_FONT }}
                 >
                   View project
                 </a>
@@ -653,21 +658,21 @@ export function SelectedWorks() {
                 className="absolute inset-x-0 top-0 will-change-transform"
               >
                 <p
-                  className="text-[3.1rem] font-medium leading-[0.98] text-[#31420e] md:text-[4rem] lg:text-[4.45rem]"
+                  className="text-[3.05rem] font-semibold uppercase leading-[0.88] tracking-[-0.02em] text-[var(--color-drh-ink)] md:text-[3.8rem] lg:text-[4.3rem]"
                   style={{ fontFamily: DISPLAY_FONT }}
                 >
                   {nextProject.title}
                 </p>
                 <p
-                  className="mt-7 max-w-[27rem] text-[1.02rem] leading-[1.64] text-[#31420e]/78 md:text-[1.08rem]"
-                  style={{ fontFamily: BODY_FONT }}
+                  className="mt-7 max-w-[27rem] text-[1.02rem] leading-[1.68] text-[var(--color-drh-ink)]/66 md:text-[1.08rem]"
+                  style={{ fontFamily: BODY_FONT, fontVariationSettings: '"opsz" 64, "wght" 410' }}
                 >
                   {nextProject.description}
                 </p>
                 <a
                   href={nextProject.href}
-                  className="mt-8 inline-flex rounded-full border border-[#31420e] px-7 py-3 text-[1rem] leading-none text-[#31420e] transition hover:bg-[#31420e] hover:text-[#f7f7f0]"
-                  style={{ fontFamily: BODY_FONT }}
+                  className="mt-8 inline-flex rounded-full border border-[var(--color-drh-ink)] px-7 py-3 text-[0.9rem] font-semibold uppercase leading-none tracking-[0.16em] text-[var(--color-drh-ink)] transition hover:border-[var(--color-drh-accent-orange)] hover:bg-[var(--color-drh-accent-orange)] hover:text-white"
+                  style={{ fontFamily: DISPLAY_FONT }}
                 >
                   View project
                 </a>

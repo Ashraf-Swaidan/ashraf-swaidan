@@ -24,8 +24,10 @@ type RailPair = {
 }
 
 type LayoutMetrics = {
+  profile: "mobile" | "tablet" | "desktop" | "wide"
   isDesktop: boolean
   isTablet: boolean
+  hasHorizontalHandoff: boolean
   headerExitY: number
   mediaStartY: number
   mediaMidY: number
@@ -35,7 +37,11 @@ type LayoutMetrics = {
   mediaShiftX: number
   railStartX: number
   railStartY: number
+  railYPercent: number
   cropStart: number
+  titleFinalScale: number
+  scrollDistanceMultiplier: number
+  scrollDistanceMin: number
 }
 
 const PROJECTS: WorkProject[] = [
@@ -125,7 +131,9 @@ function easeInOutSine(value: number) {
 }
 
 function getScrollDistance() {
-  return Math.max(window.innerHeight * 7.8, 5600)
+  const metrics = getLayoutMetrics()
+
+  return Math.max(window.innerHeight * metrics.scrollDistanceMultiplier, metrics.scrollDistanceMin)
 }
 
 function getLayoutMetrics(): LayoutMetrics {
@@ -133,37 +141,96 @@ function getLayoutMetrics(): LayoutMetrics {
   const height = window.innerHeight
   const isDesktop = width >= 1024
   const isTablet = width >= 768 && width < 1024
+  const isWide = width >= 1680
 
-  if (isDesktop) {
+  if (isWide) {
     return {
+      profile: "wide",
       isDesktop,
       isTablet,
+      hasHorizontalHandoff: true,
       headerExitY: -Math.min(430, height * 0.5),
       mediaStartY: Math.min(190, height * 0.24),
       mediaMidY: -Math.min(58, height * 0.08),
       mediaFinalY: 0,
-      mediaStartScale: width >= 1440 ? 0.58 : 0.64,
+      mediaStartScale: 0.58,
       mediaFinalScale: 1,
-      mediaShiftX: width >= 1440 ? -300 : width >= 1280 ? -250 : -190,
-      railStartX: 88,
+      mediaShiftX: -Math.min(360, width * 0.19),
+      railStartX: 76,
       railStartY: 18,
+      railYPercent: -50,
       cropStart: 22,
+      titleFinalScale: 0.7,
+      scrollDistanceMultiplier: 8.1,
+      scrollDistanceMin: 6200,
+    }
+  }
+
+  if (isDesktop) {
+    return {
+      profile: "desktop",
+      isDesktop,
+      isTablet,
+      hasHorizontalHandoff: true,
+      headerExitY: -Math.min(410, height * 0.5),
+      mediaStartY: Math.min(178, height * 0.23),
+      mediaMidY: -Math.min(54, height * 0.08),
+      mediaFinalY: 0,
+      mediaStartScale: width >= 1280 ? 0.62 : 0.66,
+      mediaFinalScale: 1,
+      mediaShiftX: width >= 1440 ? -300 : width >= 1280 ? -260 : -210,
+      railStartX: 82,
+      railStartY: 18,
+      railYPercent: -50,
+      cropStart: 22,
+      titleFinalScale: 0.7,
+      scrollDistanceMultiplier: 7.8,
+      scrollDistanceMin: 5600,
+    }
+  }
+
+  if (isTablet) {
+    return {
+      profile: "tablet",
+      isDesktop,
+      isTablet,
+      hasHorizontalHandoff: false,
+      headerExitY: -Math.min(360, height * 0.44),
+      mediaStartY: Math.min(150, height * 0.2),
+      mediaMidY: -Math.min(72, height * 0.09),
+      mediaFinalY: -Math.min(150, height * 0.17),
+      mediaStartScale: 0.68,
+      mediaFinalScale: 0.92,
+      mediaShiftX: 0,
+      railStartX: 0,
+      railStartY: Math.min(96, height * 0.12),
+      railYPercent: 0,
+      cropStart: 18,
+      titleFinalScale: 0.76,
+      scrollDistanceMultiplier: 6.8,
+      scrollDistanceMin: 4600,
     }
   }
 
   return {
+    profile: "mobile",
     isDesktop,
     isTablet,
+    hasHorizontalHandoff: false,
     headerExitY: -Math.min(330, height * 0.44),
-    mediaStartY: isTablet ? Math.min(150, height * 0.2) : Math.min(120, height * 0.18),
-    mediaMidY: isTablet ? -24 : -12,
-    mediaFinalY: isTablet ? 0 : -10,
-    mediaStartScale: isTablet ? 0.66 : 0.78,
-    mediaFinalScale: isTablet ? 0.9 : 0.86,
+    mediaStartY: Math.min(116, height * 0.17),
+    mediaMidY: -Math.min(56, height * 0.08),
+    mediaFinalY: -Math.min(150, height * 0.18),
+    mediaStartScale: width < 390 ? 0.84 : 0.8,
+    mediaFinalScale: width < 390 ? 0.9 : 0.88,
     mediaShiftX: 0,
     railStartX: 0,
-    railStartY: 34,
+    railStartY: Math.min(90, height * 0.12),
+    railYPercent: 0,
     cropStart: 18,
+    titleFinalScale: 0.82,
+    scrollDistanceMultiplier: 6.2,
+    scrollDistanceMin: 3600,
   }
 }
 
@@ -254,7 +321,7 @@ export function SelectedWorks() {
       }
 
       const setRailLayoutAnchor = () => {
-        setRailYPercent(metrics.isDesktop ? -50 : 0)
+        setRailYPercent(metrics.railYPercent)
       }
 
       const syncPairState = (baseIndex: number, nextIndex: number) => {
@@ -356,7 +423,7 @@ export function SelectedWorks() {
       const applyFinalReadableLayout = () => {
         metrics = getLayoutMetrics()
         setHeaderY(metrics.headerExitY)
-        setTitleScale(0.7)
+        setTitleScale(metrics.titleFinalScale)
         setMediaX(metrics.mediaShiftX)
         setMediaY(metrics.mediaFinalY)
         setMediaScale(metrics.mediaFinalScale)
@@ -392,12 +459,14 @@ export function SelectedWorks() {
           ? mix(metrics.mediaStartY, metrics.mediaMidY, easeInOutSine(mapRange(progress, 0, ZONES.headerExitEnd)))
           : mix(metrics.mediaMidY, metrics.mediaFinalY, easeInOutSine(mediaExpand))
         const mediaScale = mix(metrics.mediaStartScale, metrics.mediaFinalScale, easeOutCubic(mediaExpand))
-        const mediaX = mix(0, metrics.mediaShiftX, easeInOutSine(handoff))
+        const mediaX = metrics.hasHorizontalHandoff
+          ? mix(0, metrics.mediaShiftX, easeInOutSine(handoff))
+          : 0
         const cropInset = mix(metrics.cropStart, 0, easeInOutSine(mediaExpand))
         const railVisibility = easeOutCubic(handoff)
 
         setHeaderY(headerY)
-        setTitleScale(mix(1, 0.7, easeOutCubic(mapRange(progress, 0, ZONES.headerExitEnd))))
+        setTitleScale(mix(1, metrics.titleFinalScale, easeOutCubic(mapRange(progress, 0, ZONES.headerExitEnd))))
         setMediaX(mediaX)
         setMediaY(mediaY)
         setMediaScale(mediaScale)
@@ -505,7 +574,7 @@ export function SelectedWorks() {
           <h2
             ref={titleRef}
             id="selected-works-heading"
-            className="whitespace-nowrap text-[4.2rem] font-semibold uppercase leading-[0.86] tracking-[-0.025em] text-[var(--color-drh-ink)] sm:text-[5.8rem] md:text-[7.4rem] lg:text-[9rem] xl:text-[10.2rem]"
+            className="whitespace-nowrap text-[clamp(3.05rem,15.5vw,4.2rem)] font-semibold uppercase leading-[0.86] tracking-[-0.025em] text-[var(--color-drh-ink)] sm:text-[5.8rem] md:text-[7.4rem] lg:text-[9rem] xl:text-[10.2rem]"
             style={{ fontFamily: DISPLAY_FONT, fontStretch: "condensed" }}
           >
             Selected Works
@@ -522,7 +591,7 @@ export function SelectedWorks() {
           <div className="absolute inset-x-4 top-1/2 flex -translate-y-1/2 items-center justify-center sm:inset-x-6 lg:inset-x-10">
             <div
               ref={mediaShellRef}
-              className="relative z-10 w-[min(100%,76rem)] max-w-[calc((100svh-3rem)*1.333)] lg:w-[min(58vw,68rem)] lg:max-w-[calc((100svh-5rem)*1.333)]"
+              className="relative z-10 w-[min(100%,68rem)] max-w-[calc((100svh-3rem)*1.333)] sm:w-[min(92vw,72rem)] md:w-[min(84vw,76rem)] lg:w-[min(58vw,68rem)] lg:max-w-[calc((100svh-5rem)*1.333)] xl:w-[min(52vw,68rem)] 2xl:w-[min(48vw,70rem)]"
             >
               <div
                 ref={mediaCropRef}
@@ -603,12 +672,12 @@ export function SelectedWorks() {
 
           <aside
             ref={railRef}
-            className="absolute inset-x-5 bottom-[5svh] z-20 mx-auto w-[calc(100vw-2.5rem)] max-w-[34rem] sm:inset-x-8 sm:w-[calc(100vw-4rem)] lg:inset-x-auto lg:right-10 lg:top-1/2 lg:w-[min(31rem,33vw)] lg:max-w-none lg:-translate-y-1/2 xl:right-16"
+            className="absolute inset-x-5 bottom-[3.5svh] z-20 mx-auto w-[calc(100vw-2.5rem)] max-w-[34rem] sm:inset-x-8 sm:bottom-[4svh] sm:w-[calc(100vw-4rem)] lg:inset-x-auto lg:bottom-auto lg:right-10 lg:top-1/2 lg:w-[min(31rem,33vw)] lg:max-w-none lg:-translate-y-1/2 xl:right-16 2xl:right-[clamp(4rem,7vw,9rem)]"
             aria-label="Project information"
           >
-            <div className="mb-8 flex items-start gap-4 lg:mb-11">
+            <div className="mb-5 flex items-start gap-3 sm:mb-7 sm:gap-4 lg:mb-11">
               <p
-                className="shrink-0 text-[3.15rem] leading-none text-[var(--color-drh-ink)] md:text-[3.8rem]"
+                className="shrink-0 text-[2.65rem] leading-none text-[var(--color-drh-ink)] md:text-[3.35rem] lg:text-[3.8rem]"
                 style={{ fontFamily: DISPLAY_FONT }}
               >
                 {String(progressIndex + 1).padStart(2, "0")}
@@ -619,7 +688,7 @@ export function SelectedWorks() {
               >
                 / {String(PROJECTS.length).padStart(2, "0")}
               </p>
-              <div className="mt-6 h-px flex-1 overflow-hidden bg-[var(--color-drh-ink)]/12">
+              <div className="mt-5 h-px flex-1 overflow-hidden bg-[var(--color-drh-ink)]/12 sm:mt-6">
                 <span
                   ref={progressFillRef}
                   className="block h-full origin-left bg-[var(--color-drh-accent-orange)]"
@@ -627,26 +696,26 @@ export function SelectedWorks() {
               </div>
             </div>
 
-            <div className="relative min-h-[22rem] overflow-hidden lg:min-h-[25rem]">
+            <div className="relative min-h-[16.5rem] overflow-hidden sm:min-h-[19rem] md:min-h-[21rem] lg:min-h-[25rem]">
               <div
                 ref={currentRailRef}
                 className="absolute inset-x-0 top-0 will-change-transform"
               >
                 <p
-                  className="text-[3.05rem] font-semibold uppercase leading-[0.88] tracking-[-0.02em] text-[var(--color-drh-ink)] md:text-[3.8rem] lg:text-[4.3rem]"
+                  className="text-[clamp(2.3rem,11vw,3.05rem)] font-semibold uppercase leading-[0.88] tracking-[-0.02em] text-[var(--color-drh-ink)] md:text-[3.65rem] lg:text-[4.3rem]"
                   style={{ fontFamily: DISPLAY_FONT }}
                 >
                   {currentProject.title}
                 </p>
                 <p
-                  className="mt-7 max-w-[27rem] text-[1.02rem] leading-[1.68] text-[var(--color-drh-ink)]/66 md:text-[1.08rem]"
+                  className="mt-5 max-w-[27rem] text-[0.96rem] leading-[1.6] text-[var(--color-drh-ink)]/66 sm:mt-6 md:mt-7 md:text-[1.08rem]"
                   style={{ fontFamily: BODY_FONT, fontVariationSettings: '"opsz" 64, "wght" 410' }}
                 >
                   {currentProject.description}
                 </p>
                 <a
                   href={currentProject.href}
-                  className="mt-8 inline-flex rounded-full border border-[var(--color-drh-ink)] px-7 py-3 text-[0.9rem] font-semibold uppercase leading-none tracking-[0.16em] text-[var(--color-drh-ink)] transition hover:border-[var(--color-drh-accent-orange)] hover:bg-[var(--color-drh-accent-orange)] hover:text-white"
+                  className="mt-6 inline-flex rounded-full border border-[var(--color-drh-ink)] px-6 py-2.5 text-[0.82rem] font-semibold uppercase leading-none tracking-[0.16em] text-[var(--color-drh-ink)] transition hover:border-[var(--color-drh-accent-orange)] hover:bg-[var(--color-drh-accent-orange)] hover:text-white sm:mt-8 sm:px-7 sm:py-3 sm:text-[0.9rem]"
                   style={{ fontFamily: DISPLAY_FONT }}
                 >
                   View project
@@ -658,20 +727,20 @@ export function SelectedWorks() {
                 className="absolute inset-x-0 top-0 will-change-transform"
               >
                 <p
-                  className="text-[3.05rem] font-semibold uppercase leading-[0.88] tracking-[-0.02em] text-[var(--color-drh-ink)] md:text-[3.8rem] lg:text-[4.3rem]"
+                  className="text-[clamp(2.3rem,11vw,3.05rem)] font-semibold uppercase leading-[0.88] tracking-[-0.02em] text-[var(--color-drh-ink)] md:text-[3.65rem] lg:text-[4.3rem]"
                   style={{ fontFamily: DISPLAY_FONT }}
                 >
                   {nextProject.title}
                 </p>
                 <p
-                  className="mt-7 max-w-[27rem] text-[1.02rem] leading-[1.68] text-[var(--color-drh-ink)]/66 md:text-[1.08rem]"
+                  className="mt-5 max-w-[27rem] text-[0.96rem] leading-[1.6] text-[var(--color-drh-ink)]/66 sm:mt-6 md:mt-7 md:text-[1.08rem]"
                   style={{ fontFamily: BODY_FONT, fontVariationSettings: '"opsz" 64, "wght" 410' }}
                 >
                   {nextProject.description}
                 </p>
                 <a
                   href={nextProject.href}
-                  className="mt-8 inline-flex rounded-full border border-[var(--color-drh-ink)] px-7 py-3 text-[0.9rem] font-semibold uppercase leading-none tracking-[0.16em] text-[var(--color-drh-ink)] transition hover:border-[var(--color-drh-accent-orange)] hover:bg-[var(--color-drh-accent-orange)] hover:text-white"
+                  className="mt-6 inline-flex rounded-full border border-[var(--color-drh-ink)] px-6 py-2.5 text-[0.82rem] font-semibold uppercase leading-none tracking-[0.16em] text-[var(--color-drh-ink)] transition hover:border-[var(--color-drh-accent-orange)] hover:bg-[var(--color-drh-accent-orange)] hover:text-white sm:mt-8 sm:px-7 sm:py-3 sm:text-[0.9rem]"
                   style={{ fontFamily: DISPLAY_FONT }}
                 >
                   View project

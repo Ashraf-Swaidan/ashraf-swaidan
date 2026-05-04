@@ -4,6 +4,9 @@ import "./index.css"
 import App from "./App.tsx"
 import { SmoothScroll } from "@/components/SmoothScroll.tsx"
 import { ThemeProvider } from "@/components/theme-provider.tsx"
+import { injectSelectedWorksVideoHints } from "@/lib/injectSelectedWorksVideoHints"
+
+injectSelectedWorksVideoHints()
 
 createRoot(document.getElementById("root")!).render(
   <ThemeProvider>

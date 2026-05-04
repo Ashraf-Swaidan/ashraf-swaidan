@@ -5,6 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useGSAP } from "@gsap/react"
 import { useReducedMotion } from "motion/react"
 
+import { SELECTED_WORKS_VIDEOS } from "@/constants/selectedWorksVideos"
 import { cn } from "@/lib/utils"
 
 gsap.registerPlugin(useGSAP, ScrollTrigger)
@@ -13,6 +14,7 @@ type WorkProject = {
   id: string
   title: string
   description: string
+  logoSrc: string
   imageSrc: string
   videoSrc: string
   href: string
@@ -51,39 +53,43 @@ type LayoutMetrics = {
 
 const PROJECTS: WorkProject[] = [
   {
-    id: "duwit",
-    title: "Duwit",
-    description:
-      "A goal-to-completion AI system that turns vague ambition into roadmaps, task coaching, memory, and actual momentum.",
-    imageSrc: "/assets/lap-animation-assets/lap1.jpg",
-    videoSrc: "/assets/lap-animation-assets/video1.mp4",
-    href: "#",
-  },
-  {
     id: "papion",
     title: "Papion System",
     description:
-      "A live operations product built around inventory, finance, customers, suppliers, and workflows that remove friction instead of adding it.",
-    imageSrc: "/assets/lap-animation-assets/lap2.jpg",
-    videoSrc: "/assets/lap-animation-assets/video2.mp4",
+      "A production-grade operations command center built for Papion; a multi-branch event decorations business. It unifies every business aspect into a single, high-performance interface that powers real-world daily execution.",
+    logoSrc: "/assets/selected-works-logos/papion-logo.svg",
+    imageSrc: "/assets/lap-animation-assets/papion-lap.jpg",
+    videoSrc: SELECTED_WORKS_VIDEOS.papion,
     href: "#",
   },
   {
-    id: "coducation",
-    title: "Coducation",
+    id: "duwit",
+    title: "Duwit",
     description:
-      "A teaching-first product direction focused on clearer learning surfaces, stronger onboarding, and faster user understanding.",
-    imageSrc: "/assets/lap-animation-assets/lap3.jpg",
-    videoSrc: "/assets/lap-animation-assets/video1.mp4",
+      "An intelligent execution partner that bridges the gap between ambition and action. Using adaptive AI coaching and durable memory, it turns vague goals into structured, phased roadmaps that evolve with your progress.",
+    logoSrc: "/assets/selected-works-logos/duwit-logo.svg",
+    imageSrc: "/assets/lap-animation-assets/duwit-lap.jpg",
+    videoSrc: SELECTED_WORKS_VIDEOS.duwit,
     href: "#",
   },
   {
-    id: "akanan",
-    title: "Akanan TV",
+    id: "ak-system",
+    title: "Ak System",
     description:
-      "A narrative-heavy media interface exploring motion pacing, visual continuity, and cleaner handoff between content states.",
-    imageSrc: "/assets/lap-animation-assets/lap4.jpg",
-    videoSrc: "/assets/lap-animation-assets/video2.mp4",
+      "A high-performance retail operating system built for an electronics business. It replaces fragmented manual processes with a calm, bilingual workspace that masters inventory precision and storefront control.",
+    logoSrc: "/assets/selected-works-logos/ak-logo.svg",
+    imageSrc: "/assets/lap-animation-assets/ak-lap.jpg",
+    videoSrc: SELECTED_WORKS_VIDEOS.ak,
+    href: "#",
+  },
+  {
+    id: "twodo",
+    title: "Twodo",
+    description:
+      "A task management experiment focused on absolute simplicity. Built with a 'one-click' mindset, it strips away the noise to provide a collaborative, low-friction surface where focus remains on the work, not the tool.",
+    logoSrc: "/assets/selected-works-logos/twodo-logo.png",
+    imageSrc: "/assets/lap-animation-assets/twodo-lap.jpg",
+    videoSrc: SELECTED_WORKS_VIDEOS.twodo,
     href: "#",
   },
 ]
@@ -759,19 +765,33 @@ export function SelectedWorks() {
               </div>
             </div>
 
-            <div className="relative min-h-[16.5rem] overflow-hidden sm:min-h-[19rem] md:min-h-[21rem] lg:min-h-[25rem]">
+            <div className="relative min-h-[18.5rem] overflow-hidden sm:min-h-[21rem] md:min-h-[23rem] lg:min-h-[27rem]">
               <div
                 ref={currentRailRef}
                 className="absolute inset-x-0 top-0 will-change-transform"
               >
+                <div className="flex items-center gap-4 sm:gap-6">
+                  <div className="shrink-0">
+                    <img
+                      src={currentProject.logoSrc}
+                      alt=""
+                      width={160}
+                      height={160}
+                      className="h-12 w-12 object-contain sm:h-16 sm:w-16 md:h-20 md:w-20"
+                      aria-hidden
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                  <p
+                    className="text-[clamp(1.8rem,8vw,2.4rem)] font-semibold uppercase leading-[0.9] tracking-[-0.02em] text-[var(--color-drh-ink)] md:text-[2.8rem] lg:text-[3.2rem] xl:text-[3.6rem] 2xl:text-[4.2rem]"
+                    style={{ fontFamily: DISPLAY_FONT }}
+                  >
+                    {currentProject.title}
+                  </p>
+                </div>
                 <p
-                  className="text-[clamp(2.3rem,11vw,3.05rem)] font-semibold uppercase leading-[0.88] tracking-[-0.02em] text-[var(--color-drh-ink)] md:text-[3.65rem] lg:text-[4.45rem] xl:text-[4.95rem] 2xl:text-[5.55rem]"
-                  style={{ fontFamily: DISPLAY_FONT }}
-                >
-                  {currentProject.title}
-                </p>
-                <p
-                  className="mt-5 max-w-[27rem] text-[0.96rem] leading-[1.6] text-[var(--color-drh-ink)]/66 sm:mt-6 md:mt-7 md:text-[1.08rem] xl:max-w-[31rem] xl:text-[1.18rem] xl:leading-[1.68] 2xl:max-w-[34rem] 2xl:text-[1.28rem]"
+                  className="mt-6 max-w-[27rem] text-[0.96rem] leading-[1.6] text-[var(--color-drh-ink)]/66 sm:mt-8 md:mt-10 md:text-[1.08rem] xl:max-w-[31rem] xl:text-[1.18rem] xl:leading-[1.68] 2xl:max-w-[34rem] 2xl:text-[1.28rem]"
                   style={{ fontFamily: BODY_FONT, fontVariationSettings: '"opsz" 64, "wght" 410' }}
                 >
                   {currentProject.description}
@@ -789,14 +809,28 @@ export function SelectedWorks() {
                 ref={nextRailRef}
                 className="absolute inset-x-0 top-0 will-change-transform"
               >
+                <div className="flex items-center gap-4 sm:gap-6">
+                  <div className="shrink-0">
+                    <img
+                      src={nextProject.logoSrc}
+                      alt=""
+                      width={160}
+                      height={160}
+                      className="h-12 w-12 object-contain sm:h-16 sm:w-16 md:h-20 md:w-20"
+                      aria-hidden
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                  <p
+                    className="text-[clamp(1.8rem,8vw,2.4rem)] font-semibold uppercase leading-[0.9] tracking-[-0.02em] text-[var(--color-drh-ink)] md:text-[2.8rem] lg:text-[3.2rem] xl:text-[3.6rem] 2xl:text-[4.2rem]"
+                    style={{ fontFamily: DISPLAY_FONT }}
+                  >
+                    {nextProject.title}
+                  </p>
+                </div>
                 <p
-                  className="text-[clamp(2.3rem,11vw,3.05rem)] font-semibold uppercase leading-[0.88] tracking-[-0.02em] text-[var(--color-drh-ink)] md:text-[3.65rem] lg:text-[4.45rem] xl:text-[4.95rem] 2xl:text-[5.55rem]"
-                  style={{ fontFamily: DISPLAY_FONT }}
-                >
-                  {nextProject.title}
-                </p>
-                <p
-                  className="mt-5 max-w-[27rem] text-[0.96rem] leading-[1.6] text-[var(--color-drh-ink)]/66 sm:mt-6 md:mt-7 md:text-[1.08rem] xl:max-w-[31rem] xl:text-[1.18rem] xl:leading-[1.68] 2xl:max-w-[34rem] 2xl:text-[1.28rem]"
+                  className="mt-6 max-w-[27rem] text-[0.96rem] leading-[1.6] text-[var(--color-drh-ink)]/66 sm:mt-8 md:mt-10 md:text-[1.08rem] xl:max-w-[31rem] xl:text-[1.18rem] xl:leading-[1.68] 2xl:max-w-[34rem] 2xl:text-[1.28rem]"
                   style={{ fontFamily: BODY_FONT, fontVariationSettings: '"opsz" 64, "wght" 410' }}
                 >
                   {nextProject.description}

@@ -428,7 +428,7 @@ function getSurfaceContentStyle(surface: IntroCardSurface): CSSProperties {
   }
 }
 
-export function FooterSection() {
+export function FooterComponent() {
   const rootRef = useRef<HTMLElement>(null)
   const fieldRef = useRef<HTMLDivElement>(null)
   const eyebrowRef = useRef<HTMLParagraphElement>(null)

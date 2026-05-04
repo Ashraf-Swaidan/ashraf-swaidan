@@ -1,9 +1,7 @@
 import { useState } from "react"
 import { AshLegend } from "./components/landing/AshFixes/AshDot"
 import { DesignRevisionHero } from "./components/landing/DesignRevisionHero"
-import { FooterSection } from "./components/landing/FooterSection"
-import { HeroSection } from "./components/landing/HeroSection"
-import { OneSystemFlow } from "./components/landing/one-system-flow/OneSystemFlow"
+
 import { ManifestoSection } from "./components/landing/ManifestoSection"
 import { SelectedWorks } from "./components/landing/SelectedWorks"
 export function App() {
@@ -39,13 +37,9 @@ export function App() {
 
       <ManifestoSection />
       <SelectedWorks />
-      <HeroSection />
 
-      <section className="border-t border-border">
-        <OneSystemFlow />
-      </section>
+      
 
-      {/* <FooterSection /> */}
     </div>
   )
 }

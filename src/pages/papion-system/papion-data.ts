@@ -8,6 +8,10 @@ export const PAPION_VIDEO_HERO = "/assets/lap-animation-assets/papion.mp4"
 export const PAPION_ORDER_SPINE_VIDEO =
   "/assets/lap-animation-assets/papion-workflow-order.mp4"
 
+/** Module-explorer screen recordings under `public/assets/papion-page/papion-videos/`. */
+const papionExplorerVideo = (filename: string) =>
+  `/assets/papion-page/papion-videos/${filename}`
+
 export const PAPION_LOGO = "/assets/selected-works-logos/papion-logo.svg"
 export const EXCEL_ICON_SRC = "/assets/excel.svg"
 
@@ -78,6 +82,9 @@ export const CASE_ASSETS = {
   responsiveTablet: "/assets/papion-case/papion-responsive-sales-tablet.png",
   responsiveMobile: "/assets/papion-case/papion-responsive-sales-mobile.png",
   financeClip: "/assets/lap-animation-assets/papion-finance-control.mp4",
+  /** Poster / sample still for expense receipt upload clip */
+  receiptSample:
+    "/assets/papion-page/papion-screenshots/reciept-sample.jpg",
 } as const
 
 export type AtlasTabId =
@@ -283,6 +290,32 @@ export type ExplorerPrimaryMedia =
       src: string
       /** Shown if the video fails to load */
       posterAssetKey?: keyof typeof CASE_ASSETS
+      /** `landscape` 16:9, `portrait` phone-tall, `tablet` ~4:3 (iPad-style). */
+      videoFraming?: "landscape" | "portrait" | "tablet"
+    }
+
+/** Expandable “uncommon beat” with in-panel copy; optional media on the right when expanded. */
+export type ExplorerFeatureSpotlight =
+  | {
+      id: string
+      title: string
+      /** One line when the panel is collapsed */
+      teaser: string
+      body: readonly string[]
+      primaryMedia: ExplorerPrimaryMedia
+      plannedMediaFallback: string
+      /** Mini attachment card; opens full image (e.g. receipt vs video) */
+      demoAttachment?: {
+        assetKey: keyof typeof CASE_ASSETS
+        label: string
+        imageAlt: string
+      }
+    }
+  | {
+      id: string
+      title: string
+      teaser: string
+      body: readonly string[]
     }
 
 export type ExplorerModuleEntry = {
@@ -290,24 +323,26 @@ export type ExplorerModuleEntry = {
   label: string
   headline: string
   intro: string
-  /** 2–3 uncommon beats; kept short on purpose */
+  /** Short pills; shown below collapsible spotlights when both exist */
   rareFeatures: readonly string[]
   whyMatters: string
   primaryMedia: ExplorerPrimaryMedia
   plannedMediaFallback: string
+  /** Optional collapsible feature deep-dives (full-width below the main grid) */
+  featureSpotlights?: readonly ExplorerFeatureSpotlight[]
 }
 
 export const MODULE_EXPLORER_ENTRIES: ExplorerModuleEntry[] = [
   {
     id: "sales",
     label: "Sales",
-    headline: "Orders that mix inventories without pretending they are one catalog.",
+    headline: "One sales surface that reaches across inventories, payments, and follow-up.",
     intro:
-      "Retail and wholesale profiles, drafts, follow-up, and a calendar that respects real delivery pressure. One cart can carry line items from different production families with the right rules for each.",
+      "Create orders from eight inventory domains in a single flow. Choose order type—instant, due date, or event. Pick customers quickly, scan barcodes when the counter is busy, take partial payment, and track what is still unpaid in its own place. Tasks sit beside the work, and sales insights go deep enough to steer without exporting.",
     rareFeatures: [
-      "Mixed-inventory lines in a single customer order",
-      "Unpaid and partial-pay visibility next to the sale",
-      "Tasks and calendar tied to sales rhythm, not a separate app",
+      "Eight inventories in one order flow",
+      "Instant / due-date / event order types",
+      "Partial pay, unpaid area, tasks, and deep sales insights",
     ],
     whyMatters:
       "Decor businesses sell stories and deadlines—sales tooling has to match how stock and money actually move.",
@@ -318,6 +353,57 @@ export const MODULE_EXPLORER_ENTRIES: ExplorerModuleEntry[] = [
     },
     plannedMediaFallback:
       "Screenshot or clip: order surface with mixed lines — `papion-module-sales.png` / `papion-workflow-order.mp4`",
+    featureSpotlights: [
+      {
+        id: "order-drafts",
+        title: "Order drafts",
+        teaser:
+          "Long order in progress? Save the cart—or reload the customer’s last draft—instead of starting over.",
+        body: [
+          "Big orders get interrupted: a phone call, a shift change, a crash. Drafts let you save the in-progress order and bring it back later, or load the customer’s previous order instance so you are not retyping lines from memory.",
+        ],
+        primaryMedia: {
+          kind: "video",
+          src: papionExplorerVideo("order-load-draft.mp4"),
+          posterAssetKey: "sales",
+        },
+        plannedMediaFallback:
+          "Clip: save or load an order draft (`order-load-draft.mp4`)",
+      },
+      {
+        id: "bulk-pay-unpaid",
+        title: "Bulk repay a customer's unpaid orders",
+        teaser:
+          "Filter unpaid orders by customer, then mark all of that customer's debt as fully paid in one action.",
+        body: [
+          "When a customer returns to clear old debt, staff should not open and settle every order one by one. In the unpaid section, filter by customer to isolate only their outstanding orders, then run a bulk action to mark the full set as paid.",
+          "It is fast, less error-prone, and keeps debt recovery practical during busy shifts.",
+        ],
+        primaryMedia: {
+          kind: "video",
+          src: papionExplorerVideo("bulk-pay-order.mp4"),
+          posterAssetKey: "sales",
+        },
+        plannedMediaFallback:
+          "Clip: filter unpaid by customer and bulk repay (`bulk-pay-order.mp4`)",
+      },
+      {
+        id: "order-calendar-agenda",
+        title: "Calendar and agenda for due-date orders",
+        teaser:
+          "Due-date orders land in a calendar/agenda view so teams can plan ahead and not miss critical deliveries.",
+        body: [
+          "Orders with due dates are surfaced in a calendar and agenda timeline that fits daily operations. Teams can scan upcoming commitments, spot pressure days early, and coordinate workload before deadlines become emergencies.",
+        ],
+        primaryMedia: {
+          kind: "video",
+          src: papionExplorerVideo("order-calendar-agenda.mp4"),
+          posterAssetKey: "sales",
+        },
+        plannedMediaFallback:
+          "Clip: due-date order calendar and agenda (`order-calendar-agenda.mp4`)",
+      },
+    ],
   },
   {
     id: "inventory",
@@ -332,26 +418,103 @@ export const MODULE_EXPLORER_ENTRIES: ExplorerModuleEntry[] = [
     ],
     whyMatters:
       "When shelf reality is messy, the inventory model has to stay honest or everything downstream lies.",
-    primaryMedia: { kind: "image", assetKey: "inventory" },
+    primaryMedia: {
+      kind: "video",
+      src: papionExplorerVideo("inventory-video.mp4"),
+      posterAssetKey: "inventory",
+    },
     plannedMediaFallback:
       "Screenshot: category landing or grid — `papion-module-inventory.png`",
+    featureSpotlights: [
+      {
+        id: "stands-3d",
+        title: "Stands: photo plus a lightweight 3D preview",
+        teaser:
+          "Each stand carries a flat image and a compressed 3D model—upload your own or generate from the photo with image-to-3D.",
+        body: [
+          "Stands are visual products: a thumbnail is not always enough. The stands domain stores a reference image and a compressed 3D asset so the item reads clearly in the UI. Bring your own GLB (or equivalent) if you already have one, or run image-to-3D to build a small, upload-ready model from the stand photo and attach it in the same record.",
+        ],
+        primaryMedia: {
+          kind: "video",
+          src: papionExplorerVideo("3D-model-stands.mp4"),
+          posterAssetKey: "inventory",
+        },
+        plannedMediaFallback:
+          "Clip: stand image and 3D model flow (`3D-model-stands.mp4`)",
+      },
+      {
+        id: "inventory-export",
+        title: "Filtered exports: Excel, barcodes, and a print PDF",
+        teaser:
+          "Whatever is on screen after your filters—export it to Excel, backfill missing barcodes, or print a barcode sheet in one step.",
+        body: [
+          "The list you see is the list you act on. Narrow by category or any other criteria, then use a single control to download an Excel workbook of those rows when someone still wants to work in a spreadsheet.",
+          "From the same scoped set, another action assigns barcodes to every item that is missing one. A third produces a PDF of those barcodes, laid out for printing—so label runs match the subset you filtered, not the entire catalog by mistake.",
+        ],
+        primaryMedia: {
+          kind: "video",
+          src: papionExplorerVideo("inventory-export.mp4"),
+          posterAssetKey: "inventory",
+        },
+        plannedMediaFallback:
+          "Clip: inventory export, barcode generation, barcode PDF (`inventory-export.mp4`)",
+      },
+    ],
   },
   {
     id: "expenses",
     label: "Expenses",
     headline: "Operating spend with branch and personal context.",
     intro:
-      "Beyond supplier COGS: everyday outflows, attribution, and wallet-backed payments so profit conversations are grounded in what actually left the business.",
+      "Beyond supplier COGS: everyday outflows, attribution, and wallet-backed payments stay tied to what actually left the business. Type as usual, upload a receipt for AI prefill, or add an expense by voice when your hands are full.",
     rareFeatures: [
       "Recurring and one-off templates where teams feel them",
       "Branch vs business vs personal classification",
       "Reads next to revenue without exporting to another tool",
     ],
     whyMatters:
-      "Margins get argued every week—expenses belong in the same narrative as sales.",
-    primaryMedia: { kind: "image", assetKey: "expenses" },
+      "Margins get argued every week. Expenses belong in the same narrative as sales.",
+    primaryMedia: {
+      kind: "video",
+      src: papionExplorerVideo("expense-video.mp4"),
+      posterAssetKey: "expenses",
+    },
     plannedMediaFallback:
       "Screenshot: expense table or recurring row — `papion-module-expenses.png`",
+    featureSpotlights: [
+      {
+        id: "receipt-ai",
+        title: "Receipt upload and AI prefill",
+        teaser:
+          "Skip typing every field. Upload a receipt and let AI fill the form.",
+        body: [
+          "Instead of having to fill every single field, let AI handle it for you. Upload a receipt, and watch AI prefill them into the form.",
+        ],
+        primaryMedia: {
+          kind: "video",
+          src: papionExplorerVideo("expense-image-reciept.mp4"),
+          posterAssetKey: "receiptSample",
+          videoFraming: "tablet",
+        },
+        plannedMediaFallback:
+          "Clip: receipt upload and AI prefill (`expense-image-reciept.mp4`)",
+        demoAttachment: {
+          assetKey: "receiptSample",
+          label: "Attachment used",
+          imageAlt:
+            "Receipt image used in this demo. Compare it with the recording to verify amounts and merchant details.",
+        },
+      },
+      {
+        id: "voice-ar",
+        title: "Voice entry",
+        teaser:
+          "Say it in Arabic or English, tweak anything you need, then save when it looks right.",
+        body: [
+          "Add an expense by talking through merchant, amount, and short notes. Arabic and English work in the same flow, and you always approve before anything is saved.",
+        ],
+      },
+    ],
   },
   {
     id: "suppliers",
@@ -366,7 +529,11 @@ export const MODULE_EXPLORER_ENTRIES: ExplorerModuleEntry[] = [
     ],
     whyMatters:
       "Stock has a source; when purchase, inventory, and cash disagree, teams burn weekends reconciling.",
-    primaryMedia: { kind: "image", assetKey: "suppliers" },
+    primaryMedia: {
+      kind: "video",
+      src: papionExplorerVideo("supplier-video.mp4"),
+      posterAssetKey: "suppliers",
+    },
     plannedMediaFallback:
       "Screenshot: supplier list or order context — `papion-module-suppliers.png`",
   },
@@ -383,7 +550,11 @@ export const MODULE_EXPLORER_ENTRIES: ExplorerModuleEntry[] = [
     ],
     whyMatters:
       "Customer context should be present before anyone quotes or commits a date.",
-    primaryMedia: { kind: "image", assetKey: "customers" },
+    primaryMedia: {
+      kind: "video",
+      src: papionExplorerVideo("customers-video.mp4"),
+      posterAssetKey: "customers",
+    },
     plannedMediaFallback:
       "Screenshot: list with stats or analytics — `papion-module-customers.png`",
   },
@@ -400,9 +571,42 @@ export const MODULE_EXPLORER_ENTRIES: ExplorerModuleEntry[] = [
     ],
     whyMatters:
       "Cash has to stay legible when the business runs on deposits, IOUs, and branch float.",
-    primaryMedia: { kind: "image", assetKey: "wallets" },
+    primaryMedia: {
+      kind: "video",
+      src: papionExplorerVideo("wallets-video.mp4"),
+      posterAssetKey: "wallets",
+      videoFraming: "portrait",
+    },
     plannedMediaFallback:
       "Screenshot: wallets or transfer UI — `papion-module-wallets.png`",
+    featureSpotlights: [
+      {
+        id: "unify-loans",
+        title: "Unify similar loans",
+        teaser:
+          "Several small loans to the same counterparty or for the same purpose? Roll them into one clean balance instead of a pile of duplicates.",
+        body: [
+          "Over time, similar IOUs stack up: same person, same kind of arrangement, different dates. Papion can merge those loan records into a single loan so the ledger stays readable and payments apply to one place.",
+        ],
+        primaryMedia: {
+          kind: "video",
+          src: papionExplorerVideo("unifying-loans.mp4"),
+          posterAssetKey: "wallets",
+          videoFraming: "portrait",
+        },
+        plannedMediaFallback:
+          "Clip: merging loans into one (`unifying-loans.mp4`)",
+      },
+      {
+        id: "loan-offset-shortcut",
+        title: "Shortcut: net out opposing loans",
+        teaser:
+          "When two loans effectively cancel each other, use the shortcut to clear the pair instead of paying each line by hand.",
+        body: [
+          "Sometimes money owed runs both ways at once—two entries that should wash out. A dedicated shortcut closes those offsetting loans in one move so you are not shuffling artificial payments between the same parties.",
+        ],
+      },
+    ],
   },
   {
     id: "ai",
@@ -417,7 +621,11 @@ export const MODULE_EXPLORER_ENTRIES: ExplorerModuleEntry[] = [
     ],
     whyMatters:
       "Useful AI fails fast when it cannot respect who is allowed to see what.",
-    primaryMedia: { kind: "image", assetKey: "ai" },
+    primaryMedia: {
+      kind: "video",
+      src: papionExplorerVideo("AI-video.mp4"),
+      posterAssetKey: "ai",
+    },
     plannedMediaFallback:
       "Screenshot: conversation UI with safe demo data — `papion-module-ai.png`",
   },
@@ -434,8 +642,12 @@ export const MODULE_EXPLORER_ENTRIES: ExplorerModuleEntry[] = [
     ],
     whyMatters:
       "Reporting only helps when it shows up at the moment of a decision.",
-    primaryMedia: { kind: "image", assetKey: "insights" },
+    primaryMedia: {
+      kind: "video",
+      src: papionExplorerVideo("insights-video.mp4"),
+      posterAssetKey: "insights",
+    },
     plannedMediaFallback:
-      "Screenshot: strongest insights view — `papion-module-insights.png`",
+      "Clip or screenshot: insights overview — `insights-video.mp4` / `papion-module-insights.png`",
   },
 ]

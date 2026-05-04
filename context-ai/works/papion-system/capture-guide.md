@@ -3,11 +3,13 @@
 Use safe/fake data. Hide browser bookmarks, devtools, personal notifications, and anything operationally sensitive.
 
 ## Hero Recording
+
 - Capture: 20-35 seconds, 1920x1080.
 - Show: dashboard or sales landing, 3-4 modules, one chart/insight view, one table/list, one modal/action.
 - Use: project page hero, phone project preview, intro proof asset.
 
 ## Module Screenshots
+
 - Sales: orders, unpaid orders, statistics, or insights.
 - Inventory: category visual grid or category management.
 - Customers: customer list with stats/search/filter or profile analytics.
@@ -17,16 +19,19 @@ Use safe/fake data. Hide browser bookmarks, devtools, personal notifications, an
 - Insights/Admin: strongest analytics or permissions screen if visually clear.
 
 ## Workflow Recordings
+
 - Sales: create or inspect an order, 5-10 seconds.
 - Expenses: pay or track an expense with wallet context, 5-10 seconds.
 - Customers: search/filter/export/print or inspect a customer profile, 5-10 seconds.
 - Finance: wallet cards, transaction list, transfer/deposit/withdraw modal, 8-15 seconds.
 
 ## Responsive Proof
+
 - Capture one strong module at desktop, tablet-ish, and mobile/narrow widths.
 - Prefer Sales or Inventory unless another module is clearly stronger.
 
 ## Naming Convention
+
 - `papion-hero-proof.mp4`
 - `papion-module-sales.png`
 - `papion-module-inventory.png`

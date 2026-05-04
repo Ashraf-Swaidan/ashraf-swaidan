@@ -79,16 +79,10 @@ export function PapionSystemPage() {
       <div className="papion-story-block">
         <PapionModuleExplorer />
       </div>
+ <ConnectedLayerSection />
 
-      {/*   <BusinessMapSection />
-      <OrderSpineSection />
-      <ConnectedLayerSection />
-      */}
-      {/*   <FinanceSection />
-      <GovernanceSection />
-      <InterfaceCraftSection />
-      <AiSection />
-      <PapionFooter /> */}
+  
+      
     </main>
   )
 }

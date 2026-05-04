@@ -4,7 +4,7 @@ import { useGSAP } from "@gsap/react"
 import { motion, useReducedMotion } from "motion/react"
 import { useEffect, useRef, type MutableRefObject, type ReactNode } from "react"
 
-import { AnimatedWord } from "@/components/landing/AnimatedWord"
+import { AnimatedWord } from "@/components/landing/unused/AnimatedWord"
 import {
   HERO_MARQUEE_COLOR_CYCLE,
   HERO_MARQUEE_SEGMENTS,

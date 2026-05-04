@@ -33,8 +33,9 @@ Most operations teams juggle many disconnected tools: one for orders, another fo
 ## Main Modules
 
 ### 1) Sales and Insights
-- Order lifecycle handling, drafts, unpaid tracking, branch and distribution views.
-- Rich insights/visualization components for performance, order values, customer behavior, and product categories.
+- **Sales execution**: one order flow can sell line items from **eight inventory** structures (not a pretend unified catalog). Order types cover **instant**, **due date**, and **event**-style work. **Customer selection** is built for speed; a **barcode scanner** is integrated for counter use. **Partial payment** is first-class, with a dedicated space for **unpaid** follow-up, plus **tasks** tied to the same rhythm.
+- **Drafts**: save an order mid-build or reload the customer’s saved draft so a long order is not lost to interruption.
+- **Insights**: deep sales analytics—performance, order value, customer behavior, product categories, and related cuts—so managers can steer without leaving the product.
 
 ### 2) Inventory
 - Structured category/subcategory model.

@@ -1,4 +1,5 @@
 import { OneSystemFlow } from "@/components/landing/one-system-flow/OneSystemFlow"
+import { SELECTED_WORKS_PROJECTS } from "@/data/selectedWorks"
 
 import { BranchInventoryMap } from "./BranchInventoryMap"
 import {
@@ -15,6 +16,13 @@ import {
   ResponsiveTriptych,
 } from "./papion-media"
 import { Eyebrow, Prose, StoryStep, StoryTitle } from "./papion-ui"
+
+const PAPION_RECOMMENDED_WORK_IDS = ["duwit", "ak-system"] as const
+const PAPION_RECOMMENDED_WORKS = SELECTED_WORKS_PROJECTS.filter((project) =>
+  PAPION_RECOMMENDED_WORK_IDS.includes(
+    project.id as (typeof PAPION_RECOMMENDED_WORK_IDS)[number]
+  )
+)
 
 export function PapionHeroSection() {
   return (
@@ -52,13 +60,13 @@ export function PapionHeroSection() {
             One calm operating system for a multibranch decor business.
           </StoryTitle>
           <Prose className="mx-auto mt-6 max-w-prose text-center">
-            Papion ties together event decoration, a print-and-cut workshop,
-            and balloon retail in{" "}
+            Papion ties together event decoration, a print-and-cut workshop, and
+            balloon retail in{" "}
             <strong className="font-medium text-[var(--color-drh-ink)]/80">
               one role-aware app
             </strong>
-            : eight inventories, mixed orders, wallets, suppliers, expenses,
-            and live insight — on the web, as a PWA, and on desktop.
+            : eight inventories, mixed orders, wallets, suppliers, expenses, and
+            live insight — on the web, as a PWA, and on desktop.
           </Prose>
           <ul className="mx-auto mt-10 flex max-w-md flex-col gap-3 text-[0.8rem] text-[var(--color-drh-ink)]/48 sm:mx-auto sm:flex-row sm:justify-center sm:gap-8 sm:text-left">
             {[
@@ -116,7 +124,7 @@ export function PapionHeroSection() {
 
 export function BusinessMapSection() {
   return (
-    <section className="papion-story-block border-y border-[var(--color-drh-ink)]/08 bg-[var(--color-drh-surface)]/80 px-5 py-20 backdrop-blur-sm sm:px-6 sm:py-24 lg:px-8">
+    <section className="papion-story-block border-[var(--color-drh-ink)]/08 border-y bg-[var(--color-drh-surface)]/80 px-5 py-20 backdrop-blur-sm sm:px-6 sm:py-24 lg:px-8">
       <div className="mx-auto max-w-prose text-center">
         <StoryStep n="03" label="Map" />
         <Eyebrow>The business map</Eyebrow>
@@ -146,11 +154,11 @@ export function OrderSpineSection() {
             From customer insight to mixed cart, money, and the calendar.
           </StoryTitle>
           <Prose className="mx-auto mt-6 max-w-prose text-center">
-            Retail and wholesale profiles carry context before anyone sells.
-            One order can mix inventories. Wallets record payment and partial
-            pay. Unpaid work stays visible. The sales calendar respects due dates
-            and real events. Tasks — including in sales — keep messy weeks on
-            the rails.
+            Retail and wholesale profiles carry context before anyone sells. One
+            order can mix inventories. Wallets record payment and partial pay.
+            Unpaid work stays visible. The sales calendar respects due dates and
+            real events. Tasks — including in sales — keep messy weeks on the
+            rails.
           </Prose>
         </div>
         <div className="relative mx-auto mt-12 max-w-3xl">
@@ -177,7 +185,7 @@ export function OrderSpineSection() {
 
 export function ConnectedLayerSection() {
   return (
-    <section className="papion-story-block overflow-hidden border-y border-[var(--color-drh-ink)]/08 bg-[var(--color-drh-surface)]/60 py-16 sm:py-20">
+    <section className="papion-story-block bg-[var(--color-drh-surface)]/60 pt-16 pb-0 sm:pt-20">
       <div className="mx-auto max-w-prose px-5 text-center sm:px-6 lg:px-8">
         <StoryStep n="05" label="Connection" />
         <Eyebrow>One connected layer</Eyebrow>
@@ -202,7 +210,9 @@ export function FinanceSection() {
         <div className="mx-auto max-w-prose text-center">
           <StoryStep n="06" label="Finance" />
           <Eyebrow>Finance &amp; control</Eyebrow>
-          <StoryTitle>Cash, COGS, and the unpaid truth in one place.</StoryTitle>
+          <StoryTitle>
+            Cash, COGS, and the unpaid truth in one place.
+          </StoryTitle>
           <Prose className="mx-auto mt-6 max-w-prose text-center">
             Wallets catch what orders promise. Loans move liquidity. Supplier
             orders explain how stock got there; everyday expenses explain what
@@ -219,7 +229,7 @@ export function FinanceSection() {
             ].map((line) => (
               <li
                 key={line}
-                className="flex gap-3 border-t border-[var(--color-drh-ink)]/08 pt-4 first:border-t-0 first:pt-0"
+                className="border-[var(--color-drh-ink)]/08 flex gap-3 border-t pt-4 first:border-t-0 first:pt-0"
                 style={{ fontFamily: BODY_FONT }}
               >
                 <span
@@ -239,7 +249,7 @@ export function FinanceSection() {
 
 export function GovernanceSection() {
   return (
-    <section className="papion-story-block border-y border-white/6 bg-[var(--color-drh-ink)] px-5 py-20 text-white sm:px-6 sm:py-24 lg:px-8">
+    <section className="papion-story-block border-white/6 bg-[var(--color-drh-ink)] px-5 py-20 text-white sm:px-6 sm:py-24 lg:px-8">
       <div className="mx-auto max-w-prose text-center">
         <StoryStep n="07" label="Governance" />
         <p
@@ -249,7 +259,7 @@ export function GovernanceSection() {
           Governance
         </p>
         <h2
-          className="mt-4 text-balance text-[1.45rem] font-medium leading-snug tracking-[-0.02em] text-white sm:text-[1.65rem] md:text-[1.85rem]"
+          className="mt-4 text-[1.45rem] leading-snug font-medium tracking-[-0.02em] text-balance text-white sm:text-[1.65rem] md:text-[1.85rem]"
           style={{
             fontFamily: BODY_FONT,
             fontVariationSettings: '"opsz" 72, "wght" 520',
@@ -259,9 +269,9 @@ export function GovernanceSection() {
         </h2>
         <Prose className="mx-auto mt-6 max-w-prose text-center text-white/65">
           Admins build role combinations that mirror real life — including
-          hiding sensitive cost numbers while keeping daily tools fast.
-          Settings follow people across routes. Authentication here is not
-          theater; it is how Papion actually runs.
+          hiding sensitive cost numbers while keeping daily tools fast. Settings
+          follow people across routes. Authentication here is not theater; it is
+          how Papion actually runs.
         </Prose>
         <p
           className="mt-8 text-[0.82rem] leading-relaxed text-white/38"
@@ -300,16 +310,16 @@ export function InterfaceCraftSection() {
 
 export function AiSection() {
   return (
-    <section className="papion-story-block border-t border-[var(--color-drh-ink)]/08 bg-[var(--color-drh-surface)]/70 px-5 py-20 sm:px-6 sm:py-24 lg:px-8">
+    <section className="papion-story-block border-[var(--color-drh-ink)]/08 border-t bg-[var(--color-drh-surface)]/70 px-5 py-20 sm:px-6 sm:py-24 lg:px-8">
       <div className="mx-auto grid max-w-4xl gap-12 lg:grid-cols-2 lg:items-center lg:gap-14">
         <div className="text-center lg:text-left">
           <StoryStep n="09" label="Beta" />
           <Eyebrow>Papion AI</Eyebrow>
           <StoryTitle>Models on your business, with guardrails.</StoryTitle>
           <Prose className="mx-auto mt-6 max-w-prose text-center lg:mx-0 lg:text-left">
-            The newest route is beta for a reason: strong models, careful
-            access to operational data, and the same permission story as the
-            rest of the stack — not a bolt-on chat in an iframe.
+            The newest route is beta for a reason: strong models, careful access
+            to operational data, and the same permission story as the rest of
+            the stack — not a bolt-on chat in an iframe.
           </Prose>
         </div>
         <CaseStudyFigure
@@ -325,21 +335,80 @@ export function AiSection() {
 
 export function PapionFooter() {
   return (
-    <footer className="papion-story-block border-t border-[var(--color-drh-ink)]/08 px-5 py-12 sm:px-6 lg:px-8">
-      <div className="mx-auto flex max-w-3xl flex-col items-center gap-2 text-center">
-        <p
-          className="text-[0.68rem] font-medium tracking-[0.18em] text-[var(--color-drh-ink)]/32 uppercase"
-          style={{ fontFamily: DISPLAY_FONT }}
-        >
-          Papion System
-        </p>
-        <a
-          href="/"
-          className="text-[0.72rem] font-medium tracking-[0.14em] text-[var(--color-drh-ink)]/45 uppercase transition hover:text-[var(--color-drh-ink)]"
-          style={{ fontFamily: DISPLAY_FONT }}
-        >
-          Portfolio home
-        </a>
+    <footer className="papion-story-block bg-[var(--color-drh-bg)] py-12 sm:py-16">
+      <div className="w-full">
+        <div className="flex items-center justify-between gap-5 px-5 sm:px-6 lg:px-8">
+          <p
+            className="text-[0.68rem] font-medium tracking-[0.2em] text-[var(--color-drh-ink)]/36 uppercase"
+            style={{ fontFamily: DISPLAY_FONT }}
+          >
+            Check other projects
+          </p>
+          <a
+            href="/"
+            className="inline-flex w-fit rounded-full border border-[var(--color-drh-ink)]/30 px-5 py-2.5 text-[0.74rem] font-semibold tracking-[0.16em] text-[var(--color-drh-ink)] uppercase transition hover:border-[var(--color-drh-accent-orange)] hover:bg-[var(--color-drh-accent-orange)] hover:text-white"
+            style={{ fontFamily: DISPLAY_FONT }}
+          >
+            Portfolio home
+          </a>
+        </div>
+
+        <div className="mx-auto mt-10 grid max-w-7xl gap-10 px-5 sm:mt-12 sm:px-6 lg:grid-cols-2 lg:gap-24 lg:px-8">
+          {PAPION_RECOMMENDED_WORKS.map((project, index) => (
+            <article
+              key={project.id}
+              className={`group overflow-hidden rounded-[1.65rem] border border-[var(--color-drh-ink)]/10 bg-[var(--color-drh-surface)] shadow-[0_28px_70px_rgb(10_10_10/0.1)] sm:rounded-[2rem] ${
+                index === 0 ? "lg:justify-self-end" : "lg:justify-self-start"
+              }`}
+            >
+              <div className="relative aspect-[16/11] w-full overflow-hidden bg-[var(--color-drh-ink)] lg:w-[min(40vw,34rem)]">
+                <img
+                  src={project.imageSrc}
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover opacity-95 transition duration-700 group-hover:scale-[1.035]"
+                  loading="lazy"
+                  decoding="async"
+                  aria-hidden
+                />
+                <video
+                  className="absolute inset-0 h-full w-full object-cover opacity-0 transition duration-500 group-hover:opacity-100"
+                  src={project.videoSrc}
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  aria-hidden
+                />
+                <div
+                  className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgb(10_10_10/0.02),rgb(10_10_10/0.58))]"
+                  aria-hidden
+                />
+                <img
+                  src={project.logoSrc}
+                  alt=""
+                  className="absolute top-6 left-6 h-13 w-13 object-contain drop-shadow-[0_8px_18px_rgb(0_0_0/0.22)] sm:h-14 sm:w-14"
+                  loading="lazy"
+                  decoding="async"
+                  aria-hidden
+                />
+                <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
+                  <p
+                    className="text-[clamp(2.45rem,6.2vw,4.45rem)] leading-[0.84] font-semibold text-white uppercase"
+                    style={{ fontFamily: DISPLAY_FONT }}
+                  >
+                    {project.title}
+                  </p>
+                  <span
+                    className="mt-5 inline-flex rounded-full border border-white/24 bg-white/12 px-4 py-2 text-[0.68rem] font-semibold tracking-[0.16em] text-white/72 uppercase backdrop-blur-md"
+                    style={{ fontFamily: DISPLAY_FONT }}
+                  >
+                    Coming soon
+                  </span>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
       </div>
     </footer>
   )

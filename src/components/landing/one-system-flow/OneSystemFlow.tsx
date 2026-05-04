@@ -29,7 +29,9 @@ export function OneSystemFlow() {
       const root = rootRef.current
       if (!root || !contextSafe) return
 
-      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      const reduceMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches
 
       const killAll = contextSafe(() => {
         lineTlRef.current.forEach((tl) => tl.kill())
@@ -44,11 +46,42 @@ export function OneSystemFlow() {
         killAll()
         const linesReduced = root.querySelectorAll(".osf-line")
         const innersReduced = root.querySelectorAll(".osf-rect-inner")
-        gsap.set(linesReduced, { skewX: 0, x: 0, y: 0, clearProps: "transform" })
+        const aiReduced = root.querySelector<HTMLElement>(
+          ".osf-line--ai-powered"
+        )
+        gsap.set(linesReduced, {
+          skewX: 0,
+          x: 0,
+          y: 0,
+          clearProps: "transform",
+        })
         gsap.set(innersReduced, { opacity: 1, clearProps: "transform" })
+        if (aiReduced) {
+          gsap.set(aiReduced, {
+            autoAlpha: 1,
+            filter: "none",
+            clipPath: "inset(0% 0% 0% 0%)",
+          })
+          const aiStackReduced = aiReduced.querySelector(".osf-ai-stack")
+          if (aiStackReduced) {
+            gsap.set(aiStackReduced, {
+              scale: 1,
+              y: 0,
+              clearProps: "transform",
+            })
+          }
+        }
         const rectsReduced = root.querySelectorAll(".osf-rect")
-        gsap.set(rectsReduced, { autoAlpha: 1, x: 0, rotation: 0, opacity: 1, clearProps: "clipPath" })
-        const centsReduced = root.querySelector<HTMLElement>(".osf-expenses-cents")
+        gsap.set(rectsReduced, {
+          autoAlpha: 1,
+          x: 0,
+          rotation: 0,
+          opacity: 1,
+          clearProps: "clipPath",
+        })
+        const centsReduced = root.querySelector<HTMLElement>(
+          ".osf-expenses-cents"
+        )
         if (centsReduced) {
           centsReduced.textContent = "0.00"
           gsap.set(centsReduced, { autoAlpha: 1, clearProps: "transform" })
@@ -60,7 +93,9 @@ export function OneSystemFlow() {
         return () => killAll()
       }
 
-      const lines = gsap.utils.toArray<HTMLElement>(root.querySelectorAll(".osf-line"))
+      const lines = gsap.utils.toArray<HTMLElement>(
+        root.querySelectorAll(".osf-line")
+      )
       lines.forEach((line, i) => {
         gsap.set(line, {
           skewX: -LINE_SKEW_IN,
@@ -115,9 +150,14 @@ export function OneSystemFlow() {
       if (centsEl) {
         const expensesLine = centsEl.closest<HTMLElement>(".osf-line")
         const counter = { cents: 0 }
-        const formatCents = (raw: number) => Math.max(0, Math.min(99.99, raw)).toFixed(2)
+        const formatCents = (raw: number) =>
+          Math.max(0, Math.min(99.99, raw)).toFixed(2)
 
-        gsap.set(centsEl, { autoAlpha: 0, textContent: "0.00", clearProps: "transform" })
+        gsap.set(centsEl, {
+          autoAlpha: 0,
+          textContent: "0.00",
+          clearProps: "transform",
+        })
 
         const centsTl = gsap.timeline({
           scrollTrigger: {
@@ -129,7 +169,11 @@ export function OneSystemFlow() {
         })
 
         /* Fade only — no y/transform while text updates or the line micro-jitters. */
-        centsTl.to(centsEl, { autoAlpha: 1, duration: 0.22, ease: "power2.out" })
+        centsTl.to(centsEl, {
+          autoAlpha: 1,
+          duration: 0.22,
+          ease: "power2.out",
+        })
         centsTl.to(
           counter,
           {
@@ -140,7 +184,7 @@ export function OneSystemFlow() {
               centsEl.textContent = formatCents(counter.cents)
             },
           },
-          "-=0.06",
+          "-=0.06"
         )
         centsTl.to(counter, {
           cents: 0,
@@ -156,7 +200,114 @@ export function OneSystemFlow() {
         rectRevealAnimRef.current.push(centsTl)
       }
 
-      const innersForBreath = root.querySelectorAll<HTMLElement>(".osf-rect-inner")
+      const aiLine = root.querySelector<HTMLElement>(".osf-line--ai-powered")
+      const nowEl = root.querySelector<HTMLElement>(".osf-now-accent")
+      if (aiLine && nowEl) {
+        const aiStack = aiLine.querySelector<HTMLElement>(".osf-ai-stack")
+        const aiWord = aiLine.querySelector<HTMLElement>(
+          ".osf-word--ai-powered"
+        )
+
+        gsap.set(aiLine, {
+          autoAlpha: 0,
+          filter: "blur(18px)",
+          clipPath: "inset(0% 0% 100% 0%)",
+          force3D: true,
+        })
+        gsap.set(aiStack, {
+          y: "0.52em",
+          scale: 0.88,
+          transformOrigin: "50% 68%",
+          force3D: true,
+        })
+        gsap.set(aiWord, {
+          y: "0.18em",
+          scaleX: 0.94,
+          transformOrigin: "50% 50%",
+          force3D: true,
+        })
+        gsap.set(nowEl, {
+          autoAlpha: 0,
+          y: "-0.2em",
+          x: "-0.35em",
+          scale: 0.72,
+          rotation: -5,
+          transformOrigin: "50% 50%",
+          force3D: true,
+        })
+
+        const nowTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: aiLine,
+            start: "top 78%",
+            toggleActions: "play none none none",
+            invalidateOnRefresh: true,
+          },
+        })
+
+        nowTl.to(aiLine, {
+          autoAlpha: 1,
+          filter: "blur(0px)",
+          clipPath: "inset(0% 0% 0% 0%)",
+          duration: 0.76,
+          ease: "expo.out",
+        })
+        if (aiStack) {
+          nowTl.to(
+            aiStack,
+            {
+              y: 0,
+              scale: 1,
+              duration: 0.76,
+              ease: "expo.out",
+            },
+            0
+          )
+        }
+        if (aiWord) {
+          nowTl.to(
+            aiWord,
+            {
+              y: 0,
+              scaleX: 1,
+              duration: 0.62,
+              ease: "power3.out",
+            },
+            0.08
+          )
+        }
+        nowTl.to(
+          nowEl,
+          {
+            autoAlpha: 1,
+            x: 0,
+            y: 0,
+            scale: 1.08,
+            rotation: 1.5,
+            duration: 0.42,
+            ease: "back.out(2.8)",
+          },
+          0.34
+        )
+        nowTl.to(
+          nowEl,
+          {
+            scale: 1,
+            rotation: 0,
+            duration: 0.3,
+            ease: "power2.out",
+          },
+          ">-0.06"
+        )
+
+        const nst = nowTl.scrollTrigger
+        if (nst)
+          (nst as PrioritizedScrollTrigger).refreshPriority = lines.length + 0.5
+        rectRevealAnimRef.current.push(nowTl)
+      }
+
+      const innersForBreath =
+        root.querySelectorAll<HTMLElement>(".osf-rect-inner")
       innersForBreath.forEach((innerEl, bi) => {
         const b = gsap.to(innerEl, {
           opacity: 0.94,
@@ -179,7 +330,7 @@ export function OneSystemFlow() {
         killAll()
       }
     },
-    { scope: rootRef },
+    { scope: rootRef }
   )
 
   return (
@@ -238,6 +389,13 @@ export function OneSystemFlow() {
               <div className="osf-expand-plate" />
             </div>
           </div>
+        </div>
+
+        <div className="osf-line osf-line--ai-powered">
+          <span className="osf-ai-stack">
+            <span className="osf-word osf-word--ai-powered">AI POWERED</span>
+            <span className="osf-now-accent">Now!</span>
+          </span>
         </div>
       </div>
     </div>

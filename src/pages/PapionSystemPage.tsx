@@ -5,13 +5,7 @@ import { useRef } from "react"
 
 import { FrictionSection } from "./papion-system/FrictionSection"
 import {
-  AiSection,
-  BusinessMapSection,
   ConnectedLayerSection,
-  FinanceSection,
-  GovernanceSection,
-  InterfaceCraftSection,
-  OrderSpineSection,
   PapionFooter,
   PapionHeroSection,
 } from "./papion-system/papion-sections"
@@ -28,7 +22,7 @@ export function PapionSystemPage() {
       const root = mainRef.current
       if (!root) return
       const reduceMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
+        "(prefers-reduced-motion: reduce)"
       ).matches
 
       const heroInner = root.querySelector(".papion-hero-inner")
@@ -45,7 +39,7 @@ export function PapionSystemPage() {
       if (reduceMotion) return
 
       const blocks = gsap.utils.toArray<HTMLElement>(
-        root.querySelectorAll(".papion-story-block"),
+        root.querySelectorAll(".papion-story-block")
       )
       blocks.forEach((el) => {
         gsap.fromTo(
@@ -61,11 +55,11 @@ export function PapionSystemPage() {
               start: "top 89%",
               toggleActions: "play none none none",
             },
-          },
+          }
         )
       })
     },
-    { scope: mainRef },
+    { scope: mainRef }
   )
 
   return (
@@ -79,10 +73,8 @@ export function PapionSystemPage() {
       <div className="papion-story-block">
         <PapionModuleExplorer />
       </div>
- <ConnectedLayerSection />
-
-  
-      
+      <ConnectedLayerSection />
+      <PapionFooter />
     </main>
   )
 }

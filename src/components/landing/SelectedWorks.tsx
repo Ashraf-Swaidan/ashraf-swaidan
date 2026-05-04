@@ -60,7 +60,7 @@ const PROJECTS: WorkProject[] = [
     logoSrc: "/assets/selected-works-logos/papion-logo.svg",
     imageSrc: "/assets/lap-animation-assets/papion-lap.jpg",
     videoSrc: SELECTED_WORKS_VIDEOS.papion,
-    href: "#",
+    href: "/works/papion-system",
   },
   {
     id: "duwit",
@@ -146,7 +146,10 @@ function easeInOutSine(value: number) {
 function getScrollDistance() {
   const metrics = getLayoutMetrics()
 
-  return Math.max(window.innerHeight * metrics.scrollDistanceMultiplier, metrics.scrollDistanceMin)
+  return Math.max(
+    window.innerHeight * metrics.scrollDistanceMultiplier,
+    metrics.scrollDistanceMin
+  )
 }
 
 function getLayoutMetrics(): LayoutMetrics {
@@ -248,7 +251,10 @@ function getLayoutMetrics(): LayoutMetrics {
 }
 
 function getCurrentProjectIndex(baseIndex: number, localProgress: number) {
-  return Math.min(PROJECTS.length - 1, baseIndex + (localProgress >= 0.56 ? 1 : 0))
+  return Math.min(
+    PROJECTS.length - 1,
+    baseIndex + (localProgress >= 0.56 ? 1 : 0)
+  )
 }
 
 function getSceneZoom(index: number, projectFloat: number): SceneZoom {
@@ -266,7 +272,11 @@ function getSceneZoom(index: number, projectFloat: number): SceneZoom {
 
   if (distanceFromProject < 0 && distanceFromProject >= -1) {
     return {
-      from: mix(previousZoom, currentZoom, easeInOutSine(distanceFromProject + 1)),
+      from: mix(
+        previousZoom,
+        currentZoom,
+        easeInOutSine(distanceFromProject + 1)
+      ),
       to: currentZoom,
     }
   }
@@ -294,7 +304,10 @@ export function SelectedWorks() {
   const progressIndexRef = useRef(0)
   const prefersReducedMotion = useReducedMotion()
   const reduceMotion = Boolean(prefersReducedMotion)
-  const [railPair, setRailPair] = useState<RailPair>({ baseIndex: 0, nextIndex: 1 })
+  const [railPair, setRailPair] = useState<RailPair>({
+    baseIndex: 0,
+    nextIndex: 1,
+  })
   const [progressIndex, setProgressIndex] = useState(0)
 
   useGSAP(
@@ -309,8 +322,12 @@ export function SelectedWorks() {
       const nextRail = nextRailRef.current
       const progressFill = progressFillRef.current
       const scenes = sceneRefs.current.filter(Boolean) as HTMLDivElement[]
-      const sceneContents = sceneContentRefs.current.filter(Boolean) as HTMLDivElement[]
-      const paginationItems = paginationRefs.current.filter(Boolean) as HTMLSpanElement[]
+      const sceneContents = sceneContentRefs.current.filter(
+        Boolean
+      ) as HTMLDivElement[]
+      const paginationItems = paginationRefs.current.filter(
+        Boolean
+      ) as HTMLSpanElement[]
 
       if (
         !root ||
@@ -342,10 +359,22 @@ export function SelectedWorks() {
       })
 
       const setHeaderY = gsap.quickSetter(header, "y", "px")
-      const setTitleScale = gsap.quickSetter(title, "scale")
+      // Uniform scale via scaleX/scaleY — quickSetter(..., "scale") can throw InvalidCharacterError
+      // in some browsers (setAttribute('scaleX,scaleY', ...)) on HTML elements.
+      const setTitleScaleX = gsap.quickSetter(title, "scaleX")
+      const setTitleScaleY = gsap.quickSetter(title, "scaleY")
+      const setTitleScale = (value: number) => {
+        setTitleScaleX(value)
+        setTitleScaleY(value)
+      }
       const setMediaX = gsap.quickSetter(mediaShell, "x", "px")
       const setMediaY = gsap.quickSetter(mediaShell, "y", "px")
-      const setMediaScale = gsap.quickSetter(mediaShell, "scale")
+      const setMediaScaleX = gsap.quickSetter(mediaShell, "scaleX")
+      const setMediaScaleY = gsap.quickSetter(mediaShell, "scaleY")
+      const setMediaScale = (value: number) => {
+        setMediaScaleX(value)
+        setMediaScaleY(value)
+      }
       const setRailX = gsap.quickSetter(rail, "x", "px")
       const setRailY = gsap.quickSetter(rail, "y", "px")
       const setRailYPercent = gsap.quickSetter(rail, "yPercent")
@@ -368,7 +397,11 @@ export function SelectedWorks() {
 
       const syncPairState = (baseIndex: number, nextIndex: number) => {
         const currentPair = pairRef.current
-        if (currentPair.baseIndex === baseIndex && currentPair.nextIndex === nextIndex) return
+        if (
+          currentPair.baseIndex === baseIndex &&
+          currentPair.nextIndex === nextIndex
+        )
+          return
 
         pairRef.current = { baseIndex, nextIndex }
         flushSync(() => {
@@ -386,7 +419,10 @@ export function SelectedWorks() {
         scenes.forEach((element, elementIndex) => {
           gsap.set(element, {
             autoAlpha: elementIndex === index ? 1 : 0,
-            clipPath: elementIndex === index ? "inset(0% 0% 0% 0%)" : "inset(100% 0% 0% 0%)",
+            clipPath:
+              elementIndex === index
+                ? "inset(0% 0% 0% 0%)"
+                : "inset(100% 0% 0% 0%)",
             zIndex: elementIndex === index ? 4 : 1,
           })
         })
@@ -403,7 +439,11 @@ export function SelectedWorks() {
         paginationItems.forEach((element, index) => {
           const isActive = index === activeIndex
           const isIncoming = index === activeIndex + 1 && localProgress > 0.74
-          const targetScale = isActive ? mix(0.45, 1, clamp01(localProgress)) : isIncoming ? 0.36 : 0.24
+          const targetScale = isActive
+            ? mix(0.45, 1, clamp01(localProgress))
+            : isIncoming
+              ? 0.36
+              : 0.24
 
           gsap.set(element, {
             opacity: isActive ? 1 : isIncoming ? 0.72 : 0.5,
@@ -416,12 +456,12 @@ export function SelectedWorks() {
         const outgoingProgress = mapRange(
           localProgress,
           RAIL_TEXT_TIMING.outgoingFadeStart,
-          RAIL_TEXT_TIMING.outgoingFadeEnd,
+          RAIL_TEXT_TIMING.outgoingFadeEnd
         )
         const incomingProgress = mapRange(
           localProgress,
           RAIL_TEXT_TIMING.incomingRevealStart,
-          RAIL_TEXT_TIMING.incomingRevealEnd,
+          RAIL_TEXT_TIMING.incomingRevealEnd
         )
         const outgoingEase = easeOutCubic(outgoingProgress)
         const outgoingY = easeInOutSine(outgoingProgress)
@@ -459,9 +499,15 @@ export function SelectedWorks() {
                 : "inset(100% 0% 0% 0%)"
 
           gsap.set(element, {
-            autoAlpha: elementIndex === baseIndex || elementIndex === nextIndex ? 1 : 0,
+            autoAlpha:
+              elementIndex === baseIndex || elementIndex === nextIndex ? 1 : 0,
             clipPath,
-            zIndex: elementIndex === nextIndex ? 5 : elementIndex === baseIndex ? 4 : 1,
+            zIndex:
+              elementIndex === nextIndex
+                ? 5
+                : elementIndex === baseIndex
+                  ? 4
+                  : 1,
             force3D: true,
           })
           gsap.set(sceneContents[elementIndex], {
@@ -488,7 +534,9 @@ export function SelectedWorks() {
         setRailY(0)
         setProgressScale(0)
         gsap.set(mediaCrop, { clipPath: "inset(0% 0% 0% 0% round 1.65rem)" })
-        gsap.set([currentRail, nextRail], { clearProps: "transform,opacity,visibility" })
+        gsap.set([currentRail, nextRail], {
+          clearProps: "transform,opacity,visibility",
+        })
         gsap.set(currentRail, { autoAlpha: 1, y: 0 })
         gsap.set(nextRail, { autoAlpha: 0, y: 52 })
         setStaticProject(0)
@@ -503,17 +551,43 @@ export function SelectedWorks() {
       const updateScene = (rawProgress: number) => {
         const progress = clamp01(rawProgress)
         const groupMove = mapRange(progress, 0, ZONES.groupMoveEnd)
-        const headerExit = mapRange(progress, ZONES.groupMoveEnd, ZONES.headerExitEnd)
-        const mediaExpand = mapRange(progress, ZONES.headerExitEnd, ZONES.mediaExpandEnd)
-        const handoff = mapRange(progress, ZONES.mediaExpandEnd, ZONES.handoffEnd)
+        const headerExit = mapRange(
+          progress,
+          ZONES.groupMoveEnd,
+          ZONES.headerExitEnd
+        )
+        const mediaExpand = mapRange(
+          progress,
+          ZONES.headerExitEnd,
+          ZONES.mediaExpandEnd
+        )
+        const handoff = mapRange(
+          progress,
+          ZONES.mediaExpandEnd,
+          ZONES.handoffEnd
+        )
         const showcaseProgress = mapRange(progress, ZONES.handoffEnd, 1)
 
         const groupLift = mix(0, metrics.mediaMidY, easeInOutSine(groupMove))
-        const headerY = groupLift + mix(0, metrics.headerExitY, easeInOutSine(headerExit))
-        const mediaY = progress < ZONES.headerExitEnd
-          ? mix(metrics.mediaStartY, metrics.mediaMidY, easeInOutSine(mapRange(progress, 0, ZONES.headerExitEnd)))
-          : mix(metrics.mediaMidY, metrics.mediaFinalY, easeInOutSine(mediaExpand))
-        const mediaScale = mix(metrics.mediaStartScale, metrics.mediaFinalScale, easeOutCubic(mediaExpand))
+        const headerY =
+          groupLift + mix(0, metrics.headerExitY, easeInOutSine(headerExit))
+        const mediaY =
+          progress < ZONES.headerExitEnd
+            ? mix(
+                metrics.mediaStartY,
+                metrics.mediaMidY,
+                easeInOutSine(mapRange(progress, 0, ZONES.headerExitEnd))
+              )
+            : mix(
+                metrics.mediaMidY,
+                metrics.mediaFinalY,
+                easeInOutSine(mediaExpand)
+              )
+        const mediaScale = mix(
+          metrics.mediaStartScale,
+          metrics.mediaFinalScale,
+          easeOutCubic(mediaExpand)
+        )
         const mediaX = metrics.hasHorizontalHandoff
           ? mix(0, metrics.mediaShiftX, easeInOutSine(handoff))
           : 0
@@ -521,7 +595,13 @@ export function SelectedWorks() {
         const railVisibility = easeOutCubic(handoff)
 
         setHeaderY(headerY)
-        setTitleScale(mix(1, metrics.titleFinalScale, easeOutCubic(mapRange(progress, 0, ZONES.headerExitEnd))))
+        setTitleScale(
+          mix(
+            1,
+            metrics.titleFinalScale,
+            easeOutCubic(mapRange(progress, 0, ZONES.headerExitEnd))
+          )
+        )
         setMediaX(mediaX)
         setMediaY(mediaY)
         setMediaScale(mediaScale)
@@ -529,7 +609,11 @@ export function SelectedWorks() {
         setRailPresence(railVisibility)
         setRailX(mix(metrics.railStartX, 0, easeOutCubic(handoff)))
         setRailY(mix(metrics.railStartY, 0, easeOutCubic(handoff)))
-        setProgressScale(railVisibility > 0 ? mix(0, 0.16, railVisibility) + showcaseProgress * 0.84 : 0)
+        setProgressScale(
+          railVisibility > 0
+            ? mix(0, 0.16, railVisibility) + showcaseProgress * 0.84
+            : 0
+        )
 
         gsap.set(mediaCrop, {
           clipPath: `inset(${cropInset}% 0% ${cropInset}% 0% round 1.65rem)`,
@@ -548,9 +632,21 @@ export function SelectedWorks() {
         applyContinuousProjects(showcaseProgress)
       }
 
-      gsap.set([header, mediaShell, rail, scenes, sceneContents, paginationItems, currentRail, nextRail], {
-        force3D: true,
-      })
+      gsap.set(
+        [
+          header,
+          mediaShell,
+          rail,
+          scenes,
+          sceneContents,
+          paginationItems,
+          currentRail,
+          nextRail,
+        ],
+        {
+          force3D: true,
+        }
+      )
       gsap.set(sceneContents, { transformOrigin: "50% 50%" })
       gsap.set(title, { transformOrigin: "50% 0%" })
       gsap.set(paginationItems, { transformOrigin: "50% 100%" })
@@ -584,7 +680,7 @@ export function SelectedWorks() {
       scope: rootRef,
       dependencies: [reduceMotion],
       revertOnUpdate: true,
-    },
+    }
   )
 
   const currentProject = PROJECTS[railPair.baseIndex]
@@ -595,7 +691,7 @@ export function SelectedWorks() {
       ref={rootRef}
       className={cn(
         "relative isolate overflow-hidden bg-[var(--color-drh-bg)] text-[var(--color-drh-ink)]",
-        "selection:bg-[var(--color-drh-accent-orange)]/18 selection:text-[var(--color-drh-ink)]",
+        "selection:bg-[var(--color-drh-accent-orange)]/18 selection:text-[var(--color-drh-ink)]"
       )}
       aria-labelledby="selected-works-heading"
     >
@@ -631,7 +727,7 @@ export function SelectedWorks() {
           <h2
             ref={titleRef}
             id="selected-works-heading"
-            className="text-[clamp(3.3rem,18vw,4.75rem)] font-semibold uppercase leading-[0.82] tracking-[-0.025em] text-[var(--color-drh-ink)] sm:whitespace-nowrap sm:text-[5.8rem] md:text-[7.4rem] lg:text-[9rem] xl:text-[10.2rem]"
+            className="text-[clamp(3.3rem,18vw,4.75rem)] leading-[0.82] font-semibold tracking-[-0.025em] text-[var(--color-drh-ink)] uppercase sm:text-[5.8rem] sm:whitespace-nowrap md:text-[7.4rem] lg:text-[9rem] xl:text-[10.2rem]"
             style={{ fontFamily: DISPLAY_FONT, fontStretch: "condensed" }}
           >
             <span className="block sm:inline">Selected</span>{" "}
@@ -639,7 +735,10 @@ export function SelectedWorks() {
           </h2>
           <p
             className="mt-5 max-w-[42rem] text-[1.08rem] leading-[1.55] text-[var(--color-drh-ink)]/64 md:text-[1.28rem]"
-            style={{ fontFamily: BODY_FONT, fontVariationSettings: '"opsz" 64, "wght" 430' }}
+            style={{
+              fontFamily: BODY_FONT,
+              fontVariationSettings: '"opsz" 64, "wght" 430',
+            }}
           >
             Works Made For the Better.
           </p>
@@ -665,7 +764,10 @@ export function SelectedWorks() {
                         }}
                         className="absolute inset-0 overflow-hidden"
                         style={{
-                          clipPath: index === 0 ? "inset(0% 0% 0% 0%)" : "inset(100% 0% 0% 0%)",
+                          clipPath:
+                            index === 0
+                              ? "inset(0% 0% 0% 0%)"
+                              : "inset(100% 0% 0% 0%)",
                           zIndex: index === 0 ? 4 : 1,
                         }}
                       >
@@ -729,7 +831,10 @@ export function SelectedWorks() {
                             paginationRefs.current[index] = element
                           }}
                           className="block h-11 w-2.5 origin-bottom rounded-full bg-white shadow-[0_1px_8px_rgb(10_10_10/0.22)] will-change-transform"
-                          style={{ opacity: index === 0 ? 1 : 0.5, transform: `scaleY(${index === 0 ? 0.45 : 0.24})` }}
+                          style={{
+                            opacity: index === 0 ? 1 : 0.5,
+                            transform: `scaleY(${index === 0 ? 0.45 : 0.24})`,
+                          }}
                         />
                       ))}
                     </div>
@@ -741,7 +846,7 @@ export function SelectedWorks() {
 
           <aside
             ref={railRef}
-            className="absolute inset-x-5 bottom-[3.5svh] z-20 mx-auto w-[calc(100vw-2.5rem)] max-w-[34rem] sm:inset-x-8 sm:bottom-[4svh] sm:w-[calc(100vw-4rem)] lg:inset-x-auto lg:bottom-auto lg:right-10 lg:top-1/2 lg:w-[min(33rem,35vw)] lg:max-w-none lg:-translate-y-1/2 xl:right-16 xl:w-[min(36rem,34vw)] 2xl:right-[clamp(4rem,7vw,9rem)] 2xl:w-[min(40rem,32vw)]"
+            className="absolute inset-x-5 bottom-[3.5svh] z-20 mx-auto w-[calc(100vw-2.5rem)] max-w-[34rem] sm:inset-x-8 sm:bottom-[4svh] sm:w-[calc(100vw-4rem)] lg:inset-x-auto lg:top-1/2 lg:right-10 lg:bottom-auto lg:w-[min(33rem,35vw)] lg:max-w-none lg:-translate-y-1/2 xl:right-16 xl:w-[min(36rem,34vw)] 2xl:right-[clamp(4rem,7vw,9rem)] 2xl:w-[min(40rem,32vw)]"
             aria-label="Project information"
           >
             <div className="mb-5 flex items-start gap-3 sm:mb-7 sm:gap-4 lg:mb-11">
@@ -753,7 +858,10 @@ export function SelectedWorks() {
               </p>
               <p
                 className="pt-2 text-[1rem] leading-none text-[var(--color-drh-ink)]/42"
-                style={{ fontFamily: BODY_FONT, fontVariationSettings: '"opsz" 64, "wght" 420' }}
+                style={{
+                  fontFamily: BODY_FONT,
+                  fontVariationSettings: '"opsz" 64, "wght" 420',
+                }}
               >
                 / {String(PROJECTS.length).padStart(2, "0")}
               </p>
@@ -784,7 +892,7 @@ export function SelectedWorks() {
                     />
                   </div>
                   <p
-                    className="text-[clamp(1.8rem,8vw,2.4rem)] font-semibold uppercase leading-[0.9] tracking-[-0.02em] text-[var(--color-drh-ink)] md:text-[2.8rem] lg:text-[3.2rem] xl:text-[3.6rem] 2xl:text-[4.2rem]"
+                    className="text-[clamp(1.8rem,8vw,2.4rem)] leading-[0.9] font-semibold tracking-[-0.02em] text-[var(--color-drh-ink)] uppercase md:text-[2.8rem] lg:text-[3.2rem] xl:text-[3.6rem] 2xl:text-[4.2rem]"
                     style={{ fontFamily: DISPLAY_FONT }}
                   >
                     {currentProject.title}
@@ -792,16 +900,19 @@ export function SelectedWorks() {
                 </div>
                 <p
                   className="mt-6 max-w-[27rem] text-[0.96rem] leading-[1.6] text-[var(--color-drh-ink)]/66 sm:mt-8 md:mt-10 md:text-[1.08rem] xl:max-w-[31rem] xl:text-[1.18rem] xl:leading-[1.68] 2xl:max-w-[34rem] 2xl:text-[1.28rem]"
-                  style={{ fontFamily: BODY_FONT, fontVariationSettings: '"opsz" 64, "wght" 410' }}
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontVariationSettings: '"opsz" 64, "wght" 410',
+                  }}
                 >
                   {currentProject.description}
                 </p>
                 <a
                   href={currentProject.href}
-                  className="mt-6 inline-flex rounded-full border border-[var(--color-drh-ink)] px-6 py-2.5 text-[0.82rem] font-semibold uppercase leading-none tracking-[0.16em] text-[var(--color-drh-ink)] transition hover:border-[var(--color-drh-accent-orange)] hover:bg-[var(--color-drh-accent-orange)] hover:text-white sm:mt-8 sm:px-7 sm:py-3 sm:text-[0.9rem]"
+                  className="mt-6 inline-flex rounded-full border border-[var(--color-drh-ink)] px-6 py-2.5 text-[0.82rem] leading-none font-semibold tracking-[0.16em] text-[var(--color-drh-ink)] uppercase transition hover:border-[var(--color-drh-accent-orange)] hover:bg-[var(--color-drh-accent-orange)] hover:text-white sm:mt-8 sm:px-7 sm:py-3 sm:text-[0.9rem]"
                   style={{ fontFamily: DISPLAY_FONT }}
                 >
-                  View project
+                  Read Use Case
                 </a>
               </div>
 
@@ -823,7 +934,7 @@ export function SelectedWorks() {
                     />
                   </div>
                   <p
-                    className="text-[clamp(1.8rem,8vw,2.4rem)] font-semibold uppercase leading-[0.9] tracking-[-0.02em] text-[var(--color-drh-ink)] md:text-[2.8rem] lg:text-[3.2rem] xl:text-[3.6rem] 2xl:text-[4.2rem]"
+                    className="text-[clamp(1.8rem,8vw,2.4rem)] leading-[0.9] font-semibold tracking-[-0.02em] text-[var(--color-drh-ink)] uppercase md:text-[2.8rem] lg:text-[3.2rem] xl:text-[3.6rem] 2xl:text-[4.2rem]"
                     style={{ fontFamily: DISPLAY_FONT }}
                   >
                     {nextProject.title}
@@ -831,16 +942,19 @@ export function SelectedWorks() {
                 </div>
                 <p
                   className="mt-6 max-w-[27rem] text-[0.96rem] leading-[1.6] text-[var(--color-drh-ink)]/66 sm:mt-8 md:mt-10 md:text-[1.08rem] xl:max-w-[31rem] xl:text-[1.18rem] xl:leading-[1.68] 2xl:max-w-[34rem] 2xl:text-[1.28rem]"
-                  style={{ fontFamily: BODY_FONT, fontVariationSettings: '"opsz" 64, "wght" 410' }}
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontVariationSettings: '"opsz" 64, "wght" 410',
+                  }}
                 >
                   {nextProject.description}
                 </p>
                 <a
                   href={nextProject.href}
-                  className="mt-6 inline-flex rounded-full border border-[var(--color-drh-ink)] px-6 py-2.5 text-[0.82rem] font-semibold uppercase leading-none tracking-[0.16em] text-[var(--color-drh-ink)] transition hover:border-[var(--color-drh-accent-orange)] hover:bg-[var(--color-drh-accent-orange)] hover:text-white sm:mt-8 sm:px-7 sm:py-3 sm:text-[0.9rem]"
+                  className="mt-6 inline-flex rounded-full border border-[var(--color-drh-ink)] px-6 py-2.5 text-[0.82rem] leading-none font-semibold tracking-[0.16em] text-[var(--color-drh-ink)] uppercase transition hover:border-[var(--color-drh-accent-orange)] hover:bg-[var(--color-drh-accent-orange)] hover:text-white sm:mt-8 sm:px-7 sm:py-3 sm:text-[0.9rem]"
                   style={{ fontFamily: DISPLAY_FONT }}
                 >
-                  View project
+                  Read Use Case
                 </a>
               </div>
             </div>

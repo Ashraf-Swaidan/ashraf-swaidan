@@ -15,7 +15,8 @@ import {
   PapionFooter,
   PapionHeroSection,
 } from "./papion-system/papion-sections"
-import { SystemAtlas } from "./papion-system/SystemAtlas"
+import { PapionModuleExplorer } from "./papion-system/PapionModuleExplorer"
+import { PapionScreenshotCollage } from "./papion-system/PapionScreenshotCollage"
 
 gsap.registerPlugin(useGSAP, ScrollTrigger)
 
@@ -74,17 +75,20 @@ export function PapionSystemPage() {
     >
       <PapionHeroSection />
       <FrictionSection />
-      <BusinessMapSection />
+      <PapionScreenshotCollage />
+      <div className="papion-story-block">
+        <PapionModuleExplorer />
+      </div>
+
+      {/*   <BusinessMapSection />
       <OrderSpineSection />
       <ConnectedLayerSection />
-      <div className="papion-story-block">
-        <SystemAtlas />
-      </div>
-      <FinanceSection />
+      */}
+      {/*   <FinanceSection />
       <GovernanceSection />
       <InterfaceCraftSection />
       <AiSection />
-      <PapionFooter />
+      <PapionFooter /> */}
     </main>
   )
 }

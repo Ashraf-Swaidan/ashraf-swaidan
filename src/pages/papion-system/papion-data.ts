@@ -259,3 +259,183 @@ export const BRANCH_ROWS = [
     items: ["Chocolate items", "Stands"],
   },
 ] as const
+
+/** Tabs for the focused module explorer (pick one area, not the full atlas). */
+export type ExplorerModuleId =
+  | "sales"
+  | "inventory"
+  | "expenses"
+  | "suppliers"
+  | "customers"
+  | "wallets"
+  | "ai"
+  | "insights"
+
+export type ExplorerPrimaryMedia =
+  | {
+      kind: "image"
+      assetKey: keyof typeof CASE_ASSETS
+      caption?: string
+    }
+  | {
+      kind: "video"
+      /** Public path, e.g. order-flow clip */
+      src: string
+      /** Shown if the video fails to load */
+      posterAssetKey?: keyof typeof CASE_ASSETS
+    }
+
+export type ExplorerModuleEntry = {
+  id: ExplorerModuleId
+  label: string
+  headline: string
+  intro: string
+  /** 2–3 uncommon beats; kept short on purpose */
+  rareFeatures: readonly string[]
+  whyMatters: string
+  primaryMedia: ExplorerPrimaryMedia
+  plannedMediaFallback: string
+}
+
+export const MODULE_EXPLORER_ENTRIES: ExplorerModuleEntry[] = [
+  {
+    id: "sales",
+    label: "Sales",
+    headline: "Orders that mix inventories without pretending they are one catalog.",
+    intro:
+      "Retail and wholesale profiles, drafts, follow-up, and a calendar that respects real delivery pressure. One cart can carry line items from different production families with the right rules for each.",
+    rareFeatures: [
+      "Mixed-inventory lines in a single customer order",
+      "Unpaid and partial-pay visibility next to the sale",
+      "Tasks and calendar tied to sales rhythm, not a separate app",
+    ],
+    whyMatters:
+      "Decor businesses sell stories and deadlines—sales tooling has to match how stock and money actually move.",
+    primaryMedia: {
+      kind: "video",
+      src: PAPION_ORDER_SPINE_VIDEO,
+      posterAssetKey: "sales",
+    },
+    plannedMediaFallback:
+      "Screenshot or clip: order surface with mixed lines — `papion-module-sales.png` / `papion-workflow-order.mp4`",
+  },
+  {
+    id: "inventory",
+    label: "Inventory",
+    headline: "Eight structures, one system—not one forced generic table.",
+    intro:
+      "Balloons, helium, laser, flex, prints, chocolate, stands: each family gets fields and logic that match production, so staff never argue with a spreadsheet-shaped schema.",
+    rareFeatures: [
+      "Category-first navigation aligned to workshop vs retail vs decor",
+      "Branch-aware stock mental models",
+      "Room for costing that supplier orders can later explain",
+    ],
+    whyMatters:
+      "When shelf reality is messy, the inventory model has to stay honest or everything downstream lies.",
+    primaryMedia: { kind: "image", assetKey: "inventory" },
+    plannedMediaFallback:
+      "Screenshot: category landing or grid — `papion-module-inventory.png`",
+  },
+  {
+    id: "expenses",
+    label: "Expenses",
+    headline: "Operating spend with branch and personal context.",
+    intro:
+      "Beyond supplier COGS: everyday outflows, attribution, and wallet-backed payments so profit conversations are grounded in what actually left the business.",
+    rareFeatures: [
+      "Recurring and one-off templates where teams feel them",
+      "Branch vs business vs personal classification",
+      "Reads next to revenue without exporting to another tool",
+    ],
+    whyMatters:
+      "Margins get argued every week—expenses belong in the same narrative as sales.",
+    primaryMedia: { kind: "image", assetKey: "expenses" },
+    plannedMediaFallback:
+      "Screenshot: expense table or recurring row — `papion-module-expenses.png`",
+  },
+  {
+    id: "suppliers",
+    label: "Suppliers",
+    headline: "Purchases tied to stock and the wallet that paid.",
+    intro:
+      "Supplier records and supplier orders close the loop from shelf back to purchase, with cost history that supports real procurement calls.",
+    rareFeatures: [
+      "Supplier orders wired to the right inventory buckets",
+      "Spend and COGS signals without a parallel spreadsheet",
+      "History that supports cost-over-time thinking",
+    ],
+    whyMatters:
+      "Stock has a source; when purchase, inventory, and cash disagree, teams burn weekends reconciling.",
+    primaryMedia: { kind: "image", assetKey: "suppliers" },
+    plannedMediaFallback:
+      "Screenshot: supplier list or order context — `papion-module-suppliers.png`",
+  },
+  {
+    id: "customers",
+    label: "Customers",
+    headline: "Retail, wholesale, and depth in one actionable profile.",
+    intro:
+      "Segments, search, profile insight, and export paths so growth and service stay beside execution instead of in another tab farm.",
+    rareFeatures: [
+      "Retail vs wholesale framing without duplicate records",
+      "Filters that match how staff actually find people on busy days",
+      "Print or export when the floor still needs paper",
+    ],
+    whyMatters:
+      "Customer context should be present before anyone quotes or commits a date.",
+    primaryMedia: { kind: "image", assetKey: "customers" },
+    plannedMediaFallback:
+      "Screenshot: list with stats or analytics — `papion-module-customers.png`",
+  },
+  {
+    id: "wallets",
+    label: "Wallets",
+    headline: "Treasury that matches partial pays and branch reality.",
+    intro:
+      "Payments land in wallets—not abstract status fields—with transfers, loans, and traceability when orders are only partly settled.",
+    rareFeatures: [
+      "Multiple wallet types with clear transaction history",
+      "Internal movements without manual spreadsheet reconciliation",
+      "Tight coupling with expenses and supplier pay-outs",
+    ],
+    whyMatters:
+      "Cash has to stay legible when the business runs on deposits, IOUs, and branch float.",
+    primaryMedia: { kind: "image", assetKey: "wallets" },
+    plannedMediaFallback:
+      "Screenshot: wallets or transfer UI — `papion-module-wallets.png`",
+  },
+  {
+    id: "ai",
+    label: "AI",
+    headline: "Models on your operations—with the same permission story.",
+    intro:
+      "A beta route for strong models against real business data: deliberate access, role-aware answers, and no bolt-on iframe chat duct-taped to the side.",
+    rareFeatures: [
+      "Business-grounded prompts instead of generic assistants",
+      "Guardrailed exposure by role and intent",
+      "Lives as a first-class route in the same product shell",
+    ],
+    whyMatters:
+      "Useful AI fails fast when it cannot respect who is allowed to see what.",
+    primaryMedia: { kind: "image", assetKey: "ai" },
+    plannedMediaFallback:
+      "Screenshot: conversation UI with safe demo data — `papion-module-ai.png`",
+  },
+  {
+    id: "insights",
+    label: "Insights",
+    headline: "Steering panels where managers actually decide.",
+    intro:
+      "Performance, products, customers, branches, and finance-adjacent signals placed for operational hierarchy—live enough to feel like steering, not a monthly PDF.",
+    rareFeatures: [
+      "Layered analytics that mirror real branch structure",
+      "Product and branch cuts that match Papion’s inventory map",
+      "Finance signals next to sales—not stranded in another island",
+    ],
+    whyMatters:
+      "Reporting only helps when it shows up at the moment of a decision.",
+    primaryMedia: { kind: "image", assetKey: "insights" },
+    plannedMediaFallback:
+      "Screenshot: strongest insights view — `papion-module-insights.png`",
+  },
+]

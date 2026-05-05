@@ -1,9 +1,14 @@
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
-import { useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useReducedMotion } from "motion/react"
 
 import { cn } from "@/lib/utils"
+
+import {
+  ASH_AI_HANDOFF_EVENT,
+  type AshAiHandoffDetail,
+} from "@/lib/ashAiVisualContext"
 
 import { AppScreen } from "./footer-phone/app-screen"
 import {
@@ -19,7 +24,7 @@ import {
   StatusBar,
   usePhoneClock,
 } from "./footer-phone/phone-chrome"
-import type { PhoneApp, ProjectApp } from "./footer-phone/types"
+import type { PhoneApp } from "./footer-phone/types"
 import { moveItem } from "./footer-phone/utils"
 
 gsap.registerPlugin(useGSAP)
@@ -30,6 +35,8 @@ export function FooterPhone() {
   const prefersReducedMotion = useReducedMotion()
   const [activeAppId, setActiveAppId] = useState<string | null>("chatgpt")
   const [notificationsOpen, setNotificationsOpen] = useState(false)
+  const [ashAiBootstrapHandoff, setAshAiBootstrapHandoff] =
+    useState<AshAiHandoffDetail | null>(null)
   const allApps = useMemo(() => [...STANDARD_APPS, ...makeProjectApps()], [])
   const initialHomeApps = useMemo(
     () =>
@@ -43,12 +50,19 @@ export function FooterPhone() {
   const dockApps = DOCK_IDS.map((id) =>
     allApps.find((app) => app.id === id)
   ).filter(Boolean) as PhoneApp[]
-  const papionApp =
-    allApps.find(
-      (app): app is ProjectApp =>
-        app.kind === "project" && app.project.id === "papion"
-    ) ?? null
+  const ashAiApp = allApps.find((app) => app.id === "chatgpt") ?? null
   const activeApp = allApps.find((app) => app.id === activeAppId) ?? null
+
+  useEffect(() => {
+    const onHandoff = (ev: Event) => {
+      const e = ev as CustomEvent<AshAiHandoffDetail>
+      if (!e.detail?.userText?.trim()) return
+      setAshAiBootstrapHandoff(e.detail)
+      setActiveAppId("chatgpt")
+    }
+    window.addEventListener(ASH_AI_HANDOFF_EVENT, onHandoff)
+    return () => window.removeEventListener(ASH_AI_HANDOFF_EVENT, onHandoff)
+  }, [])
 
   useGSAP(
     () => {
@@ -127,10 +141,8 @@ export function FooterPhone() {
             <HomeWidgets
               day={day}
               dateLine={dateLine}
-              papionApp={papionApp ?? undefined}
-              onOpenPapion={() => {
-                if (papionApp) setActiveAppId(papionApp.id)
-              }}
+              ashAiApp={ashAiApp ?? undefined}
+              onOpenAshAi={() => setActiveAppId("chatgpt")}
             />
 
             <div className="mt-4 grid grid-cols-4 gap-x-2 gap-y-2">
@@ -164,6 +176,12 @@ export function FooterPhone() {
             <AppScreen
               app={activeApp}
               panelRef={panelRef}
+              ashAiBootstrapHandoff={
+                activeApp.id === "chatgpt" ? ashAiBootstrapHandoff : null
+              }
+              onConsumeAshAiBootstrapHandoff={() =>
+                setAshAiBootstrapHandoff(null)
+              }
               onClose={() => setActiveAppId(null)}
             />
           ) : null}

@@ -3,16 +3,89 @@ import {
   isAshStickerId,
   type AshStickerId,
 } from "@/lib/ashAiContext"
-import { getStoredAshAiModelId } from "@/lib/ashAiModels"
+import {
+  normalizeAshAiArtifacts,
+  type AshAiUiArtifact,
+} from "@/lib/ashAiArtifacts"
+import {
+  ASH_AI_VISION_MODEL_ID,
+  getStoredAshAiModelId,
+} from "@/lib/ashAiModels"
 import {
   normalizeAshAiWorkLinks,
   type AshAiUiLink,
 } from "@/lib/ashAiWorkLinks"
+import {
+  absolutizePublicAssetUrl,
+  fetchImageAsDataUrlForVision,
+} from "@/lib/ashAiVisualContext"
 
 const POLLINATIONS_BASE_URL = "https://gen.pollinations.ai"
 export const POLLINATIONS_ACCOUNT_DOCS_URL =
   "https://gen.pollinations.ai/docs#tag/account/GET/account/balance"
 const MAX_HISTORY_MESSAGES = 10
+
+/** Models that receive optional image_url on the last user turn (Pollinations OpenAI-compatible route). */
+const POLLINATIONS_VISION_MODEL_IDS = new Set<string>([ASH_AI_VISION_MODEL_ID])
+
+function resolveChatModelId(
+  lastUserImageUrl?: string | null,
+  /** When set (e.g. tests), overrides automatic vision routing. */
+  modelOverride?: string | null
+): string {
+  if (modelOverride?.trim()) return modelOverride.trim()
+  if (lastUserImageUrl?.trim()) return ASH_AI_VISION_MODEL_ID
+  return getStoredAshAiModelId()
+}
+
+type ApiMessageContent =
+  | string
+  | [
+      { type: "image_url"; image_url: { url: string } },
+      { type: "text"; text: string },
+    ]
+
+function visionImageApiUrl(resolvedSrc: string): string {
+  const t = resolvedSrc.trim()
+  if (
+    t.startsWith("data:") ||
+    t.startsWith("http://") ||
+    t.startsWith("https://")
+  ) {
+    return t
+  }
+  return absolutizePublicAssetUrl(t)
+}
+
+function mapMessagesForApi(
+  recentMessages: AshAiChatMessage[],
+  model: string,
+  lastUserImageUrl?: string | null
+): { role: string; content: ApiMessageContent }[] {
+  return recentMessages.map((message, index) => {
+    const isLast = index === recentMessages.length - 1
+    const useVision =
+      message.role === "user" &&
+      isLast &&
+      Boolean(lastUserImageUrl?.trim()) &&
+      POLLINATIONS_VISION_MODEL_IDS.has(model)
+    if (useVision) {
+      return {
+        role: message.role,
+        content: [
+          {
+            type: "image_url",
+            image_url: {
+              url: visionImageApiUrl(lastUserImageUrl!),
+            },
+          },
+          { type: "text", text: message.content },
+        ],
+      }
+    }
+    return { role: message.role, content: message.content }
+  })
+}
 
 /** These models return 422 with `response_format: json_object` on some Pollinations routes. */
 const POLLINATIONS_MODELS_OMIT_JSON_RESPONSE_FORMAT = new Set([
@@ -23,25 +96,38 @@ const POLLINATIONS_MODELS_OMIT_JSON_RESPONSE_FORMAT = new Set([
 function chatCompletionBody(
   model: string,
   recentMessages: AshAiChatMessage[],
-  stream: boolean
+  stream: boolean,
+  lastUserImageUrl?: string | null
 ) {
+  const messages: { role: string; content: ApiMessageContent }[] = [
+    { role: "system", content: ASH_AI_SYSTEM_PROMPT },
+    ...mapMessagesForApi(recentMessages, model, lastUserImageUrl),
+  ]
   const base = {
     model,
     temperature: 0.72,
     max_tokens: 320,
     stream,
-    messages: [
-      { role: "system" as const, content: ASH_AI_SYSTEM_PROMPT },
-      ...recentMessages.map((message) => ({
-        role: message.role,
-        content: message.content,
-      })),
-    ],
+    messages,
   }
-  if (POLLINATIONS_MODELS_OMIT_JSON_RESPONSE_FORMAT.has(model)) {
+  const hasVisionInput = Boolean(lastUserImageUrl?.trim())
+  if (
+    POLLINATIONS_MODELS_OMIT_JSON_RESPONSE_FORMAT.has(model) ||
+    hasVisionInput
+  ) {
     return base
   }
   return { ...base, response_format: { type: "json_object" as const } }
+}
+
+async function resolveVisionUrlForApi(
+  lastUserImageUrl?: string | null
+): Promise<string | null> {
+  const raw = lastUserImageUrl?.trim()
+  if (!raw) return null
+  const dataUrl = await fetchImageAsDataUrlForVision(raw)
+  if (dataUrl) return dataUrl
+  return absolutizePublicAssetUrl(raw)
 }
 
 type ChatRole = "assistant" | "user"
@@ -55,6 +141,7 @@ export type AshAiResponse = {
   message: string
   sticker: AshStickerId | null
   links: AshAiUiLink[]
+  artifacts: AshAiUiArtifact[]
 }
 
 type PollinationsChoice = {
@@ -124,7 +211,7 @@ function parseAssistantPayload(content: unknown): AshAiResponse {
       : "That came out garbled on my end — mind asking again in simpler words?"
 
   if (typeof content !== "string") {
-    return { message: fallbackMessage, sticker: null, links: [] }
+    return { message: fallbackMessage, sticker: null, links: [], artifacts: [] }
   }
 
   try {
@@ -132,6 +219,7 @@ function parseAssistantPayload(content: unknown): AshAiResponse {
       message?: unknown
       sticker?: unknown
       links?: unknown
+      artifacts?: unknown
     }
     return {
       message:
@@ -140,14 +228,16 @@ function parseAssistantPayload(content: unknown): AshAiResponse {
           : fallbackMessage,
       sticker: isAshStickerId(parsed.sticker) ? parsed.sticker : null,
       links: normalizeAshAiWorkLinks(parsed.links),
+      artifacts: normalizeAshAiArtifacts(parsed.artifacts),
     }
   } catch {
-    return { message: fallbackMessage, sticker: null, links: [] }
+    return { message: fallbackMessage, sticker: null, links: [], artifacts: [] }
   }
 }
 
 export async function askAshAi(
-  messages: AshAiChatMessage[]
+  messages: AshAiChatMessage[],
+  request?: { lastUserImageUrl?: string | null; modelId?: string | null }
 ): Promise<AshAiResponse> {
   const apiKey = getPollinationsKey()
 
@@ -156,14 +246,20 @@ export async function askAshAi(
   }
 
   const recentMessages = messages.slice(-MAX_HISTORY_MESSAGES)
-  const model = getStoredAshAiModelId()
+  const model = resolveChatModelId(
+    request?.lastUserImageUrl,
+    request?.modelId
+  )
+  const visionUrl = await resolveVisionUrlForApi(request?.lastUserImageUrl)
   const response = await fetch(`${POLLINATIONS_BASE_URL}/v1/chat/completions`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(chatCompletionBody(model, recentMessages, false)),
+    body: JSON.stringify(
+      chatCompletionBody(model, recentMessages, false, visionUrl ?? undefined)
+    ),
   })
 
   const body = (await response.json().catch(() => ({}))) as PollinationsResponse
@@ -216,6 +312,9 @@ export async function askAshAiStream(
   options: {
     onDelta: (accumulatedRaw: string, previewText: string) => void
     signal?: AbortSignal
+    lastUserImageUrl?: string | null
+    /** Rare override; normally image turns auto-use the vision model (GPT-5.4 Nano). */
+    modelId?: string | null
   }
 ): Promise<AshAiResponse> {
   const apiKey = getPollinationsKey()
@@ -225,7 +324,12 @@ export async function askAshAiStream(
   }
 
   const recentMessages = messages.slice(-MAX_HISTORY_MESSAGES)
-  const model = getStoredAshAiModelId()
+  const model = resolveChatModelId(
+    options.lastUserImageUrl,
+    options.modelId
+  )
+  const visionUrl = await resolveVisionUrlForApi(options.lastUserImageUrl)
+  const structuredStreamPreview = !visionUrl
   const response = await fetch(`${POLLINATIONS_BASE_URL}/v1/chat/completions`, {
     method: "POST",
     headers: {
@@ -233,7 +337,9 @@ export async function askAshAiStream(
       "Content-Type": "application/json",
     },
     signal: options.signal,
-    body: JSON.stringify(chatCompletionBody(model, recentMessages, true)),
+    body: JSON.stringify(
+      chatCompletionBody(model, recentMessages, true, visionUrl ?? undefined)
+    ),
   })
 
   if (!response.ok) {
@@ -266,7 +372,9 @@ export async function askAshAiStream(
         accumulated += piece
         options.onDelta(
           accumulated,
-          previewStreamingAssistantJson(accumulated)
+          structuredStreamPreview
+            ? previewStreamingAssistantJson(accumulated)
+            : accumulated.trim()
         )
       }
     } catch {

@@ -1,14 +1,19 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 
-import { ArrowUp, ArrowUpRight, Square } from "lucide-react"
+import { ArrowUp, ArrowUpRight, Square, Sparkles } from "lucide-react"
 
+import { type AshStickerId } from "@/lib/ashAiContext"
+import type { AshAiUiArtifact } from "@/lib/ashAiArtifacts"
 import {
   askAshAiStream,
   fetchPollinationsAccountBalance,
   type AshAiChatMessage,
 } from "@/lib/pollinationsAshAi"
-import { type AshStickerId } from "@/lib/ashAiContext"
 import { type AshAiUiLink } from "@/lib/ashAiWorkLinks"
+import {
+  type AshAiHandoffDetail,
+  requestAshAiHandoff,
+} from "@/lib/ashAiVisualContext"
 import { cn } from "@/lib/utils"
 
 import {
@@ -20,12 +25,108 @@ import {
 } from "./ash-ai-chat-storage"
 import {
   ASH_AI_GREETING,
+  ASH_AI_STARTER_PROMPTS,
   ASH_STICKER_ROOT,
   CHAT_APP_UI_FONT,
   CHATGPT_MARK_SRC,
 } from "./constants"
+import { AshAiAssistantRichText } from "./ash-ai-assistant-rich-text"
 
 export type { AshAiUiMessage }
+
+function AshAiArtifactCards({
+  artifacts,
+  fontFamily,
+}: {
+  artifacts: AshAiUiArtifact[]
+  fontFamily: string
+}) {
+  const askAbout = (artifact: AshAiUiArtifact) => {
+    requestAshAiHandoff({
+      userText: `Tell me more about “${artifact.title}” and how it shows up in Ash’s work.`,
+      imageSrc: artifact.kind === "image" ? artifact.mediaSrc : undefined,
+      sourceLabel: "ash-ai-artifact",
+    })
+  }
+
+  return (
+    <div className="mt-2.5 flex flex-col gap-2">
+      {artifacts.map((artifact) => (
+        <div
+          key={artifact.artifactId}
+          className="overflow-hidden rounded-2xl border border-neutral-200/90 bg-gradient-to-br from-white to-neutral-50/95 shadow-[0_1px_3px_rgb(0_0_0/0.06)]"
+        >
+          <div className="relative aspect-[16/9] w-full bg-neutral-900/8">
+            {artifact.kind === "video" ? (
+              <video
+                src={artifact.mediaSrc}
+                className="h-full w-full object-cover"
+                muted
+                playsInline
+                preload="metadata"
+                aria-label={artifact.mediaAlt}
+              />
+            ) : (
+              <img
+                src={artifact.mediaSrc}
+                alt={artifact.mediaAlt}
+                className="h-full w-full object-cover"
+                loading="lazy"
+                decoding="async"
+              />
+            )}
+          </div>
+          <div className="px-3 py-2.5">
+            {artifact.subtitle ? (
+              <p
+                className="text-[0.72rem] font-medium tracking-wide text-neutral-500 uppercase"
+                style={{ fontFamily }}
+              >
+                {artifact.subtitle}
+              </p>
+            ) : null}
+            <p
+              className={cn(
+                "text-[0.95rem] font-semibold tracking-[-0.02em] text-neutral-950",
+                artifact.subtitle ? "mt-0.5" : ""
+              )}
+              style={{ fontFamily }}
+            >
+              {artifact.title}
+            </p>
+            <p
+              className="mt-1 text-[0.78rem] leading-snug text-neutral-600"
+              style={{ fontFamily }}
+            >
+              {artifact.description}
+            </p>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              {artifact.href ? (
+                <a
+                  href={artifact.href}
+                  className="inline-flex items-center gap-1 rounded-full bg-neutral-950 px-3 py-1.5 text-[0.72rem] font-semibold text-white"
+                  style={{ fontFamily }}
+                >
+                  {artifact.ctaLabel}
+                  <ArrowUpRight className="size-3.5" strokeWidth={2.25} />
+                </a>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => askAbout(artifact)}
+                className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[0.72rem] font-semibold text-neutral-800 transition hover:border-neutral-300"
+                style={{ fontFamily }}
+              >
+                <Sparkles className="size-3.5 text-amber-500" strokeWidth={2} />
+                Ask Ash AI
+              </button>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 function AshAiWorkLinkCards({
   links,
@@ -108,16 +209,22 @@ export function AshAiScreen({
   chatId: _chatId,
   initialMessages,
   onPersistStore,
+  bootstrapHandoff,
+  onConsumeBootstrapHandoff,
 }: {
   chatId: string
   initialMessages: AshAiUiMessage[]
   onPersistStore: (
     updater: (prev: AshAiChatsStore) => AshAiChatsStore
   ) => void
+  bootstrapHandoff?: AshAiHandoffDetail | null
+  onConsumeBootstrapHandoff?: () => void
 }) {
   const [messages, setMessages] = useState<AshAiUiMessage[]>(() =>
     initialMessages.map((m) => ({ ...m, streaming: false }))
   )
+  const messagesRef = useRef(messages)
+  messagesRef.current = messages
   const [draft, setDraft] = useState("")
   const [awaitingReply, setAwaitingReply] = useState(false)
   const [greetingRevealLength, setGreetingRevealLength] = useState<
@@ -134,9 +241,7 @@ export function AshAiScreen({
   const streamAbortRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
-    return () => {
-      streamAbortRef.current?.abort()
-    }
+    return () => streamAbortRef.current?.abort()
   }, [])
 
   const scrollToBottom = () => {
@@ -230,28 +335,19 @@ export function AshAiScreen({
     return message.content
   }
 
-  const stopGenerating = () => {
-    if (!awaitingReply) return
-    chatEpochRef.current += 1
-    streamAbortRef.current?.abort()
-    setAwaitingReply(false)
-    setMessages((current) => {
-      const next = [...current]
-      const last = next[next.length - 1]
-      if (last?.role === "assistant" && last.streaming) {
-        if (!last.content.trim()) {
-          next.pop()
-        } else {
-          next[next.length - 1] = { ...last, streaming: false }
-        }
-      }
-      return next
-    })
-  }
+  const runAssistantTurn = async (
+    rawContent: string,
+    options?: {
+      imageSrc?: string | null
+      clearDraft?: boolean
+    }
+  ) => {
+    const content = rawContent.trim()
+    if (!content) return
 
-  const sendMessage = async () => {
-    const content = draft.trim()
-    if (!content || awaitingReply) return
+    const lastUserImageUrl = options?.imageSrc?.trim()
+      ? options.imageSrc.trim()
+      : undefined
 
     streamAbortRef.current?.abort()
     chatEpochRef.current += 1
@@ -260,8 +356,10 @@ export function AshAiScreen({
     streamAbortRef.current = ac
 
     shouldAnchorToBottomRef.current = true
-    const userMessage = makeAshAiMessage("user", content)
-    const nextMessages = [...messages, userMessage]
+    const userMessage = makeAshAiMessage("user", content, {
+      imageSrc: options?.imageSrc?.trim() || undefined,
+    })
+    const nextMessages = [...messagesRef.current, userMessage]
     const historyForApi: AshAiChatMessage[] = nextMessages.map(
       ({ role, content: c }) => ({ role, content: c })
     )
@@ -270,12 +368,13 @@ export function AshAiScreen({
       ...nextMessages,
       makeAshAiMessage("assistant", "", { streaming: true }),
     ])
-    setDraft("")
+    if (options?.clearDraft) setDraft("")
     setAwaitingReply(true)
 
     try {
       const answer = await askAshAiStream(historyForApi, {
         signal: ac.signal,
+        lastUserImageUrl,
         onDelta: (_raw, preview) => {
           if (epoch !== chatEpochRef.current) return
           setMessages((current) => {
@@ -302,6 +401,7 @@ export function AshAiScreen({
             content: answer.message,
             sticker,
             links: answer.links.length ? answer.links : undefined,
+            artifacts: answer.artifacts.length ? answer.artifacts : undefined,
             streaming: false,
           }
         }
@@ -332,6 +432,40 @@ export function AshAiScreen({
         setAwaitingReply(false)
       }
     }
+  }
+
+  useEffect(() => {
+    if (!bootstrapHandoff?.userText?.trim()) return
+    onConsumeBootstrapHandoff?.()
+    void runAssistantTurn(bootstrapHandoff.userText.trim(), {
+      imageSrc: bootstrapHandoff.imageSrc,
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- one-shot handoff payload per open
+  }, [bootstrapHandoff])
+
+  const stopGenerating = () => {
+    if (!awaitingReply) return
+    chatEpochRef.current += 1
+    streamAbortRef.current?.abort()
+    setAwaitingReply(false)
+    setMessages((current) => {
+      const next = [...current]
+      const last = next[next.length - 1]
+      if (last?.role === "assistant" && last.streaming) {
+        if (!last.content.trim()) {
+          next.pop()
+        } else {
+          next[next.length - 1] = { ...last, streaming: false }
+        }
+      }
+      return next
+    })
+  }
+
+  const sendMessage = async () => {
+    const content = draft.trim()
+    if (!content) return
+    await runAssistantTurn(content, { clearDraft: true })
   }
 
   const balanceNote = (() => {
@@ -375,6 +509,14 @@ export function AshAiScreen({
               message.role === "assistant" &&
               message.streaming &&
               !message.content.trim()
+            const showStarterChips =
+              messages.length === 1 &&
+              index === 0 &&
+              message.role === "assistant" &&
+              message.content === ASH_AI_GREETING &&
+              greetingRevealLength === null &&
+              !message.streaming &&
+              !message.failed
             return (
               <div
                 key={message.id}
@@ -388,6 +530,17 @@ export function AshAiScreen({
                     className="max-w-[82%] rounded-[1.15rem] bg-[#ececea] px-3.5 py-2.5 text-[1.02rem] leading-[1.38] text-neutral-950"
                     style={{ fontFamily: CHAT_APP_UI_FONT }}
                   >
+                    {message.imageSrc ? (
+                      <div className="mb-2 overflow-hidden rounded-xl border border-black/8 bg-neutral-200/35">
+                        <img
+                          src={message.imageSrc}
+                          alt=""
+                          className="max-h-36 w-full object-cover object-top"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </div>
+                    ) : null}
                     {message.content}
                   </div>
                 ) : (
@@ -414,15 +567,42 @@ export function AshAiScreen({
                           )}
                           style={{ fontFamily: CHAT_APP_UI_FONT }}
                         >
-                          {assistantTextToShow(message, index)}
+                          <AshAiAssistantRichText
+                            text={assistantTextToShow(message, index)}
+                          />
                         </div>
                       )}
+                      {showStarterChips ? (
+                        <div className="mt-3 flex flex-col gap-2">
+                          {ASH_AI_STARTER_PROMPTS.map((prompt) => (
+                            <button
+                              key={prompt}
+                              type="button"
+                              onClick={() => void runAssistantTurn(prompt)}
+                              disabled={awaitingReply}
+                              className="rounded-2xl border border-neutral-200/95 bg-white px-3 py-2.5 text-left text-[0.82rem] leading-snug font-medium text-neutral-900 shadow-[0_1px_3px_rgb(0_0_0/0.05)] transition enabled:hover:border-neutral-300 enabled:hover:shadow-[0_4px_12px_rgb(0_0_0/0.06)] disabled:opacity-45"
+                              style={{ fontFamily: CHAT_APP_UI_FONT }}
+                            >
+                              {prompt}
+                            </button>
+                          ))}
+                        </div>
+                      ) : null}
                       {message.links &&
                       message.links.length > 0 &&
                       !message.streaming &&
                       !message.failed ? (
                         <AshAiWorkLinkCards
                           links={message.links}
+                          fontFamily={CHAT_APP_UI_FONT}
+                        />
+                      ) : null}
+                      {message.artifacts &&
+                      message.artifacts.length > 0 &&
+                      !message.streaming &&
+                      !message.failed ? (
+                        <AshAiArtifactCards
+                          artifacts={message.artifacts}
                           fontFamily={CHAT_APP_UI_FONT}
                         />
                       ) : null}

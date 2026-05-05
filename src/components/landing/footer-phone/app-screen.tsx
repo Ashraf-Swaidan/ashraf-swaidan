@@ -1,5 +1,6 @@
 import { type RefObject } from "react"
 
+import type { AshAiHandoffDetail } from "@/lib/ashAiVisualContext"
 import { cn } from "@/lib/utils"
 
 import { AshAiWorkspace } from "./ash-ai-workspace"
@@ -21,10 +22,14 @@ export function AppScreen({
   app,
   panelRef,
   onClose,
+  ashAiBootstrapHandoff,
+  onConsumeAshAiBootstrapHandoff,
 }: {
   app: PhoneApp
   panelRef: RefObject<HTMLDivElement | null>
   onClose: () => void
+  ashAiBootstrapHandoff?: AshAiHandoffDetail | null
+  onConsumeAshAiBootstrapHandoff?: () => void
 }) {
   const isAshAi = app.id === "chatgpt"
 
@@ -60,7 +65,11 @@ export function AppScreen({
       ) : null}
 
       {app.kind === "chatgpt" ? (
-        <AshAiWorkspace onClose={onClose} />
+        <AshAiWorkspace
+          onClose={onClose}
+          bootstrapHandoff={ashAiBootstrapHandoff ?? null}
+          onConsumeBootstrapHandoff={onConsumeAshAiBootstrapHandoff}
+        />
       ) : app.kind === "project" && app.project.id === "papion" ? (
         <PapionMobileScreen app={app} />
       ) : app.kind === "project" ? (

@@ -1,4 +1,9 @@
 import type { AshStickerId } from "@/lib/ashAiContext"
+import {
+  artifactRefsForPersistence,
+  rehydrateAshAiArtifactsFromStorage,
+  type AshAiUiArtifact,
+} from "@/lib/ashAiArtifacts"
 import type { AshAiChatMessage } from "@/lib/pollinationsAshAi"
 import type { AshAiUiLink } from "@/lib/ashAiWorkLinks"
 import { rehydrateAshAiLinksFromStorage } from "@/lib/ashAiWorkLinks"
@@ -16,6 +21,9 @@ export type AshAiUiMessage = AshAiChatMessage & {
   id: string
   sticker?: AshStickerId | null
   links?: AshAiUiLink[]
+  artifacts?: AshAiUiArtifact[]
+  /** Optional image path/URL for user turns — shown in the bubble; not sent as data URLs in storage */
+  imageSrc?: string
   failed?: boolean
   streaming?: boolean
 }
@@ -42,7 +50,7 @@ export function makeAshAiMessage(
   content: string,
   options: Pick<
     AshAiUiMessage,
-    "failed" | "sticker" | "streaming" | "links"
+    "failed" | "sticker" | "streaming" | "links" | "artifacts" | "imageSrc"
   > = {}
 ): AshAiUiMessage {
   return {
@@ -63,6 +71,14 @@ function sanitizeMessages(raw: unknown): AshAiUiMessage[] {
       content: typeof msg.content === "string" ? msg.content : "",
       sticker: msg.sticker,
       links: rehydrateAshAiLinksFromStorage(msg.links),
+      artifacts: rehydrateAshAiArtifactsFromStorage(msg.artifacts),
+      imageSrc:
+        msg.role === "user" &&
+        typeof msg.imageSrc === "string" &&
+        msg.imageSrc.trim() &&
+        !msg.imageSrc.startsWith("data:")
+          ? msg.imageSrc.trim()
+          : undefined,
       failed: Boolean(msg.failed),
       streaming: false,
     }
@@ -212,12 +228,23 @@ export function persistAshAiChatsStore(store: AshAiChatsStore) {
   )
 }
 
+function persistUserImageSrc(m: AshAiUiMessage): string | undefined {
+  if (m.role !== "user") return undefined
+  const s = m.imageSrc?.trim()
+  if (!s || s.startsWith("data:")) return undefined
+  return s
+}
+
 export function messagesForPersistence(
   messages: AshAiUiMessage[]
 ): AshAiUiMessage[] {
   return messages.map((m) => ({
     ...m,
     streaming: false,
+    artifacts: artifactRefsForPersistence(m.artifacts) as
+      | AshAiUiArtifact[]
+      | undefined,
+    imageSrc: persistUserImageSrc(m),
   }))
 }
 

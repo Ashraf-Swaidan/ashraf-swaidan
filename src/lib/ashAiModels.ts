@@ -8,6 +8,9 @@ export const ASH_AI_CHAT_MODEL_OPTIONS = [
 
 export type AshAiChatModelId = (typeof ASH_AI_CHAT_MODEL_OPTIONS)[number]["id"]
 
+/** Pollinations id for “GPT-5.4 Nano” in settings — supports `image_url` on the last user turn. */
+export const ASH_AI_VISION_MODEL_ID: AshAiChatModelId = "openai"
+
 const DEFAULT_MODEL: AshAiChatModelId = "qwen-coder"
 
 export const ASH_AI_MODEL_STORAGE_KEY = "ash-ai-chat-model-id"

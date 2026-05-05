@@ -19,6 +19,7 @@ import {
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { requestAshAiHandoff } from "@/lib/ashAiVisualContext"
 
 import { ASH_STICKER_ROOT, BODY_FONT, DISPLAY_FONT } from "./constants"
 
@@ -631,11 +632,27 @@ function ZoomablePhoto({
   )
 }
 
+function photosHandoffUserText(
+  item: PhotosMediaItem,
+  albumTitle?: string
+): string {
+  const kindLabel = item.kind === "image" ? "screenshot" : "video"
+  return [
+    `Explain this ${kindLabel} from my Photos library.`,
+    `Caption: ${item.alt}`,
+    albumTitle ? `Album: ${albumTitle}.` : null,
+  ]
+    .filter(Boolean)
+    .join("\n")
+}
+
 function PhotosMediaViewer({
   item,
+  albumTitle,
   onClose,
 }: {
   item: PhotosMediaItem
+  albumTitle?: string
   onClose: () => void
 }) {
   useEffect(() => {
@@ -647,6 +664,15 @@ function PhotosMediaViewer({
   }, [onClose])
 
   const isImage = item.kind === "image"
+
+  const askAshAi = () => {
+    requestAshAiHandoff({
+      userText: photosHandoffUserText(item, albumTitle),
+      imageSrc: item.kind === "image" ? item.src : undefined,
+      sourceLabel: "photos",
+    })
+    onClose()
+  }
 
   return (
     <div
@@ -667,7 +693,18 @@ function PhotosMediaViewer({
               <ZoomablePhoto src={item.src} alt={item.alt} />
             </div>
           </div>
-          <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex justify-end bg-gradient-to-b from-black/55 to-transparent px-2 pt-2 pb-8">
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-start justify-end gap-2 bg-gradient-to-b from-black/55 to-transparent px-2 pt-2 pb-8">
+            <button
+              type="button"
+              onClick={askAshAi}
+              className="pointer-events-auto rounded-full bg-white/14 px-3 py-1.5 text-[0.78rem] font-semibold text-white ring-1 ring-white/22 backdrop-blur-md transition hover:bg-white/22"
+              style={{
+                fontFamily:
+                  "-apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+              }}
+            >
+              Ask Ash AI
+            </button>
             <button
               type="button"
               onClick={onClose}
@@ -691,8 +728,19 @@ function PhotosMediaViewer({
         </>
       ) : (
         <>
-          <div className="flex shrink-0 items-center justify-end px-2 py-2 pt-1">
-            <span className="w-14" aria-hidden />
+          <div className="flex shrink-0 items-center justify-end gap-2 px-2 py-2 pt-1">
+            <button
+              type="button"
+              onClick={askAshAi}
+              className="rounded-full bg-white/10 px-3 py-1.5 text-[0.78rem] font-semibold text-white ring-1 ring-white/22 backdrop-blur-md transition hover:bg-white/16"
+              style={{
+                fontFamily:
+                  "-apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+              }}
+            >
+              Ask Ash AI
+            </button>
+            <span className="w-6 shrink-0" aria-hidden />
             <button
               type="button"
               onClick={onClose}
@@ -838,7 +886,12 @@ export function PhotosScreen({
 }) {
   const [bottomTab, setBottomTab] = useState<BottomTabId>("albums")
   const [openAlbumId, setOpenAlbumId] = useState<string | null>(null)
-  const [viewerItem, setViewerItem] = useState<PhotosMediaItem | null>(null)
+  const [viewerOpen, setViewerOpen] = useState<{
+    item: PhotosMediaItem
+    albumTitle?: string
+  } | null>(null)
+
+  const viewerItem = viewerOpen?.item ?? null
 
   useLayoutEffect(() => {
     const el = appPanelRef?.current
@@ -885,7 +938,7 @@ export function PhotosScreen({
     setOpenAlbumId(null)
   }, [])
 
-  const closeViewer = useCallback(() => setViewerItem(null), [])
+  const closeViewer = useCallback(() => setViewerOpen(null), [])
 
   const onBottomTab = useCallback((id: BottomTabId) => {
     setBottomTab(id)
@@ -1063,7 +1116,9 @@ export function PhotosScreen({
                   key={item.id}
                   item={item}
                   dense
-                  onOpen={() => setViewerItem(item)}
+                  onOpen={() =>
+                    setViewerOpen({ item, albumTitle: openAlbum.title })
+                  }
                 />
               ))}
             </div>
@@ -1187,7 +1242,9 @@ export function PhotosScreen({
                   item={item}
                   dense
                   title={`${albumTitle} — ${item.alt}`}
-                  onOpen={() => setViewerItem(item)}
+                  onOpen={() =>
+                    setViewerOpen({ item, albumTitle })
+                  }
                 />
               ))}
             </div>
@@ -1244,8 +1301,12 @@ export function PhotosScreen({
         <PhotosBottomTabs active={bottomTab} onChange={onBottomTab} />
       ) : null}
 
-      {viewerItem ? (
-        <PhotosMediaViewer item={viewerItem} onClose={closeViewer} />
+      {viewerOpen ? (
+        <PhotosMediaViewer
+          item={viewerOpen.item}
+          albumTitle={viewerOpen.albumTitle}
+          onClose={closeViewer}
+        />
       ) : null}
     </div>
   )

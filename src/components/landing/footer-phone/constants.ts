@@ -21,6 +21,12 @@ export const ASH_AI_CHATS_STORAGE_KEY = "ash-ai-chats-v1"
 export const ASH_AI_MAX_CHATS = 20
 export const ASH_AI_CHATS_SCHEMA_VERSION = 1
 export const ASH_AI_GREETING = "Hey — what do you need today?"
+/** Shown as chips on fresh chats only — opinionated conversation starters */
+export const ASH_AI_STARTER_PROMPTS = [
+  "What’s the coolest feature Ash built?",
+  "Which project best shows Ash’s product thinking?",
+  "What should I look at first if I’m hiring?",
+] as const
 export const ASH_AI_NEW_CHAT_TITLE = "New chat"
 export const CHATGPT_MARK_SRC = `${PHONE_ASSET_ROOT}/ChatGPT-Logo.svg`
 /** Inter Variable — friendly UI for the in-phone Ash AI chat shell */

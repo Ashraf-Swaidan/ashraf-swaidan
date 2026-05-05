@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils"
 
-import { BODY_FONT, DISPLAY_FONT } from "./constants"
+import { BODY_FONT, CHATGPT_MARK_SRC, DISPLAY_FONT } from "./constants"
 import type { PhoneApp } from "./types"
 
 export function AppIcon({
@@ -72,13 +72,13 @@ export function DockIcon({ app, onOpen }: { app: PhoneApp; onOpen: () => void })
 export function HomeWidgets({
   day,
   dateLine,
-  papionApp,
-  onOpenPapion,
+  ashAiApp,
+  onOpenAshAi,
 }: {
   day: string
   dateLine: string
-  papionApp?: PhoneApp
-  onOpenPapion: () => void
+  ashAiApp?: PhoneApp
+  onOpenAshAi: () => void
 }) {
   return (
     <div className="grid grid-cols-[1fr_0.82fr] gap-2">
@@ -104,39 +104,25 @@ export function HomeWidgets({
       </div>
       <button
         type="button"
-        onClick={onOpenPapion}
-        className="min-h-[5.3rem] rounded-[1.45rem] bg-[linear-gradient(145deg,rgb(246_237_225/0.82),rgb(213_195_170/0.62))] px-3 py-3 text-left text-[var(--color-drh-ink)] shadow-[0_14px_32px_rgb(0_0_0/0.14)] backdrop-blur-xl transition hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-black/20 focus-visible:outline-none"
+        onClick={onOpenAshAi}
+        className="flex min-h-[5.3rem] items-center rounded-[1.45rem] bg-white/78 px-3 py-3 text-left text-neutral-900 shadow-[0_14px_32px_rgb(0_0_0/0.08)] ring-1 ring-white/70 backdrop-blur-xl transition hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-neutral-400/55 focus-visible:ring-offset-2 focus-visible:ring-offset-black/15 focus-visible:outline-none"
       >
-        <p
-          className="text-[0.68rem] tracking-[0.18em] text-[var(--color-drh-ink)]/52 uppercase"
-          style={{ fontFamily: DISPLAY_FONT }}
-        >
-          Papion
-        </p>
-        <div className="mt-2 flex items-center gap-2">
-          {papionApp ? (
+        <div className="flex w-full items-center gap-2.5">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[0.85rem] bg-neutral-100/95 shadow-[inset_0_1px_0_rgb(255_255_255/0.9)] ring-1 ring-neutral-200/80">
             <img
-              src={papionApp.iconSrc}
+              src={ashAiApp?.iconSrc ?? CHATGPT_MARK_SRC}
               alt=""
-              className="h-8 w-8 rounded-[0.8rem] bg-white/88 p-1.5 shadow-[0_8px_16px_rgb(0_0_0/0.14)]"
+              className="h-6 w-6 object-contain"
               loading="lazy"
               decoding="async"
             />
-          ) : null}
-          <div className="min-w-0">
-            <p
-              className="text-[1rem] leading-none font-semibold"
-              style={{ fontFamily: DISPLAY_FONT }}
-            >
-              3 due today
-            </p>
-            <p
-              className="mt-1 text-[0.74rem] leading-[1.1] text-[var(--color-drh-ink)]/58"
-              style={{ fontFamily: BODY_FONT }}
-            >
-              Open the mobile pass
-            </p>
-          </div>
+          </span>
+          <p
+            className="min-w-0 flex-1 text-[1.02rem] leading-tight font-semibold tracking-[-0.02em] text-neutral-900"
+            style={{ fontFamily: DISPLAY_FONT }}
+          >
+            Ask anything
+          </p>
         </div>
       </button>
     </div>

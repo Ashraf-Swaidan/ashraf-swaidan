@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 
 import { PanelRightOpen, Plus, Settings } from "lucide-react"
 
+import type { AshAiHandoffDetail } from "@/lib/ashAiVisualContext"
 import { cn } from "@/lib/utils"
 
 import { AshAiChatSidebar } from "./ash-ai-chat-sidebar"
@@ -19,7 +20,15 @@ import { AshAiScreen } from "./ash-ai-screen"
 import { ASH_AI_NEW_CHAT_TITLE, CHAT_APP_UI_FONT } from "./constants"
 import { ChevronBackIcon } from "./chevron-back-icon"
 
-export function AshAiWorkspace({ onClose }: { onClose: () => void }) {
+export function AshAiWorkspace({
+  onClose,
+  bootstrapHandoff,
+  onConsumeBootstrapHandoff,
+}: {
+  onClose: () => void
+  bootstrapHandoff?: AshAiHandoffDetail | null
+  onConsumeBootstrapHandoff?: () => void
+}) {
   const [store, setStore] = useState<AshAiChatsStore>(loadAshAiChatsStore)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -143,6 +152,8 @@ export function AshAiWorkspace({ onClose }: { onClose: () => void }) {
         chatId={store.activeChatId}
         initialMessages={activeThread.messages}
         onPersistStore={onPersistStore}
+        bootstrapHandoff={bootstrapHandoff ?? null}
+        onConsumeBootstrapHandoff={onConsumeBootstrapHandoff}
       />
     </>
   )

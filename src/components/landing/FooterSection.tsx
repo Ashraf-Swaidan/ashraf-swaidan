@@ -185,8 +185,8 @@ export function FooterSection() {
       />
 
       <div className="relative z-10 mx-auto max-w-6xl px-6 py-18 sm:px-8 md:py-24 lg:px-10">
-        <div className="grid items-end gap-14 lg:grid-cols-[minmax(0,1.08fr)_minmax(22rem,0.92fr)] lg:gap-8 xl:gap-12">
-          <div ref={introRef} className="relative lg:max-w-[42rem]">
+        <div className="grid items-end gap-14 lg:grid-cols-[minmax(0,1.16fr)_minmax(22rem,0.84fr)] lg:gap-8 xl:gap-12">
+          <div ref={introRef} className="relative lg:max-w-[46rem]">
             <p
               className="footer-eyebrow text-[0.68rem] font-semibold tracking-[0.38em] text-[var(--color-drh-ink)]/34 uppercase"
               style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
@@ -222,7 +222,7 @@ export function FooterSection() {
             </h2>
 
             <p
-              className="footer-body mt-8 max-w-xl text-[clamp(1rem,1.45vw,1.14rem)] leading-[1.82] text-[var(--color-drh-ink)]/64 lg:max-w-[29rem]"
+              className="footer-body mt-8 max-w-xl text-[clamp(1rem,1.45vw,1.14rem)] leading-[1.82] text-[var(--color-drh-ink)]/64 lg:max-w-[32rem]"
               style={{
                 fontFamily: "'Cormorant Garamond', 'Fraunces Variable', serif",
               }}

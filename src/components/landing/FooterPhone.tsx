@@ -4,6 +4,8 @@ import gsap from "gsap"
 import { useReducedMotion } from "motion/react"
 
 import { SELECTED_WORKS_PROJECTS, type WorkProject } from "@/data/selectedWorks"
+import { askAshAi, type AshAiChatMessage } from "@/lib/pollinationsAshAi"
+import { type AshStickerId } from "@/lib/ashAiContext"
 import { cn } from "@/lib/utils"
 import {
   CASE_ASSETS,
@@ -18,6 +20,7 @@ const PHONE_ASSET_ROOT = "/assets/phone-apps"
 const GMAIL_ADDRESS = "ashraf.swaidan.13@gmail.com"
 
 type AppKind =
+  | "chatgpt"
   | "gmail"
   | "instagram"
   | "linkedin"
@@ -77,8 +80,26 @@ type PapionMobileTab = {
 }
 
 const DOCK_IDS = ["whatsapp", "linkedin", "instagram", "gmail"] as const
+const ASH_STICKER_ROOT = "/assets/ash-stickers"
+const ASH_AI_CHAT_STORAGE_KEY = "ash-ai-chat-messages"
+const CHATGPT_MARK_SRC = `${PHONE_ASSET_ROOT}/ChatGPT-Logo.svg`
+const CHATGPT_SEND_ICON_SRC = `${PHONE_ASSET_ROOT}/arrow-square-top.svg`
+
+type AshAiUiMessage = AshAiChatMessage & {
+  id: string
+  sticker?: AshStickerId | null
+  failed?: boolean
+}
 
 const STANDARD_APPS: StandardApp[] = [
+  {
+    id: "chatgpt",
+    kind: "chatgpt",
+    label: "ChatGPT",
+    iconSrc: `${PHONE_ASSET_ROOT}/chatgpt.png`,
+    title: "Ask Ash AI",
+    body: "Ask about Ashraf's work, systems, projects, and the operational problems behind them.",
+  },
   {
     id: "gmail",
     kind: "gmail",
@@ -1036,6 +1057,256 @@ function InstagramScreen({ app }: { app: StandardApp }) {
   )
 }
 
+function makeAshAiMessage(
+  role: AshAiChatMessage["role"],
+  content: string,
+  options: Pick<AshAiUiMessage, "failed" | "sticker"> = {}
+): AshAiUiMessage {
+  return {
+    id: `${role}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    role,
+    content,
+    ...options,
+  }
+}
+
+function TypingDots() {
+  return (
+    <span className="flex items-center gap-1 px-1 py-1.5" aria-label="Typing">
+      {[0, 1, 2].map((dot) => (
+        <span
+          key={dot}
+          className="h-2 w-2 animate-pulse rounded-full bg-neutral-500"
+          style={{ animationDelay: `${dot * 120}ms` }}
+        />
+      ))}
+    </span>
+  )
+}
+
+function shouldShowAshSticker(
+  sticker: AshStickerId | null,
+  messages: AshAiUiMessage[]
+) {
+  if (!sticker) return null
+  const recentAssistantMessages = messages
+    .filter((message) => message.role === "assistant")
+    .slice(-3)
+  return recentAssistantMessages.some((message) => message.sticker)
+    ? null
+    : sticker
+}
+
+function getInitialAshAiMessages() {
+  try {
+    const stored = window.sessionStorage.getItem(ASH_AI_CHAT_STORAGE_KEY)
+    if (!stored) {
+      return [makeAshAiMessage("assistant", "Ask me about Ashraf")]
+    }
+    const parsed = JSON.parse(stored) as AshAiUiMessage[]
+    return parsed.length
+      ? parsed
+      : [makeAshAiMessage("assistant", "Ask me about Ashraf")]
+  } catch {
+    return [makeAshAiMessage("assistant", "Ask me about Ashraf")]
+  }
+}
+
+function AshAiScreen() {
+  const [messages, setMessages] = useState<AshAiUiMessage[]>(
+    getInitialAshAiMessages
+  )
+  const [draft, setDraft] = useState("")
+  const [isThinking, setIsThinking] = useState(false)
+  const scrollFrameRef = useRef<number | null>(null)
+  const shouldAnchorToBottomRef = useRef(true)
+  const scrollAreaRef = useRef<HTMLDivElement>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const scrollToBottom = () => {
+    if (scrollFrameRef.current !== null) {
+      window.cancelAnimationFrame(scrollFrameRef.current)
+    }
+    scrollFrameRef.current = window.requestAnimationFrame(() => {
+      messagesEndRef.current?.scrollIntoView({ block: "end" })
+      scrollFrameRef.current = null
+    })
+  }
+
+  useEffect(() => {
+    window.sessionStorage.setItem(
+      ASH_AI_CHAT_STORAGE_KEY,
+      JSON.stringify(messages)
+    )
+  }, [messages])
+
+  useEffect(() => {
+    if (shouldAnchorToBottomRef.current) {
+      scrollToBottom()
+    }
+  }, [messages, isThinking])
+
+  const sendMessage = async () => {
+    const content = draft.trim()
+    if (!content || isThinking) return
+
+    shouldAnchorToBottomRef.current = true
+    const userMessage = makeAshAiMessage("user", content)
+    const nextMessages = [...messages, userMessage]
+    setMessages(nextMessages)
+    setDraft("")
+    setIsThinking(true)
+
+    try {
+      const answer = await askAshAi(
+        nextMessages.map(({ role, content }) => ({ role, content }))
+      )
+      const sticker = shouldShowAshSticker(answer.sticker, nextMessages)
+      setMessages((current) => [
+        ...current,
+        makeAshAiMessage("assistant", answer.message, {
+          sticker,
+        }),
+      ])
+    } catch {
+      setMessages((current) => [
+        ...current,
+        makeAshAiMessage(
+          "assistant",
+          "I hit a connection snag. Your question is still here, so try sending it again in a moment.",
+          { failed: true }
+        ),
+      ])
+    } finally {
+      setIsThinking(false)
+    }
+  }
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col bg-white text-[#101010]">
+      <div
+        ref={scrollAreaRef}
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5"
+        onWheel={(event) => event.stopPropagation()}
+        onTouchMove={(event) => event.stopPropagation()}
+        onScroll={(event) => {
+          const target = event.currentTarget
+          const remaining =
+            target.scrollHeight - target.scrollTop - target.clientHeight
+          shouldAnchorToBottomRef.current = remaining < 64
+        }}
+      >
+        <div className="flex flex-col gap-4">
+          {messages.map((message) => {
+            const isUser = message.role === "user"
+            return (
+              <div
+                key={message.id}
+                className={cn(
+                  "flex w-full",
+                  isUser ? "justify-end" : "justify-start"
+                )}
+              >
+                {isUser ? (
+                  <div
+                    className="max-w-[82%] rounded-[1.15rem] bg-[#f1f1f1] px-3.5 py-2.5 text-[1.02rem] leading-[1.38] text-neutral-950"
+                    style={{ fontFamily: BODY_FONT }}
+                  >
+                    {message.content}
+                  </div>
+                ) : (
+                  <div className="flex max-w-[92%] items-start gap-2.5">
+                    <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full border border-neutral-200 bg-white shadow-[0_1px_4px_rgb(0_0_0/0.06)]">
+                      <img
+                        src={CHATGPT_MARK_SRC}
+                        alt=""
+                        className="h-[1.125rem] w-[1.125rem] object-contain"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </span>
+                    <div className="min-w-0">
+                      <div
+                        className={cn(
+                          "text-[1.02rem] leading-[1.42]",
+                          message.failed ? "text-rose-700" : "text-neutral-950"
+                        )}
+                        style={{ fontFamily: BODY_FONT }}
+                      >
+                        {message.content}
+                      </div>
+                      {message.sticker ? (
+                        <img
+                          src={`${ASH_STICKER_ROOT}/${message.sticker}.png`}
+                          alt=""
+                          className="mt-2 h-24 w-24 rounded-[1rem] object-contain"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      ) : null}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          })}
+
+          {isThinking ? (
+            <div className="flex justify-start">
+              <div className="flex max-w-[92%] items-start gap-2.5">
+                <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full border border-neutral-200 bg-white shadow-[0_1px_4px_rgb(0_0_0/0.06)]">
+                  <img
+                    src={CHATGPT_MARK_SRC}
+                    alt=""
+                    className="h-[1.125rem] w-[1.125rem] object-contain"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </span>
+                <TypingDots />
+              </div>
+            </div>
+          ) : null}
+          <div ref={messagesEndRef} />
+        </div>
+      </div>
+
+      <form
+        className="bg-white px-3 pt-2 pb-5"
+        onSubmit={(event) => {
+          event.preventDefault()
+          void sendMessage()
+        }}
+      >
+        <div className="flex items-center gap-2 rounded-[1.35rem] bg-[#f1f1f1] px-3 py-2 shadow-[inset_0_0_0_1px_rgb(0_0_0/0.04)]">
+          <input
+            value={draft}
+            onChange={(event) => setDraft(event.target.value)}
+            placeholder="Ask about Ashraf"
+            className="min-w-0 flex-1 bg-transparent text-[1rem] text-neutral-950 placeholder:text-neutral-400 focus:outline-none"
+            style={{ fontFamily: BODY_FONT }}
+            disabled={isThinking}
+            aria-label="Ask about Ashraf"
+          />
+          <button
+            type="submit"
+            disabled={!draft.trim() || isThinking}
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-neutral-950 transition hover:scale-105 disabled:scale-100 disabled:bg-neutral-300"
+            aria-label="Send message"
+          >
+            <img
+              src={CHATGPT_SEND_ICON_SRC}
+              alt=""
+              className="h-4 w-4 brightness-0 invert"
+              aria-hidden
+            />
+          </button>
+        </div>
+      </form>
+    </div>
+  )
+}
+
 function ChatScreen({ app }: { app: StandardApp }) {
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-[#e8f1e7] px-3 pt-4 pb-5">
@@ -1179,29 +1450,70 @@ function AppScreen({
   panelRef: RefObject<HTMLDivElement | null>
   onClose: () => void
 }) {
+  const isChatGpt = app.id === "chatgpt"
+
   return (
     <div
       ref={panelRef}
-      className="absolute inset-0 z-30 flex flex-col overflow-hidden bg-white pt-[4.45rem]"
+      className={cn(
+        "absolute inset-0 z-30 flex flex-col overflow-hidden pt-[4.45rem]",
+        isChatGpt ? "bg-[#f7f7f5] text-neutral-950" : "bg-white"
+      )}
     >
       <div className="absolute inset-x-0 top-9 z-20 flex h-11 items-center justify-between px-4">
-        <button
-          type="button"
-          onClick={onClose}
-          className="text-[0.76rem] font-semibold tracking-[0.14em] text-current/62 uppercase focus-visible:outline-none"
-          style={{ fontFamily: DISPLAY_FONT }}
-        >
-          Back
-        </button>
-        <span
-          className="max-w-[9rem] truncate text-[0.68rem] font-semibold tracking-[0.18em] text-current/38 uppercase"
-          style={{ fontFamily: DISPLAY_FONT }}
-        >
-          {app.label}
-        </span>
+        {isChatGpt ? (
+          <>
+            <button
+              type="button"
+              onClick={onClose}
+              className="grid h-8 w-8 place-items-center rounded-full text-neutral-950 transition hover:bg-neutral-200/70 focus-visible:outline-none"
+              aria-label="Close ChatGPT"
+            >
+              <span className="flex flex-col gap-[3px]" aria-hidden>
+                <span className="h-[1.5px] w-3 rounded-full bg-current" />
+                <span className="h-[1.5px] w-3 rounded-full bg-current" />
+              </span>
+            </button>
+            <span
+              className="absolute left-1/2 -translate-x-1/2 text-[0.82rem] font-semibold text-neutral-950"
+              style={{ fontFamily: DISPLAY_FONT }}
+            >
+              ChatGPT 4 &gt;
+            </span>
+            <button
+              type="button"
+              className="grid h-8 w-8 place-items-center rounded-full text-neutral-950 transition hover:bg-neutral-200/70 focus-visible:outline-none"
+              aria-label="New chat"
+            >
+              <span className="relative h-3.5 w-3.5" aria-hidden>
+                <span className="absolute inset-[1px] rounded-[2px] border border-current" />
+                <span className="absolute -top-0.5 right-0 h-2 w-[1.5px] rotate-45 rounded-full bg-current" />
+              </span>
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-[0.76rem] font-semibold tracking-[0.14em] text-current/62 uppercase focus-visible:outline-none"
+              style={{ fontFamily: DISPLAY_FONT }}
+            >
+              Back
+            </button>
+            <span
+              className="max-w-[9rem] truncate text-[0.68rem] font-semibold tracking-[0.18em] text-current/38 uppercase"
+              style={{ fontFamily: DISPLAY_FONT }}
+            >
+              {app.label}
+            </span>
+          </>
+        )}
       </div>
 
-      {app.kind === "project" && app.project.id === "papion" ? (
+      {app.kind === "chatgpt" ? (
+        <AshAiScreen />
+      ) : app.kind === "project" && app.project.id === "papion" ? (
         <PapionMobileScreen app={app} />
       ) : app.kind === "project" ? (
         <ProjectScreen app={app} />
@@ -1232,7 +1544,7 @@ export function FooterPhone() {
   const { time, day, dateLine } = usePhoneClock()
   const panelRef = useRef<HTMLDivElement>(null)
   const prefersReducedMotion = useReducedMotion()
-  const [activeAppId, setActiveAppId] = useState<string | null>(null)
+  const [activeAppId, setActiveAppId] = useState<string | null>("chatgpt")
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const allApps = useMemo(() => [...STANDARD_APPS, ...makeProjectApps()], [])
   const initialHomeApps = useMemo(

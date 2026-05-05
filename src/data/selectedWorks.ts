@@ -39,7 +39,7 @@ export const SELECTED_WORKS_PROJECTS: WorkProject[] = [
     logoSrc: "/assets/selected-works-logos/ak-logo.svg",
     imageSrc: "/assets/lap-animation-assets/ak-lap.jpg",
     videoSrc: SELECTED_WORKS_VIDEOS.ak,
-    href: "#",
+    href: "/works/ak-system",
   },
   {
     id: "twodo",
@@ -49,6 +49,6 @@ export const SELECTED_WORKS_PROJECTS: WorkProject[] = [
     logoSrc: "/assets/selected-works-logos/twodo-logo.png",
     imageSrc: "/assets/lap-animation-assets/twodo-lap.jpg",
     videoSrc: SELECTED_WORKS_VIDEOS.twodo,
-    href: "#",
+    href: "/works/twodo",
   },
 ]

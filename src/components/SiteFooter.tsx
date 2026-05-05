@@ -67,7 +67,7 @@ export function SiteFooter() {
     <footer
       id="site-footer"
       aria-label="Contact footer"
-      className="relative isolate overflow-x-clip bg-[#0b0b0b] text-white selection:bg-white/18 selection:text-white"
+      className="relative isolate overflow-x-clip overflow-y-visible bg-[#0b0b0b] text-white selection:bg-white/18 selection:text-white"
     >
       <div
         className="pointer-events-none absolute inset-0 z-0 opacity-80"
@@ -92,22 +92,29 @@ export function SiteFooter() {
         }}
       />
 
-      {/* Illustration: anchored bottom-right; eager load avoids Lenis + native lazy IO bugs */}
+      {/* Illustration: anchored bottom-right; eager load avoids Lenis + native lazy IO bugs.
+          lg+: extend the paint box above/below the footer so the figure can break out of the dark panel. */}
       <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 top-[28%] z-[8] min-h-[min(58vh,28rem)] sm:top-[22%] sm:min-h-[min(62vh,32rem)] lg:top-0 lg:flex lg:min-h-0 lg:items-end lg:justify-end"
+        className="pointer-events-none absolute inset-x-0 bottom-0 top-[28%] z-[8] min-h-[min(58vh,28rem)]
+          sm:top-[22%] sm:min-h-[min(62vh,32rem)]
+          md:top-[20%] md:min-h-[min(64vh,34rem)]
+          lg:inset-x-0 lg:-top-[clamp(2.5rem,7.5vh,5.5rem)] lg:-bottom-[clamp(2rem,6.5vh,4.75rem)] lg:flex lg:min-h-0 lg:items-end lg:justify-end"
       >
-        <div className="flex h-full w-full min-h-[min(58vh,28rem)] items-end justify-end sm:min-h-[min(62vh,32rem)] lg:min-h-0">
+        <div
+          className="flex h-full w-full min-h-[min(58vh,28rem)] items-end justify-end sm:min-h-[min(62vh,32rem)] md:min-h-[min(64vh,34rem)] lg:min-h-0"
+        >
           <img
             src={FOOTER_ILLUSTRATION}
             alt="Ashraf — footer illustration"
             width={900}
             height={1200}
-            className="select-none object-contain object-[right_bottom] opacity-[0.97]
+            className="shrink-0 origin-bottom-right select-none object-contain object-[right_bottom] opacity-[0.97]
               h-[min(94vh,58rem)] w-auto max-w-[min(calc(100vw-1rem),62rem)]
               translate-x-[6%] sm:h-[min(96vh,72rem)] sm:max-w-[min(calc(100vw-1rem),76rem)] sm:translate-x-[8%]
-              lg:h-[min(100vh,96rem)] lg:max-h-none lg:w-auto lg:max-w-[min(calc(100vw-2.5rem),88rem)] lg:translate-x-0
-              xl:h-[min(100vh,108rem)] xl:max-w-[min(calc(100vw-3rem),102rem)] xl:translate-x-0
-              2xl:h-[min(100vh,120rem)] 2xl:max-w-[min(calc(100vw-4rem),118rem)] 2xl:translate-x-0"
+              md:h-[min(96vh,68rem)] md:max-w-[min(calc(100vw-1rem),78rem)] md:translate-x-[7%]
+              lg:h-[min(112vh,102rem)] lg:max-h-none lg:w-auto lg:max-w-[min(calc(100vw-2.5rem),94rem)] lg:translate-x-[2%]
+              xl:h-[min(116vh,112rem)] xl:max-w-[min(calc(100vw-3rem),108rem)]
+              2xl:h-[min(120vh,124rem)] 2xl:max-w-[min(calc(100vw-4rem),122rem)]"
             loading="eager"
             decoding="async"
             fetchPriority="high"
@@ -117,7 +124,7 @@ export function SiteFooter() {
 
       {/* Copy stays readable above / left of the figure */}
       <div
-        className="relative z-20 mx-auto max-w-7xl px-6 pt-14 pb-10 sm:px-8 sm:pt-18 sm:pb-12 md:pt-20 md:pb-14 lg:grid lg:min-h-[min(100vh,96rem)] lg:grid-cols-12 lg:items-end lg:gap-x-8 lg:px-10 lg:pt-22 lg:pb-16 xl:min-h-[min(100vh,112rem)] xl:px-12"
+        className="relative z-20 mx-auto max-w-7xl px-6 pt-14 pb-12 sm:px-8 sm:pt-18 sm:pb-14 md:pt-20 md:pb-[4.25rem] lg:grid lg:min-h-[min(100vh,96rem)] lg:grid-cols-12 lg:items-end lg:gap-x-8 lg:px-10 lg:pt-22 lg:pb-16 xl:min-h-[min(100vh,112rem)] xl:px-12"
       >
         <div className="relative z-20 lg:col-span-7 xl:col-span-6 2xl:col-span-5">
           <p
@@ -166,8 +173,11 @@ export function SiteFooter() {
                 />
               </span>
               <span
-                className="text-[1.05rem] font-semibold tracking-[0.04em] tabular-nums sm:text-[1.2rem]"
-                style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
+                className="text-[1.05rem] font-medium tracking-[0.025em] tabular-nums lining-nums sm:text-[1.22rem]"
+                style={{
+                  fontFamily: "var(--font-drh-body)",
+                  fontVariationSettings: '"opsz" 32, "wght" 580',
+                }}
               >
                 {PHONE.display}
               </span>

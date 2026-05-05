@@ -1,8 +1,10 @@
-import { useRef, useEffect, useState } from "react"
+import { useRef, useEffect } from "react"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { AshFixesThings } from "./AshFixes/AshFixesThings"
+import { DecorativeSticker } from "./stickers/DecorativeSticker"
+import { HOMEPAGE_STICKERS } from "@/data/homepageStickers"
 import { cn } from "@/lib/utils"
 
 gsap.registerPlugin(ScrollTrigger)
@@ -38,6 +40,8 @@ export function DesignRevisionHero() {
   const taglineRef = useRef<HTMLParagraphElement>(null)
   const shapeStoryRef = useRef<HTMLParagraphElement>(null)
   const scrollCueRef = useRef<HTMLDivElement>(null)
+  const heroStickerPrimaryRef = useRef<HTMLDivElement>(null)
+  const heroStickerSecondaryRef = useRef<HTMLDivElement>(null)
   const highlightPhaseRef = useRef<"design" | "build">("design")
   const ashBgRef = useRef<HTMLDivElement>(null)
   const introCompleteRef = useRef(false)
@@ -139,6 +143,8 @@ export function DesignRevisionHero() {
         gsap.set(taglineRef.current, { autoAlpha: 1 })
         gsap.set(shapeStoryRef.current, { autoAlpha: 1, y: 0 })
         gsap.set(scrollCueRef.current, { autoAlpha: 0.12 })
+        gsap.set(heroStickerPrimaryRef.current, { autoAlpha: 1, y: 0, rotation: -7 })
+        gsap.set(heroStickerSecondaryRef.current, { autoAlpha: 1, y: 0, rotation: 8 })
         gsap.set(highlightDesignRef.current, { scaleX: 1, opacity: 0.5 })
         gsap.set(highlightBuildRef.current, { opacity: 0.5 })
         gsap.set(ashBgRef.current, { autoAlpha: 0.15 })
@@ -161,6 +167,8 @@ export function DesignRevisionHero() {
       gsap.set(taglineRef.current, { autoAlpha: 0 })
       gsap.set(shapeStoryRef.current, { autoAlpha: 0, y: 8 })
       gsap.set(scrollCueRef.current, { autoAlpha: 0 })
+      gsap.set(heroStickerPrimaryRef.current, { autoAlpha: 0, y: 24, rotation: -11 })
+      gsap.set(heroStickerSecondaryRef.current, { autoAlpha: 0, y: 18, rotation: 12 })
       gsap.set(highlightDesignRef.current, {
         scaleX: 0.02,
         transformOrigin: "left center",
@@ -222,6 +230,20 @@ export function DesignRevisionHero() {
         duration: 0.4,
         ease: "power2.out",
       }, "-=0.4")
+      introTl.to(heroStickerPrimaryRef.current, {
+        autoAlpha: 1,
+        y: 0,
+        rotation: -7,
+        duration: 0.55,
+        ease: "back.out(1.35)",
+      }, "-=0.12")
+      introTl.to(heroStickerSecondaryRef.current, {
+        autoAlpha: 1,
+        y: 0,
+        rotation: 8,
+        duration: 0.5,
+        ease: "back.out(1.2)",
+      }, "-=0.34")
 
       // ═══════════════════════════════════════════════════════════════
       // FLOATING SHAPES (start after intro)
@@ -648,6 +670,17 @@ export function DesignRevisionHero() {
           {SHAPE_STORY}
         </p>
       </div>
+
+      <DecorativeSticker
+        ref={heroStickerPrimaryRef}
+        sticker={HOMEPAGE_STICKERS.heroPrimary}
+        priority
+      />
+      <DecorativeSticker
+        ref={heroStickerSecondaryRef}
+        sticker={HOMEPAGE_STICKERS.heroSecondary}
+        priority
+      />
 
       <div
         ref={scrollCueRef}

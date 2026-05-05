@@ -5,6 +5,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useGSAP } from "@gsap/react"
 import { useReducedMotion } from "motion/react"
 
+import { DecorativeSticker } from "@/components/landing/stickers/DecorativeSticker"
+import { HOMEPAGE_STICKERS } from "@/data/homepageStickers"
 import { SELECTED_WORKS_PROJECTS } from "@/data/selectedWorks"
 import { cn } from "@/lib/utils"
 
@@ -242,6 +244,8 @@ export function SelectedWorks() {
   const titleRef = useRef<HTMLHeadingElement>(null)
   const mediaShellRef = useRef<HTMLDivElement>(null)
   const mediaCropRef = useRef<HTMLDivElement>(null)
+  const primaryStickerRef = useRef<HTMLDivElement>(null)
+  const secondaryStickerRef = useRef<HTMLDivElement>(null)
   const railRef = useRef<HTMLDivElement>(null)
   const currentRailRef = useRef<HTMLDivElement>(null)
   const nextRailRef = useRef<HTMLDivElement>(null)
@@ -266,6 +270,8 @@ export function SelectedWorks() {
       const title = titleRef.current
       const mediaShell = mediaShellRef.current
       const mediaCrop = mediaCropRef.current
+      const primarySticker = primaryStickerRef.current
+      const secondarySticker = secondaryStickerRef.current
       const rail = railRef.current
       const currentRail = currentRailRef.current
       const nextRail = nextRailRef.current
@@ -284,6 +290,8 @@ export function SelectedWorks() {
         !title ||
         !mediaShell ||
         !mediaCrop ||
+        !primarySticker ||
+        !secondarySticker ||
         !rail ||
         !currentRail ||
         !nextRail ||
@@ -324,6 +332,10 @@ export function SelectedWorks() {
         setMediaScaleX(value)
         setMediaScaleY(value)
       }
+      const setPrimaryStickerOpacity = gsap.quickSetter(primarySticker, "opacity")
+      const setSecondaryStickerOpacity = gsap.quickSetter(secondarySticker, "opacity")
+      const setPrimaryStickerY = gsap.quickSetter(primarySticker, "y", "px")
+      const setSecondaryStickerY = gsap.quickSetter(secondarySticker, "y", "px")
       const setRailX = gsap.quickSetter(rail, "x", "px")
       const setRailY = gsap.quickSetter(rail, "y", "px")
       const setRailYPercent = gsap.quickSetter(rail, "yPercent")
@@ -477,6 +489,10 @@ export function SelectedWorks() {
         setMediaX(metrics.mediaShiftX)
         setMediaY(metrics.mediaFinalY)
         setMediaScale(metrics.mediaFinalScale)
+        setPrimaryStickerOpacity(1)
+        setSecondaryStickerOpacity(1)
+        setPrimaryStickerY(0)
+        setSecondaryStickerY(0)
         setRailLayoutAnchor()
         setRailPresence(1)
         setRailX(0)
@@ -542,6 +558,9 @@ export function SelectedWorks() {
           : 0
         const cropInset = mix(metrics.cropStart, 0, easeInOutSine(mediaExpand))
         const railVisibility = easeOutCubic(handoff)
+        const stickerVisibility = easeOutCubic(
+          mapRange(progress, ZONES.headerExitEnd, ZONES.handoffEnd)
+        )
 
         setHeaderY(headerY)
         setTitleScale(
@@ -554,6 +573,10 @@ export function SelectedWorks() {
         setMediaX(mediaX)
         setMediaY(mediaY)
         setMediaScale(mediaScale)
+        setPrimaryStickerOpacity(stickerVisibility)
+        setSecondaryStickerOpacity(stickerVisibility)
+        setPrimaryStickerY(mix(18, 0, stickerVisibility))
+        setSecondaryStickerY(mix(12, 0, stickerVisibility))
         setRailLayoutAnchor()
         setRailPresence(railVisibility)
         setRailX(mix(metrics.railStartX, 0, easeOutCubic(handoff)))
@@ -666,6 +689,15 @@ export function SelectedWorks() {
           backgroundImage:
             "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.8'/%3E%3C/svg%3E\")",
         }}
+      />
+
+      <DecorativeSticker
+        ref={primaryStickerRef}
+        sticker={HOMEPAGE_STICKERS.selectedWorksPrimary}
+      />
+      <DecorativeSticker
+        ref={secondaryStickerRef}
+        sticker={HOMEPAGE_STICKERS.selectedWorksSecondary}
       />
 
       <div className="relative z-[1] min-h-svh">

@@ -5,6 +5,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useReducedMotion } from "motion/react"
 
 import { FooterPhone } from "@/components/landing/FooterPhone"
+import { DecorativeSticker } from "@/components/landing/stickers/DecorativeSticker"
+import { HOMEPAGE_STICKERS } from "@/data/homepageStickers"
 import { cn } from "@/lib/utils"
 
 gsap.registerPlugin(useGSAP, ScrollTrigger)
@@ -55,6 +57,8 @@ export function FooterSection() {
   const introRef = useRef<HTMLDivElement>(null)
   const phoneWrapRef = useRef<HTMLDivElement>(null)
   const noteRef = useRef<HTMLParagraphElement>(null)
+  const primaryStickerRef = useRef<HTMLDivElement>(null)
+  const secondaryStickerRef = useRef<HTMLDivElement>(null)
   const prefersReducedMotion = useReducedMotion()
 
   useGSAP(
@@ -65,8 +69,10 @@ export function FooterSection() {
       const intro = introRef.current
       const phoneWrap = phoneWrapRef.current
       const note = noteRef.current
+      const primarySticker = primaryStickerRef.current
+      const secondarySticker = secondaryStickerRef.current
 
-      if (!section || !intro || !phoneWrap || !note) return
+      if (!section || !intro || !phoneWrap || !note || !primarySticker || !secondarySticker) return
 
       const headlineLines = intro.querySelectorAll(".footer-line")
       const eyebrow = intro.querySelector(".footer-eyebrow")
@@ -126,6 +132,26 @@ export function FooterSection() {
           },
           0.76
         )
+        .from(
+          primarySticker,
+          {
+            autoAlpha: 0,
+            y: 16,
+            rotate: 12,
+            duration: 0.55,
+          },
+          0.88
+        )
+        .from(
+          secondarySticker,
+          {
+            autoAlpha: 0,
+            y: 14,
+            rotate: -10,
+            duration: 0.48,
+          },
+          0.96
+        )
     },
     { scope: sectionRef, dependencies: [prefersReducedMotion] }
   )
@@ -160,7 +186,7 @@ export function FooterSection() {
 
       <div className="relative z-10 mx-auto max-w-6xl px-6 py-18 sm:px-8 md:py-24 lg:px-10">
         <div className="grid items-end gap-14 lg:grid-cols-[minmax(0,1.08fr)_minmax(22rem,0.92fr)] lg:gap-8 xl:gap-12">
-          <div ref={introRef} className="lg:max-w-[42rem]">
+          <div ref={introRef} className="relative lg:max-w-[42rem]">
             <p
               className="footer-eyebrow text-[0.68rem] font-semibold tracking-[0.38em] text-[var(--color-drh-ink)]/34 uppercase"
               style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
@@ -204,11 +230,20 @@ export function FooterSection() {
               Tap around the phone, open a route, and choose the kind of hello
               that fits what you want to build.
             </p>
+
+            <DecorativeSticker
+              ref={primaryStickerRef}
+              sticker={HOMEPAGE_STICKERS.footerPrimary}
+            />
+            <DecorativeSticker
+              ref={secondaryStickerRef}
+              sticker={HOMEPAGE_STICKERS.footerSecondary}
+            />
           </div>
 
           <div
             ref={phoneWrapRef}
-            className="flex flex-col items-center lg:items-end"
+            className="relative flex flex-col items-center lg:items-end"
           >
             <FooterPhone />
 

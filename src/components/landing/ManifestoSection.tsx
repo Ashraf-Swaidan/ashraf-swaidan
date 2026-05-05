@@ -11,6 +11,8 @@ import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useReducedMotion } from "motion/react"
+import { DecorativeSticker } from "./stickers/DecorativeSticker"
+import { HOMEPAGE_STICKERS } from "@/data/homepageStickers"
 import { cn } from "@/lib/utils"
 
 gsap.registerPlugin(useGSAP, ScrollTrigger)
@@ -65,6 +67,8 @@ export function ManifestoSection() {
   const headlineRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
   const closingRef = useRef<HTMLParagraphElement>(null)
+  const primaryStickerRef = useRef<HTMLDivElement>(null)
+  const secondaryStickerRef = useRef<HTMLDivElement>(null)
   const tagRef = useRef<HTMLSpanElement>(null)
 
   const prefersReducedMotion = useReducedMotion()
@@ -126,6 +130,30 @@ export function ManifestoSection() {
         })
       }
 
+      if (primaryStickerRef.current) {
+        gsap.from(primaryStickerRef.current, {
+          autoAlpha: 0,
+          y: 18,
+          rotate: 10,
+          duration: 0.7,
+          delay: 0.6,
+          ease: "power3.out",
+          scrollTrigger: st,
+        })
+      }
+
+      if (secondaryStickerRef.current) {
+        gsap.from(secondaryStickerRef.current, {
+          autoAlpha: 0,
+          y: 14,
+          rotate: -11,
+          duration: 0.62,
+          delay: 0.48,
+          ease: "power3.out",
+          scrollTrigger: st,
+        })
+      }
+
       // Closing line
       if (closingRef.current) {
         gsap.from(closingRef.current, {
@@ -155,6 +183,7 @@ export function ManifestoSection() {
     { text: "better", style: {} },
     { text: "version.", style: {} },
   ]
+  void headlineWords
 
   return (
     <section
@@ -261,6 +290,15 @@ export function ManifestoSection() {
             steps it should actually be. 
           </p>
         </div>
+
+        <DecorativeSticker
+          ref={primaryStickerRef}
+          sticker={HOMEPAGE_STICKERS.manifestoPrimary}
+        />
+        <DecorativeSticker
+          ref={secondaryStickerRef}
+          sticker={HOMEPAGE_STICKERS.manifestoSecondary}
+        />
 
         {/* ── Closing line — shifts right ── */}
         <p

@@ -144,7 +144,6 @@ export function ProblemField() {
         if (!artifact) return
 
         const cursor = artifact.querySelector<HTMLElement>(".problem-cursor")
-        const steps = artifact.querySelectorAll<HTMLElement>(".step-item")
         const solution = artifact.querySelector<HTMLElement>(".solution-visual")
         const working = artifact.querySelector<HTMLElement>(".ash-working-skeleton")
         const problemSteps = artifact.querySelector<HTMLElement>(".problem-steps")
@@ -189,7 +188,9 @@ export function ProblemField() {
         loop.to(cursor, { opacity: 0, scale: 0.34, duration: 0.28, ease: "back.in(1.4)" }, "<0.02")
 
         // Pause the cursor master timeline so it doesn't continue behind the skeleton
-        loop.call(() => cursorMaster?.pause())
+        loop.call(() => {
+          cursorMaster?.pause()
+        })
 
         // Phase 5: Skeleton loading — SLOWED DOWN (more time)
         loop.to(
@@ -223,7 +224,9 @@ export function ProblemField() {
         loop.to({}, { duration: 0.45 })
 
         // Resume cursor master for next cycle (it will be reset at the top of next loop iteration)
-        loop.call(() => cursorMaster?.play(0))
+        loop.call(() => {
+          cursorMaster?.play(0)
+        })
       })
 
       // ─── Reset phase: Ash returns to legend, everything resets ───

@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils"
 
 import { AshAiWorkspace } from "./ash-ai-workspace"
 import { DISPLAY_FONT, PHONE_APP_CONTENT_PT_CLASS } from "./constants"
+import { NotesScreen } from "./notes-screen"
 import { PapionMobileScreen } from "./papion-mobile-screen"
 import { PhotosScreen } from "./photos-screen"
 import {
@@ -74,6 +75,8 @@ export function AppScreen({
         <ChatScreen app={app} />
       ) : app.kind === "photos" ? (
         <PhotosScreen appPanelRef={panelRef} />
+      ) : app.kind === "notes" ? (
+        <NotesScreen />
       ) : (
         <UtilityScreen app={app} />
       )}

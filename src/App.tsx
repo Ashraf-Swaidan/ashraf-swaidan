@@ -4,14 +4,21 @@ import { DesignRevisionHero } from "./components/landing/DesignRevisionHero"
 import { FooterSection } from "./components/landing/FooterSection"
 import { ManifestoSection } from "./components/landing/ManifestoSection"
 import { SelectedWorks } from "./components/landing/SelectedWorks"
+import { DuwitPage } from "./pages/DuwitPage"
 import { PapionSystemPage } from "./pages/PapionSystemPage"
 
 export function App() {
   const [isAshNavOpen, setIsAshNavOpen] = useState(false)
-  const isPapionPage = window.location.pathname === "/works/papion-system"
+  const path = window.location.pathname
+  const isPapionPage = path === "/works/papion-system"
+  const isDuwitPage = path === "/works/duwit"
 
   if (isPapionPage) {
     return <PapionSystemPage />
+  }
+
+  if (isDuwitPage) {
+    return <DuwitPage />
   }
 
   return (

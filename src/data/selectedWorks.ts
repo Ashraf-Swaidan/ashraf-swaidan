@@ -29,7 +29,7 @@ export const SELECTED_WORKS_PROJECTS: WorkProject[] = [
     logoSrc: "/assets/selected-works-logos/duwit-logo.svg",
     imageSrc: "/assets/lap-animation-assets/duwit-lap.jpg",
     videoSrc: SELECTED_WORKS_VIDEOS.duwit,
-    href: "#",
+    href: "/works/duwit",
   },
   {
     id: "ak-system",

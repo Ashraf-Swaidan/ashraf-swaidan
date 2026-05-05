@@ -13,6 +13,7 @@ import {
   CASE_ASSETS,
   DISPLAY_FONT,
   MODULE_EXPLORER_ENTRIES,
+  PAPION_MODULE_EXPLORER_ID,
   PAPION_VIDEO_HERO,
   type ExplorerModuleEntry,
   type ExplorerModuleId,
@@ -490,7 +491,8 @@ export function PapionModuleExplorer() {
 
   return (
     <section
-      className="border-y border-[var(--color-drh-ink)]/10 bg-[linear-gradient(180deg,rgb(255_255_253),rgb(250_250_248))] px-5 py-20 sm:px-8 lg:py-28 lg:px-10"
+      id={PAPION_MODULE_EXPLORER_ID}
+      className="scroll-mt-[4.5rem] border-y border-[var(--color-drh-ink)]/10 bg-[linear-gradient(180deg,rgb(255_255_253),rgb(250_250_248))] px-5 py-20 sm:px-8 lg:scroll-mt-24 lg:py-28 lg:px-10"
       aria-labelledby={headingId}
     >
       <div className="mx-auto max-w-6xl">
@@ -504,7 +506,8 @@ export function PapionModuleExplorer() {
               fontVariationSettings: '"opsz" 72, "wght" 520',
             }}
           >
-            Pick a part of Papion. One focused read—not the whole system at once.
+            Pick a part of Papion. One focused read, not the whole system at
+            once.
           </h2>
           <Prose className="mt-5 text-center">
             Use the strip below to jump to the domain you care about. Each tab

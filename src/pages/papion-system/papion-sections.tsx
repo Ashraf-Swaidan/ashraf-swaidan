@@ -1,3 +1,4 @@
+import type { RefObject } from "react"
 import { OneSystemFlow } from "@/components/landing/one-system-flow/OneSystemFlow"
 import { SELECTED_WORKS_PROJECTS } from "@/data/selectedWorks"
 
@@ -7,6 +8,7 @@ import {
   CASE_ASSETS,
   DISPLAY_FONT,
   PAPION_LOGO,
+  PAPION_MODULE_EXPLORER_ID,
   PAPION_VIDEO_HERO,
 } from "./papion-data"
 import {
@@ -15,7 +17,7 @@ import {
   OrderSpineVideo,
   ResponsiveTriptych,
 } from "./papion-media"
-import { Eyebrow, Prose, StoryStep, StoryTitle } from "./papion-ui"
+import { Eyebrow, PapionWordmark, Prose, StoryStep, StoryTitle } from "./papion-ui"
 
 const PAPION_RECOMMENDED_WORK_IDS = ["duwit", "ak-system"] as const
 const PAPION_RECOMMENDED_WORKS = SELECTED_WORKS_PROJECTS.filter((project) =>
@@ -24,7 +26,20 @@ const PAPION_RECOMMENDED_WORKS = SELECTED_WORKS_PROJECTS.filter((project) =>
   )
 )
 
-export function PapionHeroSection() {
+export function PapionHeroSection({
+  heroNavRef,
+}: {
+  heroNavRef?: RefObject<HTMLElement | null>
+}) {
+  const explorePapion = () => {
+    const el = document.getElementById(PAPION_MODULE_EXPLORER_ID)
+    if (!el) return
+    const reduce =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" })
+  }
+
   return (
     <section className="relative isolate overflow-hidden px-5 pt-10 pb-14 sm:px-6 sm:pt-12 sm:pb-20 lg:px-8">
       <div
@@ -38,10 +53,13 @@ export function PapionHeroSection() {
       />
 
       <div className="papion-hero-inner relative z-10 mx-auto max-w-3xl">
-        <header className="mb-14 flex items-center justify-between gap-4 sm:mb-16">
+        <header
+          ref={heroNavRef}
+          className="mb-14 flex items-center justify-between gap-4 sm:mb-16"
+        >
           <a
             href="/"
-            className="text-[0.68rem] font-medium tracking-[0.16em] text-[var(--color-drh-ink)]/42 uppercase transition hover:text-[var(--color-drh-ink)]"
+            className="shrink-0 text-[0.68rem] font-medium tracking-[0.16em] text-[var(--color-drh-ink)]/42 uppercase transition hover:text-[var(--color-drh-ink)]"
             style={{ fontFamily: DISPLAY_FONT }}
           >
             Back
@@ -49,44 +67,93 @@ export function PapionHeroSection() {
           <img
             src={PAPION_LOGO}
             alt="Papion"
-            className="h-9 w-9 object-contain opacity-85"
+            className="h-9 w-9 shrink-0 object-contain opacity-85"
           />
         </header>
 
         <div className="text-center">
           <StoryStep n="01" label="Opening" />
-          <Eyebrow>Case study · Papion System</Eyebrow>
+          <p
+            className="text-[0.68rem] font-medium text-[var(--color-drh-ink)]/40"
+            style={{ fontFamily: DISPLAY_FONT }}
+          >
+            <span className="tracking-[0.22em] uppercase">Case study</span>
+            <span className="mx-2 text-[var(--color-drh-ink)]/22">·</span>
+            <PapionWordmark className="normal-case align-middle tracking-[0.06em]" />
+            <span className="ml-1.5 tracking-[0.2em] uppercase">System</span>
+          </p>
           <StoryTitle as="h1">
             One calm operating system for a multibranch decor business.
           </StoryTitle>
+          <div className="mt-5 flex justify-center">
+            <button
+              type="button"
+              onClick={explorePapion}
+              className="cursor-pointer rounded-3xl border border-white/12 bg-black px-5 py-2.5 text-[0.68rem] font-medium tracking-[0.18em] text-white/92 uppercase transition hover:bg-neutral-950 hover:text-white [corner-shape:squircle]"
+              style={{ fontFamily: DISPLAY_FONT }}
+            >
+              Explore Papion
+            </button>
+          </div>
           <Prose className="mx-auto mt-6 max-w-prose text-center">
-            Papion ties together event decoration, a print-and-cut workshop, and
-            balloon retail in{" "}
+            <PapionWordmark className="font-[inherit] text-[var(--color-drh-ink)]/90" />{" "}
+            ties together event decoration, a print-and-cut workshop, and balloon
+            retail in{" "}
             <strong className="font-medium text-[var(--color-drh-ink)]/80">
               one role-aware app
             </strong>
             : eight inventories, mixed orders, wallets, suppliers, expenses, and
-            live insight — on the web, as a PWA, and on desktop.
+            live insight.
           </Prose>
-          <ul className="mx-auto mt-10 flex max-w-md flex-col gap-3 text-[0.8rem] text-[var(--color-drh-ink)]/48 sm:mx-auto sm:flex-row sm:justify-center sm:gap-8 sm:text-left">
-            {[
-              "Realtime operational data",
-              "Auth that matches the floor",
-              "Web · PWA · Electron",
-            ].map((item) => (
-              <li
-                key={item}
-                className="flex items-center justify-center gap-2 sm:justify-start"
-                style={{ fontFamily: BODY_FONT }}
-              >
+          <div className="mx-auto mt-10 max-w-lg">
+            <div
+              className="flex flex-wrap items-center justify-center gap-2 sm:gap-3"
+              style={{ fontFamily: DISPLAY_FONT }}
+            >
+              {(
+                [
+                  { label: "Desktop App", className: "bg-sky-300 text-sky-950" },
+                  {
+                    label: "On the Web",
+                    className: "bg-violet-300 text-violet-950",
+                  },
+                  {
+                    label: "On the phone (PWA)",
+                    className: "bg-emerald-300 text-emerald-950",
+                  },
+                ] as const
+              ).map(({ label, className }) => (
                 <span
-                  className="h-1 w-1 shrink-0 rounded-full bg-[var(--color-drh-accent-orange)]/70"
-                  aria-hidden
-                />
-                {item}
-              </li>
-            ))}
-          </ul>
+                  key={label}
+                  className={`rounded-none px-3 py-2 text-[0.68rem] font-semibold tracking-[0.12em] uppercase shadow-[0_6px_16px_rgb(10_10_10/0.08)] ${className}`}
+                >
+                  {label}
+                </span>
+              ))}
+            </div>
+            <p
+              className="mt-5 flex items-center justify-center gap-2 text-center text-[0.78rem] text-[var(--color-drh-ink)]/45"
+              style={{ fontFamily: BODY_FONT }}
+            >
+              <span
+                className="relative flex h-2 w-2 shrink-0"
+                aria-hidden
+              >
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500/70 motion-reduce:animate-none" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-600" />
+              </span>
+              <span>
+                Realtime operational data
+                <span className="sr-only"> (live indicator)</span>
+              </span>
+            </p>
+            <p
+              className="mt-3 text-center text-[0.68rem] tracking-[0.14em] text-[var(--color-drh-ink)]/34"
+              style={{ fontFamily: DISPLAY_FONT }}
+            >
+              React · Vite · Tailwind · Firebase · AI API · Electron
+            </p>
+          </div>
         </div>
 
         <div className="relative mx-auto mt-14 max-w-3xl">
@@ -106,16 +173,6 @@ export function PapionHeroSection() {
             />
             <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgb(255_255_255/0.06),transparent_30%,rgb(0_0_0/0.2)_100%)]" />
           </div>
-          <p
-            className="mt-4 text-center text-[0.78rem] leading-[1.5] text-[var(--color-drh-ink)]/42"
-            style={{ fontFamily: BODY_FONT }}
-          >
-            Optional hero swap:{" "}
-            <code className="rounded bg-[var(--color-drh-ink)]/6 px-1 text-[0.72rem]">
-              papion-hero-proof.mp4
-            </code>
-            .
-          </p>
         </div>
       </div>
     </section>

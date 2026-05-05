@@ -13,12 +13,15 @@ const papionExplorerVideo = (filename: string) =>
   `/assets/papion-page/papion-videos/${filename}`
 
 export const PAPION_LOGO = "/assets/selected-works-logos/papion-logo.svg"
+/** In-page anchor for module explorer (hero CTA smooth-scroll). */
+export const PAPION_MODULE_EXPLORER_ID = "papion-module-explorer"
 export const EXCEL_ICON_SRC = "/assets/excel.svg"
 
 export const EXCEL_FOOTNOTE =
   "I know Excel can do absolutely anything if you're crazy enough to dive into that deep hole. But hey — we're not fans of countless cells."
 
-export const FRICTION_LINE1 = 'Papion is not "a few tabs of data." It is'
+/** Shown after inline “Papion” + logo in the friction animation. */
+export const FRICTION_LINE1_TAIL = ' is not "a few tabs of data." It is'
 
 export const FRICTION_PILLS = [
   "Eight inventories",

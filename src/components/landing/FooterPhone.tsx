@@ -5,6 +5,10 @@ import { useReducedMotion } from "motion/react"
 
 import { SELECTED_WORKS_PROJECTS, type WorkProject } from "@/data/selectedWorks"
 import { cn } from "@/lib/utils"
+import {
+  CASE_ASSETS,
+  MODULE_EXPLORER_ENTRIES,
+} from "@/pages/papion-system/papion-data"
 
 gsap.registerPlugin(useGSAP)
 
@@ -49,6 +53,28 @@ type ProjectApp = BaseApp & {
 }
 
 type PhoneApp = StandardApp | ProjectApp
+
+type PapionMobileTabId = "today" | "sales" | "expenses" | "ai"
+
+type PapionMobileTab = {
+  id: PapionMobileTabId
+  label: string
+  eyebrow: string
+  title: string
+  body: string
+  accent: string
+  proofLabel: string
+  media?: {
+    kind: "image"
+    src: string
+    alt: string
+  }
+  metrics?: { label: string; value: string }[]
+  list?: string[]
+  query?: string
+  answer?: string[]
+  ctaLabel?: string
+}
 
 const DOCK_IDS = ["whatsapp", "linkedin", "instagram", "gmail"] as const
 
@@ -196,6 +222,98 @@ function makeProjectApps(): ProjectApp[] {
     project,
   }))
 }
+
+const PAPION_COPY = {
+  sales: MODULE_EXPLORER_ENTRIES.find((entry) => entry.id === "sales"),
+  expenses: MODULE_EXPLORER_ENTRIES.find((entry) => entry.id === "expenses"),
+  ai: MODULE_EXPLORER_ENTRIES.find((entry) => entry.id === "ai"),
+} as const
+
+const PAPION_MOBILE_TABS: PapionMobileTab[] = [
+  {
+    id: "today",
+    label: "Today",
+    eyebrow: "Operations pulse",
+    title: "This is how the day stays under control.",
+    body:
+      "Due-date orders, unpaid follow-up, and branch tasks stay visible in one calm mobile pass before the morning gets noisy.",
+    accent: "from-[#f2e7d8] via-[#ebdfcf] to-[#d8c8b0]",
+    proofLabel: "Today",
+    metrics: [
+      { label: "Due today", value: "03" },
+      { label: "Unpaid", value: "12" },
+      { label: "Tasks", value: "07" },
+    ],
+    list: [
+      "Dbayeh workshop · 11:30 vinyl pickup",
+      "Event setup · Stand + latex mix due 4 PM",
+      "Follow up two partial-pay bridal orders",
+    ],
+    ctaLabel: "Open full case study",
+  },
+  {
+    id: "sales",
+    label: "Sales",
+    eyebrow: "One order, many inventories",
+    title:
+      PAPION_COPY.sales?.headline ??
+      "One order can span the business without turning into chaos.",
+    body:
+      "A single customer order can mix stands, chocolate, balloons, and workshop items while keeping deposits, due dates, and unpaid balance readable.",
+    accent: "from-[#efe4d3] via-[#f7f0e6] to-[#d4dce4]",
+    proofLabel: "Mixed order",
+    media: {
+      kind: "image",
+      src: CASE_ASSETS.sales,
+      alt: "Papion sales module preview",
+    },
+    list: [
+      "Maya K. · Event order · May 18",
+      "2 stands + 1 chocolate tray + 24 helium balloons",
+      "Deposit paid: $80 · Balance due: $145",
+    ],
+  },
+  {
+    id: "expenses",
+    label: "Expenses",
+    eyebrow: "Receipt to record",
+    title:
+      PAPION_COPY.expenses?.headline ??
+      "Capture spend quickly without losing the story behind it.",
+    body:
+      "Upload the receipt, let AI prefill the obvious fields, then review and save. Voice entry stays nearby when hands are busy.",
+    accent: "from-[#f5ead6] via-[#f8f3eb] to-[#e0d6c7]",
+    proofLabel: "AI prefill",
+    media: {
+      kind: "image",
+      src: CASE_ASSETS.receiptSample,
+      alt: "Papion receipt sample used for AI expense prefilling",
+    },
+    list: [
+      "Merchant: Color House Supplies",
+      "Amount: $46.50 · Branch: Workshop",
+      "Voice note ready · Review before save",
+    ],
+  },
+  {
+    id: "ai",
+    label: "AI",
+    eyebrow: "Role-aware assistant",
+    title:
+      PAPION_COPY.ai?.headline ??
+      "A grounded assistant with the same permission story as the rest of the app.",
+    body:
+      "Answers stay tied to live operational context and the user role that asked, so the feature feels useful without becoming a leak.",
+    accent: "from-[#ded7cc] via-[#f2eee8] to-[#d6dce4]",
+    proofLabel: "Papion AI",
+    query: "Show unpaid orders due this week and tell me what needs follow-up first.",
+    answer: [
+      "7 unpaid orders are due before Friday.",
+      "2 are bridal event orders with due dates inside 48 hours.",
+      "Cost details stay hidden for this role, but payment urgency is clear.",
+    ],
+  },
+]
 
 function usePhoneClock() {
   const [date, setDate] = useState(() => new Date())
@@ -359,7 +477,17 @@ function DockIcon({ app, onOpen }: { app: PhoneApp; onOpen: () => void }) {
   )
 }
 
-function HomeWidgets({ day, dateLine }: { day: string; dateLine: string }) {
+function HomeWidgets({
+  day,
+  dateLine,
+  papionApp,
+  onOpenPapion,
+}: {
+  day: string
+  dateLine: string
+  papionApp?: PhoneApp
+  onOpenPapion: () => void
+}) {
   return (
     <div className="grid grid-cols-[1fr_0.82fr] gap-2">
       <div className="min-h-[5.3rem] rounded-[1.45rem] bg-black/24 px-3 py-3 text-white shadow-[0_14px_32px_rgb(0_0_0/0.18)] backdrop-blur-xl">
@@ -382,20 +510,43 @@ function HomeWidgets({ day, dateLine }: { day: string; dateLine: string }) {
           {dateLine}
         </p>
       </div>
-      <div className="min-h-[5.3rem] rounded-[1.45rem] bg-white/20 px-3 py-3 text-white shadow-[0_14px_32px_rgb(0_0_0/0.14)] backdrop-blur-xl">
+      <button
+        type="button"
+        onClick={onOpenPapion}
+        className="min-h-[5.3rem] rounded-[1.45rem] bg-[linear-gradient(145deg,rgb(246_237_225/0.82),rgb(213_195_170/0.62))] px-3 py-3 text-left text-[var(--color-drh-ink)] shadow-[0_14px_32px_rgb(0_0_0/0.14)] backdrop-blur-xl transition hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-black/20 focus-visible:outline-none"
+      >
         <p
-          className="text-[0.68rem] tracking-[0.18em] text-white/68 uppercase"
+          className="text-[0.68rem] tracking-[0.18em] text-[var(--color-drh-ink)]/52 uppercase"
           style={{ fontFamily: DISPLAY_FONT }}
         >
-          Focus
+          Papion
         </p>
-        <p
-          className="mt-2 text-[1.2rem] leading-[0.95] font-semibold"
-          style={{ fontFamily: DISPLAY_FONT }}
-        >
-          Better systems
-        </p>
-      </div>
+        <div className="mt-2 flex items-center gap-2">
+          {papionApp ? (
+            <img
+              src={papionApp.iconSrc}
+              alt=""
+              className="h-8 w-8 rounded-[0.8rem] bg-white/88 p-1.5 shadow-[0_8px_16px_rgb(0_0_0/0.14)]"
+              loading="lazy"
+              decoding="async"
+            />
+          ) : null}
+          <div className="min-w-0">
+            <p
+              className="text-[1rem] leading-none font-semibold"
+              style={{ fontFamily: DISPLAY_FONT }}
+            >
+              3 due today
+            </p>
+            <p
+              className="mt-1 text-[0.74rem] leading-[1.1] text-[var(--color-drh-ink)]/58"
+              style={{ fontFamily: BODY_FONT }}
+            >
+              Open the mobile pass
+            </p>
+          </div>
+        </div>
+      </button>
     </div>
   )
 }
@@ -429,7 +580,7 @@ function NotificationShade({
         Notifications
       </p>
       {[
-        ["Papion System", "Command center demo is ready to revisit."],
+        ["Papion System", "3 due-date orders need attention before 4 PM."],
         ["Gmail", "A thoughtful project brief would look good here."],
         [
           "Portfolio OS",
@@ -454,6 +605,274 @@ function NotificationShade({
           </p>
         </div>
       ))}
+    </div>
+  )
+}
+
+function PapionTabButton({
+  tab,
+  active,
+  onClick,
+}: {
+  tab: PapionMobileTab
+  active: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "rounded-full px-3 py-2 text-[0.62rem] font-semibold tracking-[0.16em] uppercase transition",
+        active
+          ? "bg-[var(--color-drh-ink)] text-white shadow-[0_10px_24px_rgb(10_10_10/0.16)]"
+          : "bg-white/72 text-[var(--color-drh-ink)]/48 hover:bg-white"
+      )}
+      style={{ fontFamily: DISPLAY_FONT }}
+    >
+      {tab.label}
+    </button>
+  )
+}
+
+function PapionProofCard({ tab }: { tab: PapionMobileTab }) {
+  if (tab.id === "today") {
+    return (
+      <div className="rounded-[1.45rem] border border-black/6 bg-white/92 p-3 shadow-[0_18px_34px_rgb(31_24_20/0.08)]">
+        <div className="flex items-center justify-between">
+          <p
+            className="text-[0.62rem] tracking-[0.18em] text-[var(--color-drh-ink)]/42 uppercase"
+            style={{ fontFamily: DISPLAY_FONT }}
+          >
+            {tab.proofLabel}
+          </p>
+          <span
+            className="rounded-full bg-amber-100 px-2 py-1 text-[0.56rem] font-semibold tracking-[0.14em] text-amber-900 uppercase"
+            style={{ fontFamily: DISPLAY_FONT }}
+          >
+            Sales agenda
+          </span>
+        </div>
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          {tab.metrics?.map((item) => (
+            <div
+              key={item.label}
+              className="rounded-[1rem] bg-[var(--color-drh-bg)] px-2 py-2.5"
+            >
+              <p
+                className="text-[1rem] leading-none font-semibold text-[var(--color-drh-ink)]"
+                style={{ fontFamily: DISPLAY_FONT }}
+              >
+                {item.value}
+              </p>
+              <p
+                className="mt-1 text-[0.58rem] leading-tight text-[var(--color-drh-ink)]/48"
+                style={{ fontFamily: DISPLAY_FONT }}
+              >
+                {item.label}
+              </p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-3 space-y-2">
+          {tab.list?.map((item) => (
+            <div
+              key={item}
+              className="rounded-[1rem] border border-black/5 bg-white px-3 py-2.5"
+            >
+              <p
+                className="text-[0.78rem] leading-[1.25] text-[var(--color-drh-ink)]/72"
+                style={{ fontFamily: BODY_FONT }}
+              >
+                {item}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  if (tab.id === "ai") {
+    return (
+      <div className="rounded-[1.45rem] border border-black/6 bg-[rgb(24_24_26)] p-3 text-white shadow-[0_18px_34px_rgb(31_24_20/0.12)]">
+        <p
+          className="text-[0.62rem] tracking-[0.18em] text-white/42 uppercase"
+          style={{ fontFamily: DISPLAY_FONT }}
+        >
+          {tab.proofLabel}
+        </p>
+        <div className="mt-3 rounded-[1rem] bg-white/8 px-3 py-2.5">
+          <p
+            className="text-[0.82rem] leading-[1.3] text-white/82"
+            style={{ fontFamily: BODY_FONT }}
+          >
+            {tab.query}
+          </p>
+        </div>
+        <div className="mt-3 rounded-[1.1rem] bg-white px-3 py-3 text-[var(--color-drh-ink)]">
+          <p
+            className="text-[0.6rem] tracking-[0.16em] text-[var(--color-drh-ink)]/38 uppercase"
+            style={{ fontFamily: DISPLAY_FONT }}
+          >
+            Answer
+          </p>
+          <div className="mt-2 space-y-2">
+            {tab.answer?.map((line) => (
+              <p
+                key={line}
+                className="text-[0.78rem] leading-[1.25] text-[var(--color-drh-ink)]/72"
+                style={{ fontFamily: BODY_FONT }}
+              >
+                {line}
+              </p>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="rounded-[1.45rem] border border-black/6 bg-white/92 p-3 shadow-[0_18px_34px_rgb(31_24_20/0.08)]">
+      <div className="flex items-center justify-between gap-3">
+        <p
+          className="text-[0.62rem] tracking-[0.18em] text-[var(--color-drh-ink)]/42 uppercase"
+          style={{ fontFamily: DISPLAY_FONT }}
+        >
+          {tab.proofLabel}
+        </p>
+        {tab.id === "expenses" ? (
+          <span
+            className="rounded-full bg-[#1d1d1f] px-2 py-1 text-[0.56rem] font-semibold tracking-[0.14em] text-white uppercase"
+            style={{ fontFamily: DISPLAY_FONT }}
+          >
+            Voice ready
+          </span>
+        ) : null}
+      </div>
+      {tab.media ? (
+        <div className="mt-3 overflow-hidden rounded-[1.15rem] border border-black/5 bg-[var(--color-drh-bg)]">
+          <img
+            src={tab.media.src}
+            alt={tab.media.alt}
+            className={cn(
+              "w-full object-cover",
+              tab.id === "expenses" ? "aspect-[4/3] object-top" : "aspect-[16/10]"
+            )}
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      ) : null}
+      <div className="mt-3 space-y-2">
+        {tab.list?.map((item) => (
+          <div
+            key={item}
+            className="rounded-[1rem] bg-[var(--color-drh-bg)]/82 px-3 py-2.5"
+          >
+            <p
+              className="text-[0.78rem] leading-[1.25] text-[var(--color-drh-ink)]/72"
+              style={{ fontFamily: BODY_FONT }}
+            >
+              {item}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function PapionMobileScreen({ app }: { app: ProjectApp }) {
+  const [activeTabId, setActiveTabId] = useState<PapionMobileTabId>("today")
+  const activeTab =
+    PAPION_MOBILE_TABS.find((tab) => tab.id === activeTabId) ??
+    PAPION_MOBILE_TABS[0]
+
+  useEffect(() => {
+    setActiveTabId("today")
+  }, [app.id])
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[#efe7dc] text-[var(--color-drh-ink)]">
+      <div className="relative overflow-hidden border-b border-black/6 px-4 pt-4 pb-3">
+        <div
+          className={cn(
+            "absolute inset-0 bg-gradient-to-br opacity-85",
+            activeTab.accent
+          )}
+          aria-hidden
+        />
+        <div className="relative z-10 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p
+              className="text-[0.64rem] tracking-[0.22em] text-[var(--color-drh-ink)]/46 uppercase"
+              style={{ fontFamily: DISPLAY_FONT }}
+            >
+              {activeTab.eyebrow}
+            </p>
+            <h3
+              className="mt-2 max-w-[11rem] text-[1.42rem] leading-[0.95] font-semibold uppercase"
+              style={{ fontFamily: DISPLAY_FONT }}
+            >
+              Papion mobile
+            </h3>
+          </div>
+          <img
+            src={app.iconSrc}
+            alt=""
+            className="h-12 w-12 rounded-[1rem] bg-white/82 p-2 shadow-[0_12px_28px_rgb(31_24_20/0.12)]"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <div className="relative z-10 mt-4 flex flex-wrap gap-2">
+          {PAPION_MOBILE_TABS.map((tab) => (
+            <PapionTabButton
+              key={tab.id}
+              tab={tab}
+              active={tab.id === activeTab.id}
+              onClick={() => setActiveTabId(tab.id)}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto px-4 pt-4 pb-5">
+        <div className="rounded-[1.5rem] bg-white/58 px-4 py-4 shadow-[inset_0_1px_0_rgb(255_255_255/0.48)] backdrop-blur-md">
+          <p
+            className="text-[0.62rem] tracking-[0.18em] text-[var(--color-drh-ink)]/44 uppercase"
+            style={{ fontFamily: DISPLAY_FONT }}
+          >
+            {activeTab.label}
+          </p>
+          <h4
+            className="mt-2 text-[1.22rem] leading-[1.02] font-semibold text-balance uppercase"
+            style={{ fontFamily: DISPLAY_FONT }}
+          >
+            {activeTab.title}
+          </h4>
+          <p
+            className="mt-3 text-[0.9rem] leading-[1.35] text-[var(--color-drh-ink)]/62"
+            style={{ fontFamily: BODY_FONT }}
+          >
+            {activeTab.body}
+          </p>
+        </div>
+
+        <div className="mt-4">
+          <PapionProofCard tab={activeTab} />
+        </div>
+
+        <a
+          href={app.project.href}
+          className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-[var(--color-drh-ink)] px-5 py-3 text-center text-[0.74rem] font-semibold tracking-[0.18em] text-white uppercase transition hover:-translate-y-[1px]"
+          style={{ fontFamily: DISPLAY_FONT }}
+        >
+          {activeTab.ctaLabel ?? "Open full case study"}
+        </a>
+      </div>
     </div>
   )
 }
@@ -782,7 +1201,9 @@ function AppScreen({
         </span>
       </div>
 
-      {app.kind === "project" ? (
+      {app.kind === "project" && app.project.id === "papion" ? (
+        <PapionMobileScreen app={app} />
+      ) : app.kind === "project" ? (
         <ProjectScreen app={app} />
       ) : app.kind === "gmail" ? (
         <GmailScreen />
@@ -826,6 +1247,11 @@ export function FooterPhone() {
   const dockApps = DOCK_IDS.map((id) =>
     allApps.find((app) => app.id === id)
   ).filter(Boolean) as PhoneApp[]
+  const papionApp =
+    allApps.find(
+      (app): app is ProjectApp =>
+        app.kind === "project" && app.project.id === "papion"
+    ) ?? null
   const activeApp = allApps.find((app) => app.id === activeAppId) ?? null
 
   useGSAP(
@@ -902,7 +1328,14 @@ export function FooterPhone() {
               activeApp ? "scale-[0.985] opacity-25" : "opacity-100"
             )}
           >
-            <HomeWidgets day={day} dateLine={dateLine} />
+            <HomeWidgets
+              day={day}
+              dateLine={dateLine}
+              papionApp={papionApp ?? undefined}
+              onOpenPapion={() => {
+                if (papionApp) setActiveAppId(papionApp.id)
+              }}
+            />
 
             <div className="mt-4 grid grid-cols-4 gap-x-2 gap-y-2">
               {homeApps.map((app) => (

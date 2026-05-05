@@ -1,8 +1,23 @@
 import type { ReactNode } from "react"
 
-import { BODY_FONT, DISPLAY_FONT } from "./papion-data"
+import { BODY_FONT, DISPLAY_FONT, PAPION_LOGO } from "./papion-data"
 
-export function Eyebrow({ children }: { children: string }) {
+/** “Papion” word with a cap-height logo lockup (case-study sections). */
+export function PapionWordmark({ className = "" }: { className?: string }) {
+  return (
+    <span className={`inline-flex items-baseline gap-[0.3em] ${className}`}>
+      <span>Papion</span>
+      <img
+        src={PAPION_LOGO}
+        alt=""
+        className="h-[0.92em] w-[0.92em] shrink-0 translate-y-[0.06em] object-contain opacity-[0.9]"
+        aria-hidden
+      />
+    </span>
+  )
+}
+
+export function Eyebrow({ children }: { children: ReactNode }) {
   return (
     <p
       className="text-[0.68rem] font-medium tracking-[0.22em] text-[var(--color-drh-ink)]/40 uppercase"

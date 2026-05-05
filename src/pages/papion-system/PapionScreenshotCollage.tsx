@@ -1,29 +1,32 @@
+import { DISPLAY_FONT } from "./papion-data"
+import { PapionWordmark } from "./papion-ui"
+
 /** Five desktop captures, full-bleed inside frames (no object-cover cropping). */
 const SHOTS = [
   {
     key: "gen-1",
     src: "/assets/papion-page/papion-screenshots/gen-1.png",
-    alt: "Papion desktop - main view",
+    alt: "Papion desktop, main view",
   },
   {
     key: "gen-2",
     src: "/assets/papion-page/papion-screenshots/gen-2.png",
-    alt: "Papion desktop - workspace",
+    alt: "Papion desktop, workspace",
   },
   {
     key: "gen-3",
     src: "/assets/papion-page/papion-screenshots/gen-3.png",
-    alt: "Papion desktop - module surface",
+    alt: "Papion desktop, module surface",
   },
   {
     key: "gen-4",
     src: "/assets/papion-page/papion-screenshots/gen-4.png",
-    alt: "Papion desktop - operational detail",
+    alt: "Papion desktop, operational detail",
   },
   {
     key: "gen-5",
     src: "/assets/papion-page/papion-screenshots/gen-5.png",
-    alt: "Papion desktop - another module",
+    alt: "Papion desktop, another module",
   },
 ] as const
 
@@ -65,16 +68,28 @@ export function PapionScreenshotCollage() {
   const bottomRight = s5
 
   return (
-    <section className="papion-story-block relative isolate overflow-hidden border-y border-[#263115]/20 bg-[#f4f4ee]">
+    <section className="papion-story-block relative isolate overflow-hidden border-y border-rose-900/8 bg-[#fdf8fa]">
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.45]"
+        className="pointer-events-none absolute inset-0 opacity-[0.28]"
         aria-hidden
         style={{
           backgroundImage:
-            "linear-gradient(to right, rgb(38 49 21 / 0.08) 1px, transparent 1px), linear-gradient(to bottom, rgb(38 49 21 / 0.08) 1px, transparent 1px)",
+            "linear-gradient(to right, rgb(200 120 150 / 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgb(200 120 150 / 0.05) 1px, transparent 1px)",
           backgroundSize: "80px 80px",
         }}
       />
+
+      <div className="relative z-10 px-5 pt-11 pb-6 text-center sm:pt-14">
+        <p
+          className="flex flex-col items-center gap-2 text-[0.68rem] font-medium text-rose-900/45"
+          style={{ fontFamily: DISPLAY_FONT }}
+        >
+          <PapionWordmark className="normal-case text-[0.95rem] tracking-[0.06em]" />
+          <span className="text-[0.62rem] tracking-[0.2em] text-rose-900/32 uppercase">
+            In the product
+          </span>
+        </p>
+      </div>
 
       {/* Mobile keeps the reference's big framed shots without forcing a tiny collage. */}
       <div className="relative px-4 py-12 lg:hidden">

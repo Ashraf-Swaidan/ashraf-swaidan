@@ -8,13 +8,13 @@ import {
   EXCEL_ICON_SRC,
   FRICTION_CLOSING_1,
   FRICTION_CLOSING_2,
-  FRICTION_LINE1,
+  FRICTION_LINE1_TAIL,
   FRICTION_PILL_STYLES,
   FRICTION_PILLS,
   getFrictionPillDelay,
   sleep,
 } from "./papion-data"
-import { Eyebrow, StoryStep, StoryTitle } from "./papion-ui"
+import { Eyebrow, PapionWordmark, StoryStep, StoryTitle } from "./papion-ui"
 
 function ExcelFrictionFootnote() {
   const tipId = useId()
@@ -81,7 +81,7 @@ function FrictionNarrative() {
 
   useEffect(() => {
     if (reduceMotion) {
-      setLine1(FRICTION_LINE1)
+      setLine1(FRICTION_LINE1_TAIL)
       setPillCount(FRICTION_PILLS.length)
       setShowMore(true)
       setShowLotNote(true)
@@ -103,9 +103,9 @@ function FrictionNarrative() {
     setShowBlockB(false)
 
     void (async () => {
-      for (let i = 1; i <= FRICTION_LINE1.length; i++) {
+      for (let i = 1; i <= FRICTION_LINE1_TAIL.length; i++) {
         if (cancelled) return
-        setLine1(FRICTION_LINE1.slice(0, i))
+        setLine1(FRICTION_LINE1_TAIL.slice(0, i))
         await sleep(44)
       }
       await sleep(940)
@@ -134,8 +134,8 @@ function FrictionNarrative() {
   const showCursor =
     !reduceMotion &&
     inView &&
-    (line1.length < FRICTION_LINE1.length ||
-      (line1 === FRICTION_LINE1 && pillCount === 0 && !showMore))
+    (line1.length < FRICTION_LINE1_TAIL.length ||
+      (line1 === FRICTION_LINE1_TAIL && pillCount === 0 && !showMore))
 
   const showPlaceholder = !reduceMotion && !inView
 
@@ -175,6 +175,7 @@ function FrictionNarrative() {
             className="text-[1.28rem] leading-[1.65] tracking-[-0.025em] text-[var(--color-drh-ink)]/80 sm:text-[1.55rem] md:text-[1.8rem]"
             style={{ fontFamily: BODY_FONT }}
           >
+            <PapionWordmark className="font-[inherit]" />
             <span className="text-pretty">{line1}</span>
             {showCursor ? (
               <span
@@ -268,7 +269,8 @@ function FrictionNarrative() {
                 <ExcelFrictionFootnote />, that&apos;s fair.
               </p>
               <p className={closingTextClass} style={{ fontFamily: BODY_FONT }}>
-                We built Papion so the team does not live there.
+                We built <PapionWordmark className="font-[inherit]" /> so the team
+                does not live there.
               </p>
             </motion.div>
           )}

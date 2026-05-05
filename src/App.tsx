@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { SiteFooter } from "./components/SiteFooter"
 import { AshLegend } from "./components/landing/AshFixes/AshDot"
 import { DesignRevisionHero } from "./components/landing/DesignRevisionHero"
 import { FooterSection } from "./components/landing/FooterSection"
@@ -18,19 +19,39 @@ export function App() {
   const isTwodoPage = path === "/works/twodo"
 
   if (isPapionPage) {
-    return <PapionSystemPage />
+    return (
+      <>
+        <PapionSystemPage />
+        <SiteFooter />
+      </>
+    )
   }
 
   if (isDuwitPage) {
-    return <DuwitPage />
+    return (
+      <>
+        <DuwitPage />
+        <SiteFooter />
+      </>
+    )
   }
 
   if (isAkPage) {
-    return <AkPage />
+    return (
+      <>
+        <AkPage />
+        <SiteFooter />
+      </>
+    )
   }
 
   if (isTwodoPage) {
-    return <TwodoPage />
+    return (
+      <>
+        <TwodoPage />
+        <SiteFooter />
+      </>
+    )
   }
 
   return (
@@ -71,6 +92,7 @@ export function App() {
       <ManifestoSection />
       <SelectedWorks />
       <FooterSection />
+      <SiteFooter />
     </div>
   )
 }

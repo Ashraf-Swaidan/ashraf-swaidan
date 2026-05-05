@@ -8,6 +8,8 @@ export type WorkProject = {
   imageSrc: string
   videoSrc: string
   href: string
+  /** Public deploy URL — embedded in-phone when set; otherwise the portfolio case study `href`. */
+  liveSiteUrl?: string
 }
 
 export const SELECTED_WORKS_PROJECTS: WorkProject[] = [
@@ -30,6 +32,7 @@ export const SELECTED_WORKS_PROJECTS: WorkProject[] = [
     imageSrc: "/assets/lap-animation-assets/duwit-lap.jpg",
     videoSrc: SELECTED_WORKS_VIDEOS.duwit,
     href: "/works/duwit",
+    liveSiteUrl: "https://duwit-45a37.web.app/",
   },
   {
     id: "ak-system",
@@ -50,5 +53,6 @@ export const SELECTED_WORKS_PROJECTS: WorkProject[] = [
     imageSrc: "/assets/lap-animation-assets/twodo-lap.jpg",
     videoSrc: SELECTED_WORKS_VIDEOS.twodo,
     href: "/works/twodo",
+    liveSiteUrl: "https://twodo.ashraf-swaidan-10.workers.dev/login",
   },
 ]

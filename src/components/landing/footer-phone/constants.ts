@@ -140,6 +140,8 @@ export const STANDARD_APPS: StandardApp[] = [
     iconSrc: `${PHONE_ASSET_ROOT}/safari.svg`,
     title: "Safari",
     body: "A tiny browser shell for future project pages, docs, references, and portfolio links.",
+    href: "https://example.com",
+    cta: "Try the web",
   },
   {
     id: "spotify",

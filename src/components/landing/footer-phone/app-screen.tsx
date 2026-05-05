@@ -1,4 +1,4 @@
-import { type RefObject } from "react"
+import { type RefObject, useEffect } from "react"
 
 import type { AshAiHandoffDetail } from "@/lib/ashAiVisualContext"
 import { cn } from "@/lib/utils"
@@ -6,14 +6,14 @@ import { cn } from "@/lib/utils"
 import { AshAiWorkspace } from "./ash-ai-workspace"
 import { DISPLAY_FONT, PHONE_APP_CONTENT_PT_CLASS } from "./constants"
 import { NotesScreen } from "./notes-screen"
-import { PapionMobileScreen } from "./papion-mobile-screen"
+import { ProjectBrowserScreen } from "./project-browser-screen"
 import { PhotosScreen } from "./photos-screen"
+import { SafariBrowserScreen } from "./safari-browser-screen"
 import {
   ChatScreen,
   GmailScreen,
   InstagramScreen,
   LinkedInScreen,
-  ProjectScreen,
   UtilityScreen,
 } from "./standard-app-screens"
 import type { PhoneApp } from "./types"
@@ -32,6 +32,15 @@ export function AppScreen({
   onConsumeAshAiBootstrapHandoff?: () => void
 }) {
   const isAshAi = app.id === "chatgpt"
+
+  useEffect(() => {
+    return () => {
+      const el = panelRef.current
+      if (el) {
+        el.style.overflow = ""
+      }
+    }
+  }, [panelRef])
 
   return (
     <div
@@ -70,10 +79,10 @@ export function AppScreen({
           bootstrapHandoff={ashAiBootstrapHandoff ?? null}
           onConsumeBootstrapHandoff={onConsumeAshAiBootstrapHandoff}
         />
-      ) : app.kind === "project" && app.project.id === "papion" ? (
-        <PapionMobileScreen app={app} />
       ) : app.kind === "project" ? (
-        <ProjectScreen app={app} />
+        <ProjectBrowserScreen app={app} />
+      ) : app.kind === "safari" ? (
+        <SafariBrowserScreen app={app} />
       ) : app.kind === "gmail" ? (
         <GmailScreen />
       ) : app.kind === "instagram" ? (

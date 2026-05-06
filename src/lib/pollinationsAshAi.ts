@@ -15,6 +15,7 @@ import {
   normalizeAshAiWorkLinks,
   type AshAiUiLink,
 } from "@/lib/ashAiWorkLinks"
+import { normalizeAshAiNoteLinks, type AshAiUiNoteLink } from "@/lib/ashAiNotes"
 import {
   absolutizePublicAssetUrl,
   fetchImageAsDataUrlForVision,
@@ -97,10 +98,14 @@ function chatCompletionBody(
   model: string,
   recentMessages: AshAiChatMessage[],
   stream: boolean,
-  lastUserImageUrl?: string | null
+  lastUserImageUrl?: string | null,
+  supplementalSystemPrompt?: string
 ) {
+  const systemPrompt = supplementalSystemPrompt?.trim()
+    ? `${ASH_AI_SYSTEM_PROMPT}\n\n${supplementalSystemPrompt.trim()}`
+    : ASH_AI_SYSTEM_PROMPT
   const messages: { role: string; content: ApiMessageContent }[] = [
-    { role: "system", content: ASH_AI_SYSTEM_PROMPT },
+    { role: "system", content: systemPrompt },
     ...mapMessagesForApi(recentMessages, model, lastUserImageUrl),
   ]
   const base = {
@@ -141,6 +146,7 @@ export type AshAiResponse = {
   message: string
   sticker: AshStickerId | null
   links: AshAiUiLink[]
+  notes: AshAiUiNoteLink[]
   artifacts: AshAiUiArtifact[]
 }
 
@@ -211,7 +217,13 @@ function parseAssistantPayload(content: unknown): AshAiResponse {
       : "That came out garbled on my end — mind asking again in simpler words?"
 
   if (typeof content !== "string") {
-    return { message: fallbackMessage, sticker: null, links: [], artifacts: [] }
+    return {
+      message: fallbackMessage,
+      sticker: null,
+      links: [],
+      notes: [],
+      artifacts: [],
+    }
   }
 
   try {
@@ -219,6 +231,7 @@ function parseAssistantPayload(content: unknown): AshAiResponse {
       message?: unknown
       sticker?: unknown
       links?: unknown
+      notes?: unknown
       artifacts?: unknown
     }
     return {
@@ -228,16 +241,27 @@ function parseAssistantPayload(content: unknown): AshAiResponse {
           : fallbackMessage,
       sticker: isAshStickerId(parsed.sticker) ? parsed.sticker : null,
       links: normalizeAshAiWorkLinks(parsed.links),
+      notes: normalizeAshAiNoteLinks(parsed.notes),
       artifacts: normalizeAshAiArtifacts(parsed.artifacts),
     }
   } catch {
-    return { message: fallbackMessage, sticker: null, links: [], artifacts: [] }
+    return {
+      message: fallbackMessage,
+      sticker: null,
+      links: [],
+      notes: [],
+      artifacts: [],
+    }
   }
 }
 
 export async function askAshAi(
   messages: AshAiChatMessage[],
-  request?: { lastUserImageUrl?: string | null; modelId?: string | null }
+  request?: {
+    lastUserImageUrl?: string | null
+    modelId?: string | null
+    supplementalSystemPrompt?: string
+  }
 ): Promise<AshAiResponse> {
   const apiKey = getPollinationsKey()
 
@@ -258,7 +282,13 @@ export async function askAshAi(
       "Content-Type": "application/json",
     },
     body: JSON.stringify(
-      chatCompletionBody(model, recentMessages, false, visionUrl ?? undefined)
+      chatCompletionBody(
+        model,
+        recentMessages,
+        false,
+        visionUrl ?? undefined,
+        request?.supplementalSystemPrompt
+      )
     ),
   })
 
@@ -315,6 +345,7 @@ export async function askAshAiStream(
     lastUserImageUrl?: string | null
     /** Rare override; normally image turns auto-use the vision model (GPT-5.4 Nano). */
     modelId?: string | null
+    supplementalSystemPrompt?: string
   }
 ): Promise<AshAiResponse> {
   const apiKey = getPollinationsKey()
@@ -338,7 +369,13 @@ export async function askAshAiStream(
     },
     signal: options.signal,
     body: JSON.stringify(
-      chatCompletionBody(model, recentMessages, true, visionUrl ?? undefined)
+      chatCompletionBody(
+        model,
+        recentMessages,
+        true,
+        visionUrl ?? undefined,
+        options.supplementalSystemPrompt
+      )
     ),
   })
 

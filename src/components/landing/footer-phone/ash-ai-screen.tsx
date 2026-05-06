@@ -10,6 +10,8 @@ import {
   type AshAiChatMessage,
 } from "@/lib/pollinationsAshAi"
 import { type AshAiUiLink } from "@/lib/ashAiWorkLinks"
+import { ashAiNotesContextBlock, type AshAiUiNoteLink } from "@/lib/ashAiNotes"
+import { requestNotesDeepLink } from "@/lib/notesDeepLink"
 import {
   type AshAiHandoffDetail,
   requestAshAiHandoff,
@@ -24,6 +26,7 @@ import {
   withUpdatedThread,
 } from "./ash-ai-chat-storage"
 import {
+  CHAT_APP_ARABIC_FONT,
   ASH_AI_GREETING,
   ASH_AI_STARTER_PROMPTS,
   ASH_STICKER_ROOT,
@@ -33,6 +36,10 @@ import {
 import { AshAiAssistantRichText } from "./ash-ai-assistant-rich-text"
 
 export type { AshAiUiMessage }
+
+function hasArabicScript(text: string) {
+  return /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/.test(text)
+}
 
 function AshAiArtifactCards({
   artifacts,
@@ -173,6 +180,44 @@ function AshAiWorkLinkCards({
             aria-hidden
           />
         </a>
+      ))}
+    </div>
+  )
+}
+
+function AshAiNoteCards({ notes, fontFamily }: { notes: AshAiUiNoteLink[]; fontFamily: string }) {
+  return (
+    <div className="mt-2.5 flex flex-col gap-2">
+      {notes.map((note) => (
+        <button
+          key={note.noteId}
+          type="button"
+          onClick={() => requestNotesDeepLink({ noteId: note.noteId })}
+          className="group flex min-w-0 items-center gap-3 rounded-2xl border border-neutral-200/90 bg-gradient-to-br from-white to-neutral-50/95 px-3 py-2.5 text-left shadow-[0_1px_3px_rgb(0_0_0/0.06)] transition hover:border-neutral-300 hover:shadow-[0_4px_14px_rgb(0_0_0/0.08)]"
+        >
+          <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-[#fff9e6] text-[0.66rem] font-semibold tracking-[0.08em] text-[#7f5a00] uppercase">
+            Note
+          </span>
+          <div className="min-w-0 flex-1">
+            <p
+              className="truncate text-[0.9rem] font-semibold tracking-[-0.02em] text-neutral-950"
+              style={{ fontFamily }}
+            >
+              {note.title}
+            </p>
+            <p
+              className="text-[0.72rem] leading-tight text-neutral-500"
+              style={{ fontFamily }}
+            >
+              {note.folderLabel} - Open in Notes
+            </p>
+          </div>
+          <ArrowUpRight
+            className="size-4 shrink-0 text-neutral-400 transition group-hover:text-neutral-700"
+            strokeWidth={2.25}
+            aria-hidden
+          />
+        </button>
       ))}
     </div>
   )
@@ -372,9 +417,14 @@ export function AshAiScreen({
     setAwaitingReply(true)
 
     try {
+      const notesPrompt = [
+        "Live notes context (these can be referenced in `notes` by noteId):",
+        ashAiNotesContextBlock(),
+      ].join("\n")
       const answer = await askAshAiStream(historyForApi, {
         signal: ac.signal,
         lastUserImageUrl,
+        supplementalSystemPrompt: notesPrompt,
         onDelta: (_raw, preview) => {
           if (epoch !== chatEpochRef.current) return
           setMessages((current) => {
@@ -401,6 +451,7 @@ export function AshAiScreen({
             content: answer.message,
             sticker,
             links: answer.links.length ? answer.links : undefined,
+            notes: answer.notes.length ? answer.notes : undefined,
             artifacts: answer.artifacts.length ? answer.artifacts : undefined,
             streaming: false,
           }
@@ -528,7 +579,13 @@ export function AshAiScreen({
                 {isUser ? (
                   <div
                     className="max-w-[82%] rounded-[1.15rem] bg-[#ececea] px-3.5 py-2.5 text-[1.02rem] leading-[1.38] text-neutral-950"
-                    style={{ fontFamily: CHAT_APP_UI_FONT }}
+                    style={{
+                      fontFamily: hasArabicScript(message.content)
+                        ? CHAT_APP_ARABIC_FONT
+                        : CHAT_APP_UI_FONT,
+                    }}
+                    dir="auto"
+                    lang={hasArabicScript(message.content) ? "ar" : "en"}
                   >
                     {message.imageSrc ? (
                       <div className="mb-2 overflow-hidden rounded-xl border border-black/8 bg-neutral-200/35">
@@ -561,11 +618,26 @@ export function AshAiScreen({
                         <div
                           className={cn(
                             "text-[1.02rem] leading-[1.42]",
+                            hasArabicScript(assistantTextToShow(message, index))
+                              ? "leading-[1.58]"
+                              : "",
                             message.failed
                               ? "text-rose-700"
                               : "text-neutral-950"
                           )}
-                          style={{ fontFamily: CHAT_APP_UI_FONT }}
+                          style={{
+                            fontFamily: hasArabicScript(
+                              assistantTextToShow(message, index)
+                            )
+                              ? CHAT_APP_ARABIC_FONT
+                              : CHAT_APP_UI_FONT,
+                          }}
+                          dir="auto"
+                          lang={
+                            hasArabicScript(assistantTextToShow(message, index))
+                              ? "ar"
+                              : "en"
+                          }
                         >
                           <AshAiAssistantRichText
                             text={assistantTextToShow(message, index)}
@@ -594,6 +666,15 @@ export function AshAiScreen({
                       !message.failed ? (
                         <AshAiWorkLinkCards
                           links={message.links}
+                          fontFamily={CHAT_APP_UI_FONT}
+                        />
+                      ) : null}
+                      {message.notes &&
+                      message.notes.length > 0 &&
+                      !message.streaming &&
+                      !message.failed ? (
+                        <AshAiNoteCards
+                          notes={message.notes}
                           fontFamily={CHAT_APP_UI_FONT}
                         />
                       ) : null}
@@ -649,6 +730,8 @@ export function AshAiScreen({
             style={{ fontFamily: CHAT_APP_UI_FONT }}
             disabled={awaitingReply}
             aria-label="Message to Ash AI"
+            dir="auto"
+            lang={hasArabicScript(draft) ? "ar" : "en"}
           />
           <button
             type={awaitingReply ? "button" : "submit"}

@@ -76,8 +76,55 @@ export function LandingNav() {
     return () => window.removeEventListener("keydown", onKeyDown)
   }, [open, close])
 
+  useEffect(() => {
+    if (window.location.pathname !== "/" || !window.location.hash) return
+
+    const id = window.location.hash.slice(1)
+    if (!id) return
+
+    let attempts = 0
+    const maxAttempts = 30
+    let timer: number | null = null
+
+    const scrollWhenReady = () => {
+      const el = document.getElementById(id)
+      if (!el) {
+        attempts += 1
+        if (attempts < maxAttempts) {
+          timer = window.setTimeout(scrollWhenReady, 40)
+        }
+        return
+      }
+
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+
+      if (lenis && !reducedMotion) {
+        lenis.scrollTo(el, {
+          offset: POINTER_SCROLL_OFFSET,
+          duration: LENIS_SCROLL_DURATION,
+        })
+      } else {
+        const top = el.getBoundingClientRect().top + window.scrollY + POINTER_SCROLL_OFFSET
+        window.scrollTo({
+          top,
+          behavior: reducedMotion ? "auto" : "smooth",
+        })
+      }
+    }
+
+    timer = window.setTimeout(scrollWhenReady, 0)
+    return () => {
+      if (timer !== null) window.clearTimeout(timer)
+    }
+  }, [lenis])
+
   const scrollToHash = useCallback(
     (href: string) => {
+      if (window.location.pathname !== "/") {
+        window.location.assign(`/${href}`)
+        return
+      }
+
       const id = href.slice(1)
       const el = document.getElementById(id)
       if (!el) return

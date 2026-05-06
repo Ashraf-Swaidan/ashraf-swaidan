@@ -59,7 +59,7 @@ const RAIL_TEXT_TIMING = {
   incomingRevealEnd: 0.72,
 } as const
 
-const PROJECT_ZOOMS = [1.14, 0.985, 1.14, 0.985] as const
+const PROJECT_ZOOMS = [1.14, 1.03, 1.14, 1.03] as const
 
 const SCREEN_BOX_STYLE: CSSProperties = {
   left: `${(385 / 1600) * 100}%`,

@@ -30,6 +30,7 @@ import type {
   SpotifyBackgroundSession,
   SpotifyPlayerDockRect,
 } from "./types"
+import type { NotesDeepLinkDetail } from "@/lib/notesDeepLink"
 
 export type SpotifyPlayerBridge = {
   phoneBezelRef: RefObject<HTMLDivElement | null>
@@ -45,6 +46,8 @@ export function AppScreen({
   onClose,
   ashAiBootstrapHandoff,
   onConsumeAshAiBootstrapHandoff,
+  notesDeepLink,
+  onConsumeNotesDeepLink,
   spotifyPlayer,
 }: {
   app: PhoneApp
@@ -52,6 +55,8 @@ export function AppScreen({
   onClose: () => void
   ashAiBootstrapHandoff?: AshAiHandoffDetail | null
   onConsumeAshAiBootstrapHandoff?: () => void
+  notesDeepLink?: NotesDeepLinkDetail | null
+  onConsumeNotesDeepLink?: () => void
   spotifyPlayer?: SpotifyPlayerBridge
 }) {
   const isAshAi = app.id === "chatgpt"
@@ -134,7 +139,10 @@ export function AppScreen({
       ) : app.kind === "settings" ? (
         <SettingsScreen onExitApp={onClose} />
       ) : app.kind === "notes" ? (
-        <NotesScreen />
+        <NotesScreen
+          deepLink={notesDeepLink ?? null}
+          onConsumeDeepLink={onConsumeNotesDeepLink}
+        />
       ) : app.id === "spotify" ? (
         spotifyPlayer ? (
           <SpotifyScreen

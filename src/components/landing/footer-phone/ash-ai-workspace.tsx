@@ -17,8 +17,16 @@ import {
   type AshAiChatsStore,
 } from "./ash-ai-chat-storage"
 import { AshAiScreen } from "./ash-ai-screen"
-import { ASH_AI_NEW_CHAT_TITLE, CHAT_APP_UI_FONT } from "./constants"
+import {
+  ASH_AI_NEW_CHAT_TITLE,
+  CHAT_APP_ARABIC_FONT,
+  CHAT_APP_UI_FONT,
+} from "./constants"
 import { ChevronBackIcon } from "./chevron-back-icon"
+
+function hasArabicScript(text: string) {
+  return /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/.test(text)
+}
 
 export function AshAiWorkspace({
   onClose,
@@ -67,6 +75,7 @@ export function AshAiWorkspace({
   }
 
   const headerTitle = activeThread.title ?? ASH_AI_NEW_CHAT_TITLE
+  const headerHasArabic = hasArabicScript(headerTitle)
 
   return (
     <>
@@ -85,7 +94,11 @@ export function AshAiWorkspace({
         </button>
         <span
           className="min-w-0 truncate text-center text-[0.92rem] font-semibold tracking-[-0.01em] text-neutral-950"
-          style={{ fontFamily: CHAT_APP_UI_FONT }}
+          style={{
+            fontFamily: headerHasArabic ? CHAT_APP_ARABIC_FONT : CHAT_APP_UI_FONT,
+          }}
+          dir="auto"
+          lang={headerHasArabic ? "ar" : "en"}
           title={headerTitle}
         >
           {headerTitle}

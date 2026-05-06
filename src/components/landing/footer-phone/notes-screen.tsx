@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils"
 
 import { BODY_FONT, CHAT_APP_UI_FONT, GMAIL_ADDRESS } from "./constants"
 import {
+  AUTHOR_NOTES,
   NOTES_ACCENT,
   NOTES_FOLDERS,
   NOTES_STATIC_TAGS,
@@ -35,6 +36,7 @@ import {
   visitorNotesInFolder,
   updateVisitorNote,
 } from "./notes-storage"
+import type { NotesDeepLinkDetail } from "@/lib/notesDeepLink"
 
 const SCROLL_HIDE =
   "overscroll-contain [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:h-0 [&::-webkit-scrollbar]:w-0"
@@ -89,7 +91,13 @@ function previewBody(text: string, max = 80): string {
   return `${line.slice(0, max - 1)}…`
 }
 
-export function NotesScreen() {
+export function NotesScreen({
+  deepLink,
+  onConsumeDeepLink,
+}: {
+  deepLink?: NotesDeepLinkDetail | null
+  onConsumeDeepLink?: () => void
+}) {
   const [view, setView] = useState<ViewMode>("folders")
   const [folderId, setFolderId] = useState<string | null>(null)
   const [active, setActive] = useState<UnifiedNote | null>(null)
@@ -193,6 +201,25 @@ export function NotesScreen() {
       return t.includes(q) || b.includes(q)
     })
   }, [mergedList, listQuery])
+
+  useEffect(() => {
+    if (!deepLink?.noteId) return
+    const noteId = deepLink.noteId
+    const author = AUTHOR_NOTES.find((n) => n.id === noteId)
+    const visitor = visitorStore.notes.find((n) => n.id === noteId)
+    const hit = author
+      ? ({ source: "author", note: author } as UnifiedNote)
+      : visitor
+        ? ({ source: "visitor", note: visitor } as UnifiedNote)
+        : null
+    if (!hit) return
+    setFolderId(hit.note.folderId)
+    setListQuery("")
+    setActive(hit)
+    setDetailMenuOpen(false)
+    setView("detail")
+    onConsumeDeepLink?.()
+  }, [deepLink, onConsumeDeepLink, visitorStore.notes])
 
   const folderMeta = useMemo(
     () => NOTES_FOLDERS.find((f) => f.id === folderId) ?? null,

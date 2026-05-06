@@ -10,6 +10,10 @@ import {
   ASH_AI_HANDOFF_EVENT,
   type AshAiHandoffDetail,
 } from "@/lib/ashAiVisualContext"
+import {
+  NOTES_DEEP_LINK_EVENT,
+  type NotesDeepLinkDetail,
+} from "@/lib/notesDeepLink"
 
 import { AppScreen } from "./footer-phone/app-screen"
 import {
@@ -44,6 +48,9 @@ export function FooterPhone() {
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [ashAiBootstrapHandoff, setAshAiBootstrapHandoff] =
     useState<AshAiHandoffDetail | null>(null)
+  const [notesDeepLink, setNotesDeepLink] = useState<NotesDeepLinkDetail | null>(
+    null
+  )
   const allApps = useMemo(() => [...STANDARD_APPS, ...makeProjectApps()], [])
   const initialHomeApps = useMemo(() => {
     const hiddenHomeIds = new Set(["whatsapp", "linkedin", "camera"])
@@ -120,6 +127,17 @@ export function FooterPhone() {
     }
     window.addEventListener(ASH_AI_HANDOFF_EVENT, onHandoff)
     return () => window.removeEventListener(ASH_AI_HANDOFF_EVENT, onHandoff)
+  }, [])
+
+  useEffect(() => {
+    const onNotesDeepLink = (ev: Event) => {
+      const e = ev as CustomEvent<NotesDeepLinkDetail>
+      if (!e.detail?.noteId) return
+      setNotesDeepLink(e.detail)
+      setActiveAppId("notes")
+    }
+    window.addEventListener(NOTES_DEEP_LINK_EVENT, onNotesDeepLink)
+    return () => window.removeEventListener(NOTES_DEEP_LINK_EVENT, onNotesDeepLink)
   }, [])
 
   useGSAP(
@@ -289,6 +307,8 @@ export function FooterPhone() {
               onConsumeAshAiBootstrapHandoff={() =>
                 setAshAiBootstrapHandoff(null)
               }
+              notesDeepLink={activeApp.id === "notes" ? notesDeepLink : null}
+              onConsumeNotesDeepLink={() => setNotesDeepLink(null)}
               onClose={() => setActiveAppId(null)}
               spotifyPlayer={
                 activeApp.id === "spotify"

@@ -7,6 +7,11 @@ import {
 import type { AshAiChatMessage } from "@/lib/pollinationsAshAi"
 import type { AshAiUiLink } from "@/lib/ashAiWorkLinks"
 import { rehydrateAshAiLinksFromStorage } from "@/lib/ashAiWorkLinks"
+import {
+  noteRefsForPersistence,
+  rehydrateAshAiNoteLinksFromStorage,
+  type AshAiUiNoteLink,
+} from "@/lib/ashAiNotes"
 
 import {
   ASH_AI_CHATS_SCHEMA_VERSION,
@@ -21,6 +26,7 @@ export type AshAiUiMessage = AshAiChatMessage & {
   id: string
   sticker?: AshStickerId | null
   links?: AshAiUiLink[]
+  notes?: AshAiUiNoteLink[]
   artifacts?: AshAiUiArtifact[]
   /** Optional image path/URL for user turns — shown in the bubble; not sent as data URLs in storage */
   imageSrc?: string
@@ -51,6 +57,7 @@ export function makeAshAiMessage(
   options: Pick<
     AshAiUiMessage,
     "failed" | "sticker" | "streaming" | "links" | "artifacts" | "imageSrc"
+    | "notes"
   > = {}
 ): AshAiUiMessage {
   return {
@@ -71,6 +78,7 @@ function sanitizeMessages(raw: unknown): AshAiUiMessage[] {
       content: typeof msg.content === "string" ? msg.content : "",
       sticker: msg.sticker,
       links: rehydrateAshAiLinksFromStorage(msg.links),
+      notes: rehydrateAshAiNoteLinksFromStorage(msg.notes),
       artifacts: rehydrateAshAiArtifactsFromStorage(msg.artifacts),
       imageSrc:
         msg.role === "user" &&
@@ -244,6 +252,7 @@ export function messagesForPersistence(
     artifacts: artifactRefsForPersistence(m.artifacts) as
       | AshAiUiArtifact[]
       | undefined,
+    notes: noteRefsForPersistence(m.notes) as AshAiUiNoteLink[] | undefined,
     imageSrc: persistUserImageSrc(m),
   }))
 }

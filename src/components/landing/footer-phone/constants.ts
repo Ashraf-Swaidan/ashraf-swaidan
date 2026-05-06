@@ -35,6 +35,9 @@ export const CHATGPT_MARK_SRC = `${PHONE_ASSET_ROOT}/ChatGPT-Logo.svg`
 /** Inter Variable — friendly UI for the in-phone Ash AI chat shell */
 export const CHAT_APP_UI_FONT =
   "var(--font-sans), ui-sans-serif, system-ui, sans-serif"
+/** Arabic-first fallback stack for better shaping and readability in chat. */
+export const CHAT_APP_ARABIC_FONT =
+  "'Noto Naskh Arabic', 'Noto Sans Arabic', 'Tajawal', 'IBM Plex Sans Arabic', 'Segoe UI', sans-serif"
 
 /** Insets app UI below status bar + Dynamic Island (must match AppScreen). */
 export const PHONE_APP_CONTENT_PT_CLASS = "pt-[4.45rem]"

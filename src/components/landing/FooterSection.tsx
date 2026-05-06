@@ -56,6 +56,7 @@ export function FooterSection() {
   const sectionRef = useRef<HTMLElement>(null)
   const introRef = useRef<HTMLDivElement>(null)
   const phoneWrapRef = useRef<HTMLDivElement>(null)
+  const phoneUsabilityBadgeRef = useRef<HTMLDivElement>(null)
   const noteRef = useRef<HTMLParagraphElement>(null)
   const primaryStickerRef = useRef<HTMLDivElement>(null)
   const secondaryStickerRef = useRef<HTMLDivElement>(null)
@@ -69,6 +70,7 @@ export function FooterSection() {
       const intro = introRef.current
       const phoneWrap = phoneWrapRef.current
       const note = noteRef.current
+      const usabilityBadge = phoneUsabilityBadgeRef.current
       const primarySticker = primaryStickerRef.current
       const secondarySticker = secondaryStickerRef.current
 
@@ -152,6 +154,23 @@ export function FooterSection() {
           },
           0.96
         )
+
+      if (usabilityBadge) {
+        tl.fromTo(
+          usabilityBadge,
+          { autoAlpha: 0, y: 8, scale: 0.96 },
+          { autoAlpha: 1, y: 0, scale: 1, duration: 0.35, ease: "power2.out" },
+          0.34
+        )
+          .to(usabilityBadge, { autoAlpha: 1, duration: 5, ease: "none" })
+          .to(usabilityBadge, {
+            autoAlpha: 0,
+            y: -10,
+            scale: 0.98,
+            duration: 0.42,
+            ease: "power2.in",
+          })
+      }
     },
     { scope: sectionRef, dependencies: [prefersReducedMotion] }
   )
@@ -245,6 +264,17 @@ export function FooterSection() {
             ref={phoneWrapRef}
             className="relative flex flex-col items-center lg:items-end"
           >
+            <div
+              ref={phoneUsabilityBadgeRef}
+              className="phone-reveal mb-4 rounded-full border border-[var(--color-drh-ink)]/16 bg-white/80 px-4 py-2 text-center shadow-[0_14px_30px_rgb(0_0_0/0.08)] backdrop-blur-md"
+            >
+              <p
+                className="text-[0.74rem] font-semibold tracking-[0.12em] text-[var(--color-drh-ink)]/82 uppercase"
+                style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
+              >
+                This is actually fully usable phone btw
+              </p>
+            </div>
             <FooterPhone />
 
             <p

@@ -11,7 +11,7 @@ export const BODY_FONT = "'Cormorant Garamond', 'Fraunces Variable', serif"
 export const PHONE_ASSET_ROOT = "/assets/phone-apps"
 export const GMAIL_ADDRESS = "ashraf.swaidan.13@gmail.com"
 
-export const DOCK_IDS = ["whatsapp", "linkedin", "instagram", "gmail"] as const
+export const DOCK_IDS = ["notes", "chatgpt", "instagram", "gmail"] as const
 
 export const PHONE_NUMBER_DISPLAY = "+961 76 350 373"
 export const PHONE_NUMBER_TEL = "+96176350373"
@@ -134,7 +134,7 @@ export const STANDARD_APPS: StandardApp[] = [
     label: "Phone",
     iconSrc: `${PHONE_ASSET_ROOT}/phone.svg`,
     title: "Phone",
-    body: "A quiet placeholder for future direct contact options. For now, Gmail and WhatsApp are the cleanest routes.",
+    body: "A quiet placeholder for future direct contact options. For now, Gmail is the cleanest route.",
   },
   {
     id: "safari",

@@ -26,12 +26,13 @@ function AppIconImage({
   bareImgClass: string
 }) {
   const shell = iconShellForApp(app)
+  const needsBoost = app.id === "instagram" || app.id === "gmail"
   if (!shell) {
     return (
       <img
         src={app.iconSrc}
         alt=""
-        className={bareImgClass}
+        className={cn(bareImgClass, needsBoost && "scale-[1.14]")}
         loading="lazy"
         decoding="async"
       />
@@ -56,7 +57,7 @@ function AppIconImage({
       <img
         src={app.iconSrc}
         alt=""
-        className="h-full w-full object-contain"
+        className={cn("h-full w-full object-contain", needsBoost && "scale-[1.14]")}
         loading="lazy"
         decoding="async"
       />

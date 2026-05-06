@@ -45,13 +45,14 @@ export function FooterPhone() {
   const [ashAiBootstrapHandoff, setAshAiBootstrapHandoff] =
     useState<AshAiHandoffDetail | null>(null)
   const allApps = useMemo(() => [...STANDARD_APPS, ...makeProjectApps()], [])
-  const initialHomeApps = useMemo(
-    () =>
-      allApps.filter(
-        (app) => !DOCK_IDS.includes(app.id as (typeof DOCK_IDS)[number])
-      ),
-    [allApps]
-  )
+  const initialHomeApps = useMemo(() => {
+    const hiddenHomeIds = new Set(["whatsapp", "linkedin", "camera"])
+    return allApps.filter(
+      (app) =>
+        !DOCK_IDS.includes(app.id as (typeof DOCK_IDS)[number]) &&
+        !hiddenHomeIds.has(app.id)
+    )
+  }, [allApps])
   const [homeApps, setHomeApps] = useState<PhoneApp[]>(initialHomeApps)
   const [draggedAppId, setDraggedAppId] = useState<string | null>(null)
   const [spotifySession, setSpotifySession] =

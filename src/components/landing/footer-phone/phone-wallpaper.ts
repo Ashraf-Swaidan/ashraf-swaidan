@@ -31,7 +31,8 @@ export const PHONE_WALLPAPERS: {
 ]
 
 function defaultId(): PhoneWallpaperId {
-  return PHONE_WALLPAPERS[0]!.id
+  return PHONE_WALLPAPERS.find((wallpaper) => wallpaper.id === "wallpaper-3")?.id
+    ?? PHONE_WALLPAPERS[0]!.id
 }
 
 function readStoredId(): PhoneWallpaperId {
@@ -81,7 +82,10 @@ export function setPhoneWallpaperId(id: PhoneWallpaperId) {
 
 export function usePhoneWallpaper() {
   const id = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
-  const entry = PHONE_WALLPAPERS.find((w) => w.id === id) ?? PHONE_WALLPAPERS[0]!
+  const entry =
+    PHONE_WALLPAPERS.find((w) => w.id === id) ??
+    PHONE_WALLPAPERS.find((w) => w.id === defaultId()) ??
+    PHONE_WALLPAPERS[0]!
 
   return {
     id: entry.id,

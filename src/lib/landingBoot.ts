@@ -50,14 +50,21 @@ export function getLandingBootImageUrls(): readonly string[] {
   return [...base, first.imageSrc, first.logoSrc]
 }
 
+/** Never block the overlay longer than this, even if asset waits stall. */
+const HARD_CAP_MS = 6000
+
 /**
- * Waits for a **small** critical set of landing assets plus a hard ceiling so first visits
- * do not stare at empty videos forever. Parallel work is capped by timeouts; never blocks
- * longer than `MAX_TOTAL_MS` (reduced-motion uses shorter budgets).
+ * Waits for a **small** critical set of landing assets plus bounded timeouts so first visits
+ * do not stare at empty videos forever. Reduced-motion uses shorter budgets. Regardless,
+ * this function resolves within {@link HARD_CAP_MS} ms so the loader cannot persist longer.
  */
 export async function waitLandingBoot(options: {
   reduceMotion: boolean
 }): Promise<void> {
+  await Promise.race([runLandingBoot(options), delay(HARD_CAP_MS)])
+}
+
+async function runLandingBoot(options: { reduceMotion: boolean }): Promise<void> {
   const { reduceMotion } = options
   const start = performance.now()
 
@@ -86,5 +93,7 @@ export async function waitLandingBoot(options: {
   const elapsed = performance.now() - start
   const minRemain = Math.max(0, MIN_VISIBLE_MS - elapsed)
   const maxRemain = Math.max(0, MAX_TOTAL_MS - elapsed)
-  await delay(Math.min(minRemain, maxRemain))
+  const tailMs = Math.min(minRemain, maxRemain)
+  const capRemain = Math.max(0, HARD_CAP_MS - (performance.now() - start))
+  await delay(Math.min(tailMs, capRemain))
 }

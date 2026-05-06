@@ -41,6 +41,7 @@ export const CHAT_APP_ARABIC_FONT =
 
 /** Insets app UI below status bar + Dynamic Island (must match AppScreen). */
 export const PHONE_APP_CONTENT_PT_CLASS = "pt-[4.45rem]"
+export const IPAD_APP_CONTENT_PT_CLASS = "pt-[3.9rem]"
 
 export const STANDARD_APPS: StandardApp[] = [
   {

@@ -20,7 +20,6 @@ import {
   mergeSpotifyPlaylists,
   parseSpotifyPlaylistId,
   saveCustomSpotifyPlaylistIds,
-  type SpotifyPlaylist,
 } from "./spotify-playlist-data"
 import { spotifyOembedToNotificationLines } from "./spotify-oembed-parse"
 import type {
@@ -185,11 +184,6 @@ export function SpotifyScreen({
       setDockRect(null)
     }
   }, [phase, phoneBezelRef, setDockRect])
-
-  const activeDisplayTitle = useMemo(() => {
-    if (!active) return ""
-    return metaById[active.id]?.title ?? active.title
-  }, [active, metaById])
 
   const openPlaylist = (id: string) => {
     const pl = playlists.find((p) => p.id === id)

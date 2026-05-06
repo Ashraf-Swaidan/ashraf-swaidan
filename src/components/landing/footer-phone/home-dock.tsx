@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils"
 
 import { CHATGPT_MARK_SRC } from "./constants"
-import type { PhoneApp } from "./types"
+import type { FooterDeviceMode, PhoneApp } from "./types"
 
 /** iOS-style home icon plate: squircle (softer % radius) + centered glyph. */
 function iconShellForApp(app: PhoneApp): "white" | "black" | "cream" | null {
@@ -67,6 +67,7 @@ function AppIconImage({
 
 export function AppIcon({
   app,
+  deviceMode = "phone",
   onOpen,
   draggable,
   onDragStart,
@@ -74,6 +75,7 @@ export function AppIcon({
   onDragEnd,
 }: {
   app: PhoneApp
+  deviceMode?: FooterDeviceMode
   onOpen: () => void
   draggable?: boolean
   onDragStart?: () => void
@@ -89,13 +91,22 @@ export function AppIcon({
       onDragEnter={onDragEnter}
       onDragOver={(event) => event.preventDefault()}
       onDragEnd={onDragEnd}
-      className="group flex h-[4.7rem] min-w-0 cursor-pointer flex-col items-center justify-start rounded-[1rem] px-0.5 py-1 text-center transition hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-black/20 focus-visible:outline-none"
+      className={cn(
+        "group flex min-w-0 cursor-pointer flex-col items-center justify-start rounded-[1rem] px-0.5 py-1 text-center transition hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-black/20 focus-visible:outline-none",
+        deviceMode === "ipad" ? "h-[5rem]" : "h-[4.7rem]"
+      )}
       aria-label={`Open ${app.label}`}
     >
       <AppIconImage
         app={app}
-        frameClass="h-[3.15rem] w-[3.15rem] transition group-hover:scale-[1.04]"
-        bareImgClass="h-[3.15rem] w-[3.15rem] rounded-[30%] object-contain transition group-hover:scale-[1.04]"
+        frameClass={cn(
+          "transition group-hover:scale-[1.04]",
+          deviceMode === "ipad" ? "h-[3.35rem] w-[3.35rem]" : "h-[3.15rem] w-[3.15rem]"
+        )}
+        bareImgClass={cn(
+          "rounded-[30%] object-contain transition group-hover:scale-[1.04]",
+          deviceMode === "ipad" ? "h-[3.35rem] w-[3.35rem]" : "h-[3.15rem] w-[3.15rem]"
+        )}
       />
       <span className="mt-1.5 w-full truncate font-sans text-[0.64rem] leading-none font-semibold text-white">
         {app.label}
@@ -122,19 +133,33 @@ export function DockIcon({ app, onOpen }: { app: PhoneApp; onOpen: () => void })
 }
 
 export function HomeWidgets({
+  deviceMode = "phone",
   day,
   dateLine,
   ashAiApp,
   onOpenAshAi,
 }: {
+  deviceMode?: FooterDeviceMode
   day: string
   dateLine: string
   ashAiApp?: PhoneApp
   onOpenAshAi: () => void
 }) {
   return (
-    <div className="grid grid-cols-[1fr_0.82fr] gap-2">
-      <div className="min-h-[5.3rem] rounded-[1.45rem] bg-black/24 px-3 py-3 font-sans text-white shadow-[0_14px_32px_rgb(0_0_0/0.18)] backdrop-blur-xl">
+    <div
+      className={cn(
+        "grid gap-2",
+        deviceMode === "ipad"
+          ? "grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:grid-cols-[1.08fr_0.92fr]"
+          : "grid-cols-[1fr_0.82fr]"
+      )}
+    >
+      <div
+        className={cn(
+          "rounded-[1.45rem] bg-black/24 px-3 py-3 font-sans text-white shadow-[0_14px_32px_rgb(0_0_0/0.18)] backdrop-blur-xl",
+          deviceMode === "ipad" ? "min-h-[6rem]" : "min-h-[5.3rem]"
+        )}
+      >
         <p className="text-[0.68rem] tracking-[0.18em] text-white/64 uppercase">
           Today
         </p>
@@ -144,7 +169,10 @@ export function HomeWidgets({
       <button
         type="button"
         onClick={onOpenAshAi}
-        className="flex min-h-[5.3rem] items-center rounded-[1.45rem] bg-white/78 px-3 py-3 text-left text-neutral-900 shadow-[0_14px_32px_rgb(0_0_0/0.08)] ring-1 ring-white/70 backdrop-blur-xl transition hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-neutral-400/55 focus-visible:ring-offset-2 focus-visible:ring-offset-black/15 focus-visible:outline-none"
+        className={cn(
+          "flex items-center rounded-[1.45rem] bg-white/78 px-3 py-3 text-left text-neutral-900 shadow-[0_14px_32px_rgb(0_0_0/0.08)] ring-1 ring-white/70 backdrop-blur-xl transition hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-neutral-400/55 focus-visible:ring-offset-2 focus-visible:ring-offset-black/15 focus-visible:outline-none",
+          deviceMode === "ipad" ? "min-h-[6rem]" : "min-h-[5.3rem]"
+        )}
       >
         <div className="flex w-full items-center gap-2.5">
           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[0.85rem] bg-neutral-100/95 shadow-[inset_0_1px_0_rgb(255_255_255/0.9)] ring-1 ring-neutral-200/80">

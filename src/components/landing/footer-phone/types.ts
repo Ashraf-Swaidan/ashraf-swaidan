@@ -39,6 +39,8 @@ export type ProjectApp = BaseApp & {
 
 export type PhoneApp = StandardApp | ProjectApp
 
+export type FooterDeviceMode = "phone" | "ipad"
+
 /** Spotify playlist session: one iframe owned by the phone shell (best-effort persistence). */
 export type SpotifyBackgroundSession = {
   playlistId: string

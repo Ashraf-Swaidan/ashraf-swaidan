@@ -10,6 +10,7 @@ import { ExternalLink, Play, SkipBack, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 import { BODY_FONT, DISPLAY_FONT, PHONE_ASSET_ROOT } from "./constants"
+import type { FooterDeviceMode } from "./types"
 
 export function usePhoneClock() {
   const [date, setDate] = useState(() => new Date())
@@ -57,9 +58,20 @@ function BatteryIcon() {
   )
 }
 
-export function StatusBar({ time }: { time: string }) {
+export function StatusBar({
+  time,
+  deviceMode = "phone",
+}: {
+  time: string
+  deviceMode?: FooterDeviceMode
+}) {
   return (
-    <div className="pointer-events-none absolute inset-x-0 top-0 z-40 flex items-center justify-between px-6 pt-3 text-white drop-shadow-[0_1px_4px_rgb(0_0_0/0.32)]">
+    <div
+      className={cn(
+        "pointer-events-none absolute inset-x-0 top-0 z-40 flex items-center justify-between text-white drop-shadow-[0_1px_4px_rgb(0_0_0/0.32)]",
+        deviceMode === "ipad" ? "px-7 pt-3" : "px-6 pt-3"
+      )}
+    >
       <span
         className="text-[0.72rem] font-semibold tracking-[0.02em]"
         style={{ fontFamily: DISPLAY_FONT }}

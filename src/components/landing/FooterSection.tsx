@@ -1,4 +1,4 @@
-import { useRef } from "react"
+import { useRef, useState } from "react"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
@@ -8,6 +8,7 @@ import { FooterPhone } from "@/components/landing/FooterPhone"
 import { DecorativeSticker } from "@/components/landing/stickers/DecorativeSticker"
 import { HOMEPAGE_STICKERS } from "@/data/homepageStickers"
 import { cn } from "@/lib/utils"
+import type { FooterDeviceMode } from "./footer-phone/types"
 
 gsap.registerPlugin(useGSAP, ScrollTrigger)
 
@@ -61,6 +62,8 @@ export function FooterSection() {
   const primaryStickerRef = useRef<HTMLDivElement>(null)
   const secondaryStickerRef = useRef<HTMLDivElement>(null)
   const prefersReducedMotion = useReducedMotion()
+  const [deviceMode, setDeviceMode] = useState<FooterDeviceMode>("phone")
+  const isIpadMode = deviceMode === "ipad"
 
   useGSAP(
     () => {
@@ -203,9 +206,29 @@ export function FooterSection() {
         aria-hidden
       />
 
-      <div className="relative z-10 mx-auto max-w-6xl px-6 py-18 sm:px-8 md:py-24 lg:px-10">
-        <div className="grid items-end gap-14 lg:grid-cols-[minmax(0,1.16fr)_minmax(22rem,0.84fr)] lg:gap-8 xl:gap-12">
-          <div ref={introRef} className="relative lg:max-w-[46rem]">
+      <div
+        className={cn(
+          "relative z-10 mx-auto px-6 py-18 transition-[max-width] duration-500 ease-out sm:px-8 md:py-24 lg:px-10",
+          isIpadMode ? "max-w-7xl" : "max-w-6xl"
+        )}
+      >
+        <div
+          className={cn(
+            "grid items-end gap-14 transition-[gap] duration-500 ease-out",
+            isIpadMode
+              ? "lg:grid-cols-1 lg:gap-10"
+              : "lg:grid-cols-[minmax(0,1.16fr)_minmax(22rem,0.84fr)] lg:gap-8 xl:gap-12"
+          )}
+        >
+          <div
+            ref={introRef}
+            className={cn(
+              "relative",
+              isIpadMode
+                ? "mx-auto w-full text-center lg:max-w-[62rem]"
+                : "lg:max-w-[46rem]"
+            )}
+          >
             <p
               className="footer-eyebrow text-[0.68rem] font-semibold tracking-[0.38em] text-[var(--color-drh-ink)]/34 uppercase"
               style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
@@ -214,7 +237,10 @@ export function FooterSection() {
             </p>
 
             <h2
-              className="mt-7 text-[var(--color-drh-ink)] lg:max-w-[16ch]"
+              className={cn(
+                "mt-7 text-[var(--color-drh-ink)]",
+                isIpadMode ? "mx-auto lg:max-w-[18ch]" : "lg:max-w-[16ch]"
+              )}
               style={{
                 fontFamily: "'Barlow Condensed', sans-serif",
                 fontSize: "clamp(3.4rem, 8vw, 7.25rem)",
@@ -228,12 +254,24 @@ export function FooterSection() {
                   If the work matters,
                 </span>
               </span>
-              <span className="block overflow-hidden pl-[clamp(0px,6vw,5rem)] lg:pl-[clamp(1.6rem,2vw,2.4rem)]">
+              <span
+                className={cn(
+                  "block overflow-hidden pl-[clamp(0px,6vw,5rem)]",
+                  isIpadMode ? "lg:pl-0" : "lg:pl-[clamp(1.6rem,2vw,2.4rem)]"
+                )}
+              >
                 <span className="footer-line inline-block font-light text-[var(--color-drh-ink)]/56 italic">
                   let&apos;s make it
                 </span>
               </span>
-              <span className="block overflow-hidden text-right lg:pl-[clamp(3rem,4vw,5.5rem)] lg:text-left">
+              <span
+                className={cn(
+                  "block overflow-hidden text-right",
+                  isIpadMode
+                    ? "lg:text-center"
+                    : "lg:pl-[clamp(3rem,4vw,5.5rem)] lg:text-left"
+                )}
+              >
                 <span className="footer-line inline-block">
                   easier to live with.
                 </span>
@@ -241,7 +279,10 @@ export function FooterSection() {
             </h2>
 
             <p
-              className="footer-body mt-8 max-w-xl text-[clamp(1rem,1.45vw,1.14rem)] leading-[1.82] text-[var(--color-drh-ink)]/64 lg:max-w-[32rem]"
+              className={cn(
+                "footer-body mt-8 max-w-xl text-[clamp(1rem,1.45vw,1.14rem)] leading-[1.82] text-[var(--color-drh-ink)]/64",
+                isIpadMode ? "mx-auto lg:max-w-[40rem]" : "lg:max-w-[32rem]"
+              )}
               style={{
                 fontFamily: "'Cormorant Garamond', 'Fraunces Variable', serif",
               }}
@@ -262,7 +303,10 @@ export function FooterSection() {
 
           <div
             ref={phoneWrapRef}
-            className="relative flex flex-col items-center lg:items-end"
+            className={cn(
+              "relative flex flex-col items-center",
+              isIpadMode ? "lg:items-center" : "lg:items-end"
+            )}
           >
             <div
               ref={phoneUsabilityBadgeRef}
@@ -275,11 +319,17 @@ export function FooterSection() {
                 This is actually fully usable phone btw
               </p>
             </div>
-            <FooterPhone />
+            <FooterPhone
+              deviceMode={deviceMode}
+              onDeviceModeChange={setDeviceMode}
+            />
 
             <p
               ref={noteRef}
-              className="phone-reveal mt-6 max-w-[22rem] text-center text-[0.96rem] leading-[1.7] text-[var(--color-drh-ink)]/48 lg:text-right"
+              className={cn(
+                "phone-reveal mt-6 text-center text-[0.96rem] leading-[1.7] text-[var(--color-drh-ink)]/48",
+                isIpadMode ? "max-w-[40rem]" : "max-w-[22rem] lg:text-right"
+              )}
               style={{
                 fontFamily: "'Cormorant Garamond', 'Fraunces Variable', serif",
               }}

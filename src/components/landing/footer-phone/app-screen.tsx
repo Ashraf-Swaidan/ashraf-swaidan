@@ -9,7 +9,11 @@ import type { AshAiHandoffDetail } from "@/lib/ashAiVisualContext"
 import { cn } from "@/lib/utils"
 
 import { AshAiWorkspace } from "./ash-ai-workspace"
-import { DISPLAY_FONT, PHONE_APP_CONTENT_PT_CLASS } from "./constants"
+import {
+  DISPLAY_FONT,
+  IPAD_APP_CONTENT_PT_CLASS,
+  PHONE_APP_CONTENT_PT_CLASS,
+} from "./constants"
 import { NotesScreen } from "./notes-screen"
 import { PhoneScreen } from "./phone-screen"
 import { ProjectBrowserScreen } from "./project-browser-screen"
@@ -26,6 +30,7 @@ import {
   UtilityScreen,
 } from "./standard-app-screens"
 import type {
+  FooterDeviceMode,
   PhoneApp,
   SpotifyBackgroundSession,
   SpotifyPlayerDockRect,
@@ -42,6 +47,7 @@ export type SpotifyPlayerBridge = {
 
 export function AppScreen({
   app,
+  deviceMode = "phone",
   panelRef,
   onClose,
   ashAiBootstrapHandoff,
@@ -51,6 +57,7 @@ export function AppScreen({
   spotifyPlayer,
 }: {
   app: PhoneApp
+  deviceMode?: FooterDeviceMode
   panelRef: RefObject<HTMLDivElement | null>
   onClose: () => void
   ashAiBootstrapHandoff?: AshAiHandoffDetail | null
@@ -65,6 +72,9 @@ export function AppScreen({
     app.kind === "youtube" ||
     app.kind === "settings" ||
     app.id === "spotify"
+
+  const appContentPtClass =
+    deviceMode === "ipad" ? IPAD_APP_CONTENT_PT_CLASS : PHONE_APP_CONTENT_PT_CLASS
 
   useEffect(() => {
     return () => {
@@ -81,18 +91,19 @@ export function AppScreen({
       className={cn(
         "absolute inset-0 z-30 flex flex-col overflow-hidden",
         app.kind === "youtube"
-          ? "bg-[#0f0f0f] pt-[3.35rem]"
+          ? cn("bg-[#0f0f0f]", deviceMode === "ipad" ? "pt-[3.05rem]" : "pt-[3.35rem]")
           : app.kind === "settings"
-            ? "bg-[#f2f2f7] pt-[3.35rem]"
+            ? cn("bg-[#f2f2f7]", deviceMode === "ipad" ? "pt-[3.05rem]" : "pt-[3.35rem]")
             : app.id === "spotify"
-              ? "bg-[#121212] pt-[3.35rem]"
-              : cn("bg-white", PHONE_APP_CONTENT_PT_CLASS)
+              ? cn("bg-[#121212]", deviceMode === "ipad" ? "pt-[3.05rem]" : "pt-[3.35rem]")
+              : cn("bg-white", appContentPtClass)
       )}
     >
       {!hideChrome ? (
         <div
           className={cn(
-            "absolute inset-x-0 top-9 z-20 flex h-11 items-center justify-between px-4"
+            "absolute inset-x-0 z-20 flex h-11 items-center justify-between",
+            deviceMode === "ipad" ? "top-7 px-7" : "top-9 px-4"
           )}
         >
           <button

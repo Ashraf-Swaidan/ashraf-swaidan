@@ -1,4 +1,4 @@
-import { useCallback, useState, type ReactNode } from "react"
+import { useCallback, useState, type CSSProperties, type ReactNode } from "react"
 
 import {
   Boxes,
@@ -72,14 +72,17 @@ const ABOUT_LINKS = [
 function SystemFont({
   children,
   className,
+  style,
 }: {
   children: ReactNode
   className?: string
+  style?: CSSProperties
 }) {
   return (
     <span
       className={className}
       style={{
+        ...style,
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
       }}

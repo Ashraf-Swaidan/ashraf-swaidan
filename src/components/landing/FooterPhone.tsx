@@ -3,6 +3,7 @@ import gsap from "gsap"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import type { CSSProperties } from "react"
 import { useReducedMotion } from "motion/react"
+import { Smartphone, Tablet } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -31,6 +32,7 @@ import {
   usePhoneClock,
 } from "./footer-phone/phone-chrome"
 import type {
+  FooterDeviceMode,
   PhoneApp,
   SpotifyBackgroundSession,
   SpotifyPlayerDockRect,
@@ -39,7 +41,13 @@ import { moveItem } from "./footer-phone/utils"
 
 gsap.registerPlugin(useGSAP)
 
-export function FooterPhone() {
+export function FooterPhone({
+  deviceMode = "phone",
+  onDeviceModeChange,
+}: {
+  deviceMode?: FooterDeviceMode
+  onDeviceModeChange?: (mode: FooterDeviceMode) => void
+}) {
   const { time, day, dateLine } = usePhoneClock()
   const panelRef = useRef<HTMLDivElement>(null)
   const phoneBezelRef = useRef<HTMLDivElement>(null)
@@ -117,6 +125,7 @@ export function FooterPhone() {
   const ashAiApp = allApps.find((app) => app.id === "chatgpt") ?? null
   const activeApp = allApps.find((app) => app.id === activeAppId) ?? null
   const { src: wallpaperSrc } = usePhoneWallpaper()
+  const isIpadMode = deviceMode === "ipad"
 
   useEffect(() => {
     const onHandoff = (ev: Event) => {
@@ -151,6 +160,19 @@ export function FooterPhone() {
       )
     },
     { dependencies: [activeAppId, prefersReducedMotion], scope: panelRef }
+  )
+
+  useGSAP(
+    () => {
+      if (prefersReducedMotion || !phoneBezelRef.current) return
+
+      gsap.fromTo(
+        phoneBezelRef.current,
+        { scale: 0.985 },
+        { scale: 1, duration: 0.38, ease: "power2.out" }
+      )
+    },
+    { dependencies: [deviceMode, prefersReducedMotion], scope: phoneBezelRef }
   )
 
   const reorderHomeApp = (targetId: string) => {
@@ -194,25 +216,92 @@ export function FooterPhone() {
         }
     : undefined
 
-  return (
-    <div className="phone-reveal relative w-full max-w-[24rem]">
-      <div
-        className="absolute top-[6%] left-1/2 h-[88%] w-[76%] -translate-x-1/2 rounded-[3.3rem] bg-[radial-gradient(circle_at_50%_0%,rgba(10,10,10,0.13),transparent_58%)] blur-3xl"
-        aria-hidden
-      />
-      <div
-        className="absolute top-[18%] -left-1 h-14 w-1 rounded-l-full bg-[var(--color-drh-ink)]/22"
-        aria-hidden
-      />
-      <div
-        className="absolute top-[25%] -right-1 h-24 w-1 rounded-r-full bg-[var(--color-drh-ink)]/24"
-        aria-hidden
-      />
+  const setMode = (mode: FooterDeviceMode) => {
+    onDeviceModeChange?.(mode)
+  }
 
-      <div className="relative rounded-[3.25rem] bg-[linear-gradient(135deg,rgb(33_34_34),rgb(10_10_10)_46%,rgb(74_75_72))] p-[0.62rem] shadow-[0_36px_95px_rgb(12_12_12/0.18)]">
+  const modeOptions: {
+    mode: FooterDeviceMode
+    label: string
+    Icon: typeof Smartphone
+  }[] = [
+    { mode: "phone", label: "Phone view", Icon: Smartphone },
+    { mode: "ipad", label: "iPad view", Icon: Tablet },
+  ]
+
+  return (
+    <div
+      className={cn(
+        "phone-reveal relative w-full transition-[max-width] duration-500 ease-out",
+        isIpadMode ? "max-w-[58rem]" : "max-w-[24rem]"
+      )}
+    >
+      <div className="mb-4 flex justify-center">
+        <div
+          className="inline-grid grid-cols-2 gap-1 rounded-full border border-[var(--color-drh-ink)]/12 bg-white/82 p-1 shadow-[0_16px_36px_rgb(0_0_0/0.08)] backdrop-blur-md"
+          role="group"
+          aria-label="Choose device preview size"
+        >
+          {modeOptions.map(({ mode, label, Icon }) => {
+            const selected = deviceMode === mode
+            return (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => setMode(mode)}
+                aria-pressed={selected}
+                aria-label={label}
+                className={cn(
+                  "grid size-10 place-items-center rounded-full transition focus-visible:ring-2 focus-visible:ring-[var(--color-drh-ink)]/28 focus-visible:outline-none",
+                  selected
+                    ? "bg-[var(--color-drh-ink)] text-white shadow-[0_8px_18px_rgb(0_0_0/0.16)]"
+                    : "text-[var(--color-drh-ink)]/46 hover:bg-[var(--color-drh-ink)]/7 hover:text-[var(--color-drh-ink)]/72"
+                )}
+              >
+                <Icon className="size-4.5" strokeWidth={2.1} />
+              </button>
+            )
+          })}
+        </div>
+      </div>
+      <div
+        className={cn(
+          "absolute left-1/2 -translate-x-1/2 bg-[radial-gradient(circle_at_50%_0%,rgba(10,10,10,0.13),transparent_58%)] blur-3xl transition-all duration-500 ease-out",
+          isIpadMode
+            ? "top-[14%] h-[72%] w-[88%] rounded-[2.2rem]"
+            : "top-[6%] h-[88%] w-[76%] rounded-[3.3rem]"
+        )}
+        aria-hidden
+      />
+      {!isIpadMode ? (
+        <>
+          <div
+            className="absolute top-[18%] -left-1 h-14 w-1 rounded-l-full bg-[var(--color-drh-ink)]/22"
+            aria-hidden
+          />
+          <div
+            className="absolute top-[25%] -right-1 h-24 w-1 rounded-r-full bg-[var(--color-drh-ink)]/24"
+            aria-hidden
+          />
+        </>
+      ) : null}
+
+      <div
+        className={cn(
+          "relative bg-[linear-gradient(135deg,rgb(33_34_34),rgb(10_10_10)_46%,rgb(74_75_72))] shadow-[0_36px_95px_rgb(12_12_12/0.18)] transition-all duration-500 ease-out",
+          isIpadMode
+            ? "rounded-[2rem] p-[0.48rem]"
+            : "rounded-[3.25rem] p-[0.62rem]"
+        )}
+      >
         <div
           ref={phoneBezelRef}
-          className="relative aspect-[9/18.8] overflow-hidden rounded-[2.55rem] bg-black"
+          className={cn(
+            "relative overflow-hidden bg-black transition-all duration-500 ease-out",
+            isIpadMode
+              ? "aspect-[4/3] rounded-[1.45rem]"
+              : "aspect-[9/18.8] rounded-[2.55rem]"
+          )}
         >
           <img
             src={wallpaperSrc}
@@ -229,14 +318,23 @@ export function FooterPhone() {
             aria-hidden
           />
 
-          <StatusBar time={time} />
+          <StatusBar time={time} deviceMode={deviceMode} />
           <NotificationDragHandle onOpen={() => setNotificationsOpen(true)} />
-          <div
-            className="absolute top-3 left-1/2 z-50 h-7 w-[6.8rem] -translate-x-1/2 rounded-full bg-black shadow-[inset_0_1px_2px_rgb(255_255_255/0.18),0_10px_24px_rgb(0_0_0/0.26)]"
-            aria-hidden
-          >
-            <span className="absolute top-1/2 right-5 h-2 w-2 -translate-y-1/2 rounded-full bg-slate-700/80" />
-          </div>
+          {isIpadMode ? (
+            <div
+              className="absolute top-3 left-1/2 z-50 grid size-3 -translate-x-1/2 place-items-center rounded-full bg-black shadow-[inset_0_1px_2px_rgb(255_255_255/0.2),0_6px_16px_rgb(0_0_0/0.22)]"
+              aria-hidden
+            >
+              <span className="size-1.5 rounded-full bg-slate-700/80" />
+            </div>
+          ) : (
+            <div
+              className="absolute top-3 left-1/2 z-50 h-7 w-[6.8rem] -translate-x-1/2 rounded-full bg-black shadow-[inset_0_1px_2px_rgb(255_255_255/0.18),0_10px_24px_rgb(0_0_0/0.26)]"
+              aria-hidden
+            >
+              <span className="absolute top-1/2 right-5 h-2 w-2 -translate-y-1/2 rounded-full bg-slate-700/80" />
+            </div>
+          )}
 
           <NotificationShade
             open={notificationsOpen}
@@ -259,22 +357,32 @@ export function FooterPhone() {
 
           <div
             className={cn(
-              "absolute inset-0 z-10 flex flex-col px-4 pt-14 pb-5 transition",
+              "absolute inset-0 z-10 flex flex-col transition",
+              isIpadMode ? "px-7 pt-12 pb-6" : "px-4 pt-14 pb-5",
               activeApp ? "scale-[0.985] opacity-25" : "opacity-100"
             )}
           >
             <HomeWidgets
+              deviceMode={deviceMode}
               day={day}
               dateLine={dateLine}
               ashAiApp={ashAiApp ?? undefined}
               onOpenAshAi={() => setActiveAppId("chatgpt")}
             />
 
-            <div className="mt-4 grid grid-cols-4 gap-x-2 gap-y-2">
+            <div
+              className={cn(
+                "mt-4 grid",
+                isIpadMode
+                  ? "grid-cols-5 gap-x-3 gap-y-3 sm:grid-cols-6 md:grid-cols-7"
+                  : "grid-cols-4 gap-x-2 gap-y-2"
+              )}
+            >
               {homeApps.map((app) => (
                 <AppIcon
                   key={app.id}
                   app={app}
+                  deviceMode={deviceMode}
                   draggable
                   onOpen={() => {
                     if (!draggedAppId) setActiveAppId(app.id)
@@ -286,7 +394,14 @@ export function FooterPhone() {
               ))}
             </div>
 
-            <div className="mt-auto grid grid-cols-4 gap-2 rounded-[1.55rem] bg-white/18 px-2 shadow-[0_16px_36px_rgb(0_0_0/0.16)] backdrop-blur-xl">
+            <div
+              className={cn(
+                "mt-auto grid grid-cols-4 gap-2 bg-white/18 px-2 shadow-[0_16px_36px_rgb(0_0_0/0.16)] backdrop-blur-xl",
+                isIpadMode
+                  ? "mx-auto w-full max-w-[24rem] rounded-[1.35rem]"
+                  : "rounded-[1.55rem]"
+              )}
+            >
               {dockApps.map((app) => (
                 <DockIcon
                   key={app.id}
@@ -300,6 +415,7 @@ export function FooterPhone() {
           {activeApp ? (
             <AppScreen
               app={activeApp}
+              deviceMode={deviceMode}
               panelRef={panelRef}
               ashAiBootstrapHandoff={
                 activeApp.id === "chatgpt" ? ashAiBootstrapHandoff : null
@@ -328,7 +444,12 @@ export function FooterPhone() {
             className="absolute inset-x-0 bottom-2 z-50 flex justify-center"
             aria-hidden
           >
-            <span className="h-1.5 w-24 rounded-full bg-white/72 shadow-[0_1px_8px_rgb(0_0_0/0.22)]" />
+            <span
+              className={cn(
+                "h-1.5 rounded-full bg-white/72 shadow-[0_1px_8px_rgb(0_0_0/0.22)]",
+                isIpadMode ? "w-32" : "w-24"
+              )}
+            />
           </div>
         </div>
       </div>

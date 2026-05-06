@@ -1,5 +1,6 @@
 import { SiteFooter } from "./components/SiteFooter"
 import { DesignRevisionHero } from "./components/landing/DesignRevisionHero"
+import { LandingBootGate } from "./components/landing/LandingBootGate"
 import { LandingNav } from "./components/landing/LandingNav"
 import { FooterSection } from "./components/landing/FooterSection"
 import { ManifestoSection } from "./components/landing/ManifestoSection"
@@ -57,15 +58,17 @@ export function App() {
   }
 
   return (
-    <div className="min-h-svh bg-background text-foreground">
-      <LandingNav />
-      <DesignRevisionHero />
+    <LandingBootGate>
+      <div className="min-h-svh bg-background text-foreground">
+        <LandingNav />
+        <DesignRevisionHero />
 
-      <ManifestoSection />
-      <SelectedWorks />
-      <FooterSection />
-      <SiteFooter />
-    </div>
+        <ManifestoSection />
+        <SelectedWorks />
+        <FooterSection />
+        <SiteFooter />
+      </div>
+    </LandingBootGate>
   )
 }
 

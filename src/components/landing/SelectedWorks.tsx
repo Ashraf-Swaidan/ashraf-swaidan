@@ -780,7 +780,7 @@ export function SelectedWorks() {
                               loop
                               autoPlay
                               playsInline
-                              preload="metadata"
+                              preload={index === 0 ? "auto" : "metadata"}
                               aria-hidden
                             />
                             <div

@@ -6,6 +6,7 @@ export type AppKind =
   | "instagram"
   | "linkedin"
   | "whatsapp"
+  | "youtube"
   | "media"
   | "settings"
   | "photos"
@@ -37,6 +38,25 @@ export type ProjectApp = BaseApp & {
 }
 
 export type PhoneApp = StandardApp | ProjectApp
+
+/** Spotify playlist session: one iframe owned by the phone shell (best-effort persistence). */
+export type SpotifyBackgroundSession = {
+  playlistId: string
+  embedUrl: string
+  openUrl: string
+  /** Primary line in notifications (playlist / track name). */
+  displayTitle: string
+  /** Subtitle (creator or artist). */
+  displayArtist: string
+  thumb?: string
+}
+
+export type SpotifyPlayerDockRect = {
+  top: number
+  left: number
+  width: number
+  height: number
+}
 
 export type PapionMobileTabId = "today" | "sales" | "expenses" | "ai"
 

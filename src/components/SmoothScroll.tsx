@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from "react"
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
 import Lenis from "lenis"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
@@ -6,6 +6,13 @@ import { ScrollTrigger } from "gsap/ScrollTrigger"
 gsap.registerPlugin(ScrollTrigger)
 
 type Props = { children: ReactNode }
+
+const LenisContext = createContext<Lenis | null>(null)
+
+/** Lenis instance when smooth scrolling is active; `null` if reduced-motion or not yet mounted. */
+export function useLenis() {
+  return useContext(LenisContext)
+}
 
 /**
  * Lenis smooth scrolling: interpolates scroll position so motion eases instead of tracking 1:1 with the wheel.
@@ -15,19 +22,23 @@ type Props = { children: ReactNode }
  * can desync (especially on large viewports) and feel like “nothing happens”.
  */
 export function SmoothScroll({ children }: Props) {
+  const [lenis, setLenis] = useState<Lenis | null>(null)
+
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       return
     }
 
-    const lenis = new Lenis({
+    const instance = new Lenis({
       lerp: 0.08,
       wheelMultiplier: 0.92,
       smoothWheel: true,
       touchMultiplier: 1.15,
     })
 
-    let activeLenis: Lenis | null = lenis
+    setLenis(instance)
+
+    let activeLenis: Lenis | null = instance
 
     ScrollTrigger.scrollerProxy(window, {
       scrollTop(value) {
@@ -49,10 +60,10 @@ export function SmoothScroll({ children }: Props) {
     }
     ScrollTrigger.addEventListener("refresh", onStRefresh)
 
-    const unsubScroll = lenis.on("scroll", ScrollTrigger.update)
+    const unsubScroll = instance.on("scroll", ScrollTrigger.update)
 
     const ticker = (time: number) => {
-      lenis.raf(time * 1000)
+      instance.raf(time * 1000)
     }
     gsap.ticker.add(ticker)
     gsap.ticker.lagSmoothing(0)
@@ -64,7 +75,8 @@ export function SmoothScroll({ children }: Props) {
       unsubScroll()
       gsap.ticker.remove(ticker)
       activeLenis = null
-      lenis.destroy()
+      instance.destroy()
+      setLenis(null)
       ScrollTrigger.scrollerProxy(window, {
         scrollTop(value) {
           if (arguments.length && value != null) {
@@ -80,5 +92,5 @@ export function SmoothScroll({ children }: Props) {
     }
   }, [])
 
-  return <>{children}</>
+  return <LenisContext.Provider value={lenis}>{children}</LenisContext.Provider>
 }

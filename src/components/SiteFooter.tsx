@@ -67,7 +67,7 @@ export function SiteFooter() {
     <footer
       id="site-footer"
       aria-label="Contact footer"
-      className="relative isolate overflow-x-clip overflow-y-visible bg-[#0b0b0b] text-white selection:bg-white/18 selection:text-white"
+      className="relative isolate scroll-mt-24 overflow-x-clip overflow-y-visible bg-[#0b0b0b] text-white selection:bg-white/18 selection:text-white"
     >
       <div
         className="pointer-events-none absolute inset-0 z-0 opacity-80"

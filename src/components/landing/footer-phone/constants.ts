@@ -13,6 +13,9 @@ export const GMAIL_ADDRESS = "ashraf.swaidan.13@gmail.com"
 
 export const DOCK_IDS = ["whatsapp", "linkedin", "instagram", "gmail"] as const
 
+export const PHONE_NUMBER_DISPLAY = "+961 76 350 373"
+export const PHONE_NUMBER_TEL = "+96176350373"
+
 export const ASH_STICKER_ROOT = "/assets/ash-stickers"
 /** @deprecated Migrated to ASH_AI_CHATS_STORAGE_KEY; kept for migration only */
 export const ASH_AI_CHAT_STORAGE_KEY = "ash-ai-chat-messages"
@@ -148,7 +151,7 @@ export const STANDARD_APPS: StandardApp[] = [
     kind: "media",
     label: "Spotify",
     iconSrc: `${PHONE_ASSET_ROOT}/spotify.svg`,
-    title: "Studio Radio",
+    title: "Ashraf's Spotify",
     body: "A Spotify-inspired shell for favorite songs and focus-mode playlists.",
     href: "https://open.spotify.com/",
     cta: "Open Spotify",
@@ -163,7 +166,7 @@ export const STANDARD_APPS: StandardApp[] = [
   },
   {
     id: "youtube",
-    kind: "media",
+    kind: "youtube",
     label: "YouTube",
     iconSrc: `${PHONE_ASSET_ROOT}/youtube.svg`,
     title: "Portfolio Channel",

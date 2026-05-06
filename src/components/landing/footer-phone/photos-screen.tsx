@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils"
 import { requestAshAiHandoff } from "@/lib/ashAiVisualContext"
 
 import { ASH_STICKER_ROOT, BODY_FONT, DISPLAY_FONT } from "./constants"
+import { useVideoDurationLabel } from "./video-duration"
 
 const PHOTOS_SCROLL_HIDE =
   "overscroll-contain [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:h-0 [&::-webkit-scrollbar]:w-0"
@@ -252,35 +253,6 @@ const PHOTOS_ALBUMS: PhotosAlbum[] = [
 ]
 
 type BottomTabId = "library" | "forYou" | "albums" | "search"
-
-function formatVideoDuration(seconds: number): string {
-  if (!Number.isFinite(seconds) || seconds < 0) return "0:00"
-  const s = Math.floor(seconds)
-  const m = Math.floor(s / 60)
-  const r = s % 60
-  return `${m}:${r.toString().padStart(2, "0")}`
-}
-
-function useVideoDurationLabel(src: string): string | null {
-  const [label, setLabel] = useState<string | null>(null)
-  useEffect(() => {
-    const v = document.createElement("video")
-    v.preload = "metadata"
-    v.src = src
-    const onMeta = () => {
-      setLabel(formatVideoDuration(v.duration))
-    }
-    v.addEventListener("loadedmetadata", onMeta)
-    const onErr = () => setLabel(null)
-    v.addEventListener("error", onErr)
-    return () => {
-      v.removeEventListener("loadedmetadata", onMeta)
-      v.removeEventListener("error", onErr)
-      v.src = ""
-    }
-  }, [src])
-  return label
-}
 
 function AlbumMosaic({ items }: { items: PhotosMediaItem[] }) {
   const preview = items.slice(0, 4)

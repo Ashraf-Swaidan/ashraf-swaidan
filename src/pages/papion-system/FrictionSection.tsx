@@ -1,5 +1,7 @@
 import { motion, useReducedMotion } from "motion/react"
 import { useEffect, useId, useRef, useState } from "react"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
 
 import {
   BODY_FONT,
@@ -15,6 +17,8 @@ import {
   sleep,
 } from "./papion-data"
 import { Eyebrow, PapionWordmark, StoryStep, StoryTitle } from "./papion-ui"
+
+gsap.registerPlugin(ScrollTrigger)
 
 function ExcelFrictionFootnote() {
   const tipId = useId()
@@ -59,24 +63,18 @@ function FrictionNarrative() {
   const [pillCount, setPillCount] = useState(0)
   const [showMore, setShowMore] = useState(false)
   const [showLotNote, setShowLotNote] = useState(false)
-  const [showBlockA, setShowBlockA] = useState(false)
-  const [showBlockB, setShowBlockB] = useState(false)
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
     const el = rootRef.current
     if (!el || reduceMotion) return
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry?.isIntersecting) {
-          setInView(true)
-          obs.disconnect()
-        }
-      },
-      { threshold: 0.06, rootMargin: "120px 0px -10% 0px" },
-    )
-    obs.observe(el)
-    return () => obs.disconnect()
+    const trigger = ScrollTrigger.create({
+      trigger: el,
+      start: "top 78%",
+      once: true,
+      onEnter: () => setInView(true),
+    })
+    return () => trigger.kill()
   }, [reduceMotion])
 
   useEffect(() => {
@@ -85,8 +83,6 @@ function FrictionNarrative() {
       setPillCount(FRICTION_PILLS.length)
       setShowMore(true)
       setShowLotNote(true)
-      setShowBlockA(true)
-      setShowBlockB(true)
       setBusy(false)
       return
     }
@@ -99,8 +95,6 @@ function FrictionNarrative() {
     setPillCount(0)
     setShowMore(false)
     setShowLotNote(false)
-    setShowBlockA(false)
-    setShowBlockB(false)
 
     void (async () => {
       for (let i = 1; i <= FRICTION_LINE1_TAIL.length; i++) {
@@ -118,10 +112,6 @@ function FrictionNarrative() {
       if (!cancelled) setShowMore(true)
       await sleep(500)
       if (!cancelled) setShowLotNote(true)
-      await sleep(920)
-      if (!cancelled) setShowBlockA(true)
-      await sleep(620)
-      if (!cancelled) setShowBlockB(true)
       if (!cancelled) setBusy(false)
     })()
 
@@ -237,43 +227,25 @@ function FrictionNarrative() {
             </motion.p>
           )}
 
-          {showBlockA && (
-            <motion.div
-              className="mx-auto mt-10 max-w-2xl space-y-4"
-              initial={reduceMotion ? false : { opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.95, ease: [0.22, 0.08, 0.19, 1] }}
-            >
-              <p className={closingTextClass} style={{ fontFamily: BODY_FONT }}>
-                {FRICTION_CLOSING_1}
-              </p>
-              <p className={closingTextClass} style={{ fontFamily: BODY_FONT }}>
-                {FRICTION_CLOSING_2}
-              </p>
-            </motion.div>
-          )}
+          <div className="mx-auto mt-10 max-w-2xl space-y-4">
+            <p className={closingTextClass} style={{ fontFamily: BODY_FONT }}>
+              {FRICTION_CLOSING_1}
+            </p>
+            <p className={closingTextClass} style={{ fontFamily: BODY_FONT }}>
+              {FRICTION_CLOSING_2}
+            </p>
+          </div>
 
-          {showBlockB && (
-            <motion.div
-              className="mx-auto mt-8 max-w-2xl space-y-5"
-              initial={reduceMotion ? false : { opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 0.95,
-                ease: [0.22, 0.08, 0.19, 1],
-                delay: 0.06,
-              }}
-            >
-              <p className={closingTextClass} style={{ fontFamily: BODY_FONT }}>
-                However, if your reflex is still to reach for{" "}
-                <ExcelFrictionFootnote />, that&apos;s fair.
-              </p>
-              <p className={closingTextClass} style={{ fontFamily: BODY_FONT }}>
-                We built <PapionWordmark className="font-[inherit]" /> so the team
-                does not live there.
-              </p>
-            </motion.div>
-          )}
+          <div className="mx-auto mt-8 max-w-2xl space-y-5">
+            <p className={closingTextClass} style={{ fontFamily: BODY_FONT }}>
+              However, if your reflex is still to reach for{" "}
+              <ExcelFrictionFootnote />, that&apos;s fair.
+            </p>
+            <p className={closingTextClass} style={{ fontFamily: BODY_FONT }}>
+              We built <PapionWordmark className="font-[inherit]" /> so the team
+              does not live there.
+            </p>
+          </div>
         </>
       )}
     </div>

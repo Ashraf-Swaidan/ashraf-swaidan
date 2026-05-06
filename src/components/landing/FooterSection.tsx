@@ -161,7 +161,7 @@ export function FooterSection() {
       id="footer"
       ref={sectionRef}
       className={cn(
-        "relative isolate overflow-hidden bg-[var(--color-drh-bg,#fff)] text-[var(--color-drh-ink,#111)]",
+        "relative isolate scroll-mt-24 overflow-hidden bg-[var(--color-drh-bg,#fff)] text-[var(--color-drh-ink,#111)]",
         "selection:bg-[var(--color-drh-ink)]/12 selection:text-[var(--color-drh-ink,#111)]"
       )}
       aria-label="Footer"

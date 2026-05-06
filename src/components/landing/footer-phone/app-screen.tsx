@@ -1,4 +1,9 @@
-import { type RefObject, useEffect } from "react"
+import {
+  type Dispatch,
+  type RefObject,
+  type SetStateAction,
+  useEffect,
+} from "react"
 
 import type { AshAiHandoffDetail } from "@/lib/ashAiVisualContext"
 import { cn } from "@/lib/utils"
@@ -6,8 +11,12 @@ import { cn } from "@/lib/utils"
 import { AshAiWorkspace } from "./ash-ai-workspace"
 import { DISPLAY_FONT, PHONE_APP_CONTENT_PT_CLASS } from "./constants"
 import { NotesScreen } from "./notes-screen"
+import { PhoneScreen } from "./phone-screen"
 import { ProjectBrowserScreen } from "./project-browser-screen"
 import { PhotosScreen } from "./photos-screen"
+import { SettingsScreen } from "./settings-screen"
+import { SpotifyScreen } from "./spotify-screen"
+import { YouTubeScreen } from "./youtube-screen"
 import { SafariBrowserScreen } from "./safari-browser-screen"
 import {
   ChatScreen,
@@ -16,7 +25,19 @@ import {
   LinkedInScreen,
   UtilityScreen,
 } from "./standard-app-screens"
-import type { PhoneApp } from "./types"
+import type {
+  PhoneApp,
+  SpotifyBackgroundSession,
+  SpotifyPlayerDockRect,
+} from "./types"
+
+export type SpotifyPlayerBridge = {
+  phoneBezelRef: RefObject<HTMLDivElement | null>
+  session: SpotifyBackgroundSession | null
+  setSession: Dispatch<SetStateAction<SpotifyBackgroundSession | null>>
+  setDockRect: Dispatch<SetStateAction<SpotifyPlayerDockRect | null>>
+  resumeNonce: number
+}
 
 export function AppScreen({
   app,
@@ -24,14 +45,21 @@ export function AppScreen({
   onClose,
   ashAiBootstrapHandoff,
   onConsumeAshAiBootstrapHandoff,
+  spotifyPlayer,
 }: {
   app: PhoneApp
   panelRef: RefObject<HTMLDivElement | null>
   onClose: () => void
   ashAiBootstrapHandoff?: AshAiHandoffDetail | null
   onConsumeAshAiBootstrapHandoff?: () => void
+  spotifyPlayer?: SpotifyPlayerBridge
 }) {
   const isAshAi = app.id === "chatgpt"
+  const hideChrome =
+    isAshAi ||
+    app.kind === "youtube" ||
+    app.kind === "settings" ||
+    app.id === "spotify"
 
   useEffect(() => {
     return () => {
@@ -46,11 +74,17 @@ export function AppScreen({
     <div
       ref={panelRef}
       className={cn(
-        "absolute inset-0 z-30 flex flex-col overflow-hidden bg-white",
-        PHONE_APP_CONTENT_PT_CLASS
+        "absolute inset-0 z-30 flex flex-col overflow-hidden",
+        app.kind === "youtube"
+          ? "bg-[#0f0f0f] pt-[3.35rem]"
+          : app.kind === "settings"
+            ? "bg-[#f2f2f7] pt-[3.35rem]"
+            : app.id === "spotify"
+              ? "bg-[#121212] pt-[3.35rem]"
+              : cn("bg-white", PHONE_APP_CONTENT_PT_CLASS)
       )}
     >
-      {!isAshAi ? (
+      {!hideChrome ? (
         <div
           className={cn(
             "absolute inset-x-0 top-9 z-20 flex h-11 items-center justify-between px-4"
@@ -91,10 +125,27 @@ export function AppScreen({
         <LinkedInScreen app={app} />
       ) : app.kind === "whatsapp" ? (
         <ChatScreen app={app} />
+      ) : app.kind === "phone" ? (
+        <PhoneScreen />
       ) : app.kind === "photos" ? (
         <PhotosScreen appPanelRef={panelRef} />
+      ) : app.kind === "youtube" ? (
+        <YouTubeScreen appPanelRef={panelRef} onExitApp={onClose} />
+      ) : app.kind === "settings" ? (
+        <SettingsScreen onExitApp={onClose} />
       ) : app.kind === "notes" ? (
         <NotesScreen />
+      ) : app.id === "spotify" ? (
+        spotifyPlayer ? (
+          <SpotifyScreen
+            onExitApp={onClose}
+            phoneBezelRef={spotifyPlayer.phoneBezelRef}
+            session={spotifyPlayer.session}
+            setSession={spotifyPlayer.setSession}
+            setDockRect={spotifyPlayer.setDockRect}
+            resumeNonce={spotifyPlayer.resumeNonce}
+          />
+        ) : null
       ) : (
         <UtilityScreen app={app} />
       )}

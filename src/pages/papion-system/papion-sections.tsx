@@ -455,12 +455,14 @@ export function PapionFooter() {
                   >
                     {project.title}
                   </p>
-                  <span
-                    className="mt-5 inline-flex rounded-full border border-white/24 bg-white/12 px-4 py-2 text-[0.68rem] font-semibold tracking-[0.16em] text-white/72 uppercase backdrop-blur-md"
+                  <a
+                    href={project.href}
+                    className="mt-5 inline-flex rounded-full border border-white/24 bg-white/12 px-4 py-2 text-[0.68rem] font-semibold tracking-[0.16em] text-white/78 uppercase backdrop-blur-md transition hover:border-white/45 hover:bg-white/20 hover:text-white"
                     style={{ fontFamily: DISPLAY_FONT }}
+                    aria-label={`Open ${project.title} case study`}
                   >
-                    Coming soon
-                  </span>
+                    Case study
+                  </a>
                 </div>
               </div>
             </article>

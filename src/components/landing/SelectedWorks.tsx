@@ -660,9 +660,10 @@ export function SelectedWorks() {
 
   return (
     <section
+      id="selected-works"
       ref={rootRef}
       className={cn(
-        "relative isolate overflow-hidden bg-[var(--color-drh-bg)] text-[var(--color-drh-ink)]",
+        "relative isolate overflow-hidden scroll-mt-24 bg-[var(--color-drh-bg)] text-[var(--color-drh-ink)]",
         "selection:bg-[var(--color-drh-accent-orange)]/18 selection:text-[var(--color-drh-ink)]"
       )}
       aria-labelledby="selected-works-heading"

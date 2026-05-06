@@ -363,11 +363,12 @@ export function DesignRevisionHero() {
 
   return (
     <section
+      id="home"
       ref={rootRef}
       role="banner"
       aria-label="Introduction"
       className={cn(
-        "relative isolate min-h-[78svh] cursor-default overflow-hidden",
+        "relative isolate min-h-[78svh] cursor-default overflow-hidden scroll-mt-24",
         "text-[var(--color-drh-ink)]",
         "selection:bg-[var(--color-drh-accent-orange)]/18",
       )}

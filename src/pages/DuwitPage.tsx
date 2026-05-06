@@ -3,6 +3,8 @@ import gsap from "gsap"
 import { useGSAP } from "@gsap/react"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
+import { WorkLiveDeviceDemo } from "@/components/work/WorkLiveDeviceDemo"
+import { SELECTED_WORKS_PROJECTS } from "@/data/selectedWorks"
 import { DUWIT_DISPLAY_FONT, DUWIT_LOGO } from "./duwit/duwit-data"
 import {
   DuwitFrictionSection,
@@ -12,6 +14,10 @@ import {
 import { DuwitScreenshotCollage } from "./duwit/DuwitScreenshotCollage"
 
 gsap.registerPlugin(useGSAP, ScrollTrigger)
+
+const DUWIT_PROJECT = SELECTED_WORKS_PROJECTS.find(
+  (project) => project.id === "duwit"
+)
 
 export function DuwitPage() {
   const mainRef = useRef<HTMLElement>(null)
@@ -101,6 +107,19 @@ export function DuwitPage() {
         </div>
       ) : null}
       <DuwitHeroSection heroNavRef={heroNavRef} />
+      {DUWIT_PROJECT ? (
+        <WorkLiveDeviceDemo
+          project={DUWIT_PROJECT}
+          theme={{
+            title: "Try Duwit without leaving the story.",
+            accentClass: "bg-[rgb(255_122_0/0.2)]",
+            glowClass: "bg-[rgb(255_122_0/0.12)]",
+            surfaceClass:
+              "border-[var(--color-drh-accent-orange)]/35 bg-[rgb(255_122_0/0.1)] text-[var(--color-drh-ink)] hover:border-[var(--color-drh-accent-orange)]/55 hover:bg-[rgb(255_122_0/0.16)]",
+            displayFont: "'Barlow Condensed', sans-serif",
+          }}
+        />
+      ) : null}
       <DuwitFrictionSection />
       <DuwitScreenshotCollage />
       <DuwitFooter />

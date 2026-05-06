@@ -3,6 +3,8 @@ import gsap from "gsap"
 import { useGSAP } from "@gsap/react"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
+import { WorkLiveDeviceDemo } from "@/components/work/WorkLiveDeviceDemo"
+import { SELECTED_WORKS_PROJECTS } from "@/data/selectedWorks"
 import { TWODO_DISPLAY_FONT, TWODO_LOGO } from "./twodo/twodo-data"
 import { TwodoScreenshotCollage } from "./twodo/TwodoScreenshotCollage"
 import {
@@ -15,6 +17,10 @@ import {
 } from "./twodo/twodo-sections"
 
 gsap.registerPlugin(useGSAP, ScrollTrigger)
+
+const TWODO_PROJECT = SELECTED_WORKS_PROJECTS.find(
+  (project) => project.id === "twodo"
+)
 
 export function TwodoPage() {
   const mainRef = useRef<HTMLElement>(null)
@@ -104,6 +110,19 @@ export function TwodoPage() {
         </div>
       ) : null}
       <TwodoHeroSection heroNavRef={heroNavRef} />
+      {TWODO_PROJECT ? (
+        <WorkLiveDeviceDemo
+          project={TWODO_PROJECT}
+          theme={{
+            title: "Try Twodo in the page.",
+            accentClass: "bg-sky-400/24",
+            glowClass: "bg-sky-400/14",
+            surfaceClass:
+              "border-sky-400/40 bg-[rgb(56_189_248/0.12)] text-[var(--color-drh-ink)] hover:border-sky-500/55 hover:bg-[rgb(56_189_248/0.2)]",
+            displayFont: "'Barlow Condensed', sans-serif",
+          }}
+        />
+      ) : null}
       <TwodoFrictionSection />
       <TwodoScreenshotCollage />
       <TwodoOneClickSection />

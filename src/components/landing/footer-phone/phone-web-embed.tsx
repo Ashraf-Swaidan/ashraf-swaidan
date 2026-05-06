@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
  * can leave the phone shell laid out wrong until a hard refresh. Exit iframe
  * fullscreen on the host document as soon as it activates.
  */
-function usePhoneEmbedFullscreenGuard() {
+export function usePhoneEmbedFullscreenGuard() {
   useEffect(() => {
     const onFullscreenChange = () => {
       const el = document.fullscreenElement

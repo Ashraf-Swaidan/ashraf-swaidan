@@ -52,10 +52,10 @@ type LayoutMetrics = {
 const PROJECTS = SELECTED_WORKS_PROJECTS
 
 const ZONES = {
-  groupMoveEnd: 0.1,
-  headerExitEnd: 0.21,
-  mediaExpandEnd: 0.32,
-  handoffEnd: 0.42,
+  groupMoveEnd: 0.075,
+  headerExitEnd: 0.16,
+  mediaExpandEnd: 0.25,
+  handoffEnd: 0.36,
 } as const
 
 const RAIL_TEXT_TIMING = {

@@ -190,26 +190,23 @@ export function LandingNav() {
         </p>
       </div>
 
-      {/* Mobile: single morphing shell. Use explicit radii; `rounded-full` becomes a huge circle mid-animation. */}
-      <div
-        className={cn(
-          "fixed z-[100] overflow-hidden md:hidden",
-          "transition-[top,right,width,height,border-radius,background-color,border-color,box-shadow] duration-[420ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
-          "supports-[backdrop-filter]:backdrop-blur-md supports-[backdrop-filter]:backdrop-saturate-150",
-          open
-            ? "top-0 right-0 h-[100dvh] w-screen rounded-[0rem] border border-transparent bg-[var(--color-drh-bg)]/95 [box-shadow:inset_0_0_0_1px_rgb(10_10_10/0.06)]"
-            : "top-5 right-5 h-12 w-12 rounded-[1.5rem] border border-[var(--color-drh-ink)]/14 bg-white/92 shadow-[0_12px_36px_rgb(10_10_10/0.12)]",
-        )}
-        style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
-      >
+      <div className="md:hidden" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
+        <div
+          className={cn(
+            "fixed inset-0 z-[99] bg-[var(--color-drh-bg)] transition-[opacity] duration-200 ease-out motion-reduce:transition-none",
+            open ? "opacity-100" : "pointer-events-none opacity-0",
+          )}
+          aria-hidden
+        />
+
         <button
           type="button"
           className={cn(
-            "absolute z-10 flex items-center justify-center text-[var(--color-drh-ink)] transition-colors hover:text-[var(--color-drh-accent-orange)]",
+            "fixed right-5 top-5 z-[101] flex h-12 w-12 items-center justify-center rounded-[1.5rem] border text-[var(--color-drh-ink)] shadow-[0_12px_30px_rgb(10_10_10/0.1)] transition-[background-color,border-color,color] duration-150 hover:text-[var(--color-drh-accent-orange)]",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-drh-accent-orange)]/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-drh-bg)]",
             open
-              ? "right-4 top-4 h-12 w-12 rounded-full border border-[var(--color-drh-ink)]/10 bg-white/85 shadow-sm backdrop-blur-sm"
-              : "inset-0 rounded-full",
+              ? "border-[var(--color-drh-ink)]/10 bg-white"
+              : "border-[var(--color-drh-ink)]/14 bg-white/92",
           )}
           aria-expanded={open}
           aria-controls={NAV_PANEL_ID}
@@ -224,8 +221,8 @@ export function LandingNav() {
           aria-label="Portfolio sections"
           inert={!open ? true : undefined}
           className={cn(
-            "flex h-full flex-col justify-center gap-1 px-8 pb-16 pt-20 transition-[opacity,transform] duration-500 ease-out",
-            open ? "pointer-events-auto opacity-100" : "pointer-events-none scale-[0.98] opacity-0",
+            "fixed inset-0 z-[100] flex h-[100dvh] flex-col justify-center gap-1 px-8 pb-16 pt-20 transition-[opacity,transform] duration-200 ease-out motion-reduce:transition-none",
+            open ? "pointer-events-auto translate-y-0 opacity-100" : "pointer-events-none translate-y-3 opacity-0",
           )}
         >
           {LINKS.map(({ href, label }, i) => (
@@ -238,7 +235,7 @@ export function LandingNav() {
                 "focus-visible:outline-none focus-visible:text-[var(--color-drh-accent-orange)]",
               )}
               style={{
-                transitionDelay: open ? `${40 + i * 55}ms` : "0ms",
+                transitionDelay: open ? `${i * 20}ms` : "0ms",
               }}
               onClick={(e) => onNavClick(e, href)}
             >

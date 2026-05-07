@@ -2,8 +2,6 @@
 export const ASH_AI_CHAT_MODEL_OPTIONS = [
   { id: "qwen-coder", label: "Qwen3 Coder 30B" },
   { id: "openai", label: "GPT-5.4 Nano" },
-  { id: "mistral", label: "Mistral Small 3.1" },
-  { id: "nova-fast", label: "Nova Micro" },
 ] as const
 
 export type AshAiChatModelId = (typeof ASH_AI_CHAT_MODEL_OPTIONS)[number]["id"]

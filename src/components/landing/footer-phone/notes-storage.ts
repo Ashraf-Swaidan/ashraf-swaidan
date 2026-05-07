@@ -1,4 +1,4 @@
-import { randomUuid } from "@/lib/randomUuid"
+import { randomUuid } from "../../../lib/randomUuid.ts"
 
 export const NOTES_VISITOR_STORAGE_KEY = "footer-phone-visitor-notes-v1"
 export const NOTES_VISITOR_SCHEMA_VERSION = 1

@@ -110,8 +110,8 @@ function chatCompletionBody(
   ]
   const base = {
     model,
-    temperature: 0.72,
-    max_tokens: 320,
+    temperature: 0.58,
+    max_tokens: 420,
     stream,
     messages,
   }

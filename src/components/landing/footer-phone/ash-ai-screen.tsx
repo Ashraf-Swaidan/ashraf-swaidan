@@ -9,8 +9,9 @@ import {
   fetchPollinationsAccountBalance,
   type AshAiChatMessage,
 } from "@/lib/pollinationsAshAi"
+import { buildAshAiSupplementalContext } from "@/lib/ashAiKnowledge"
 import { type AshAiUiLink } from "@/lib/ashAiWorkLinks"
-import { ashAiNotesContextBlock, type AshAiUiNoteLink } from "@/lib/ashAiNotes"
+import { type AshAiUiNoteLink } from "@/lib/ashAiNotes"
 import { requestNotesDeepLink } from "@/lib/notesDeepLink"
 import {
   type AshAiHandoffDetail,
@@ -143,80 +144,110 @@ function AshAiWorkLinkCards({
   fontFamily: string
 }) {
   return (
-    <div className="mt-2.5 flex flex-col gap-2">
+    <div className="mt-2.5 flex flex-wrap gap-2">
       {links.map((link) => (
-        <a
+        <div
           key={link.workId}
-          href={link.href}
-          aria-label={`Open ${link.title} case study`}
-          className="group flex min-w-0 items-center gap-3 rounded-2xl border border-neutral-200/90 bg-gradient-to-br from-white to-neutral-50/95 px-3 py-2.5 shadow-[0_1px_3px_rgb(0_0_0/0.06)] transition hover:border-neutral-300 hover:shadow-[0_4px_14px_rgb(0_0_0/0.08)]"
+          className="w-[min(15rem,100%)] min-w-[10.75rem] rounded-2xl border border-neutral-200/90 bg-gradient-to-br from-white to-neutral-50/95 px-3 py-2.5 shadow-[0_1px_3px_rgb(0_0_0/0.06)]"
         >
-          <span className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-xl bg-white shadow-[inset_0_0_0_1px_rgb(0_0_0/0.06)]">
-            <img
-              src={link.logoSrc}
-              alt=""
-              className="max-h-9 max-w-9 object-contain"
-              loading="lazy"
-              decoding="async"
-            />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p
-              className="truncate text-[0.9rem] font-semibold tracking-[-0.02em] text-neutral-950"
-              style={{ fontFamily }}
-            >
-              {link.title}
-            </p>
-            <p
-              className="text-[0.72rem] leading-tight text-neutral-500"
-              style={{ fontFamily }}
-            >
-              Open case study
-            </p>
+          <div className="flex items-center gap-2.5">
+            <span className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-xl bg-white shadow-[inset_0_0_0_1px_rgb(0_0_0/0.06)]">
+              <img
+                src={link.logoSrc}
+                alt=""
+                className="max-h-7 max-w-7 object-contain"
+                loading="lazy"
+                decoding="async"
+              />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p
+                className="truncate text-[0.84rem] font-semibold tracking-[-0.02em] text-neutral-950"
+                style={{ fontFamily }}
+              >
+                {link.title}
+              </p>
+              <p
+                className="text-[0.68rem] leading-tight text-neutral-500"
+                style={{ fontFamily }}
+              >
+                {link.availabilityLabel}
+              </p>
+            </div>
           </div>
-          <ArrowUpRight
-            className="size-4 shrink-0 text-neutral-400 transition group-hover:text-neutral-700"
-            strokeWidth={2.25}
-            aria-hidden
-          />
-        </a>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            <a
+              href={link.href}
+              aria-label={`Open ${link.title} case study`}
+              className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[0.68rem] font-semibold text-neutral-800 transition hover:border-neutral-300"
+              style={{ fontFamily }}
+            >
+              Case study
+              <ArrowUpRight className="size-3.5" strokeWidth={2.2} />
+            </a>
+            {link.liveSiteUrl ? (
+              <a
+                href={link.liveSiteUrl}
+                target="_blank"
+                rel="noreferrer noopener"
+                aria-label={`Open ${link.title} live site`}
+                className="inline-flex items-center gap-1 rounded-full bg-neutral-950 px-2.5 py-1 text-[0.68rem] font-semibold text-white transition hover:bg-black"
+                style={{ fontFamily }}
+              >
+                Try live
+                <ArrowUpRight className="size-3.5" strokeWidth={2.2} />
+              </a>
+            ) : null}
+          </div>
+        </div>
       ))}
     </div>
   )
 }
 
-function AshAiNoteCards({ notes, fontFamily }: { notes: AshAiUiNoteLink[]; fontFamily: string }) {
+function AshAiNoteCards({
+  notes,
+  fontFamily,
+}: {
+  notes: AshAiUiNoteLink[]
+  fontFamily: string
+}) {
   return (
-    <div className="mt-2.5 flex flex-col gap-2">
+    <div className="mt-2.5 flex flex-wrap gap-2">
       {notes.map((note) => (
         <button
           key={note.noteId}
           type="button"
           onClick={() => requestNotesDeepLink({ noteId: note.noteId })}
-          className="group flex min-w-0 items-center gap-3 rounded-2xl border border-neutral-200/90 bg-gradient-to-br from-white to-neutral-50/95 px-3 py-2.5 text-left shadow-[0_1px_3px_rgb(0_0_0/0.06)] transition hover:border-neutral-300 hover:shadow-[0_4px_14px_rgb(0_0_0/0.08)]"
+          className="group w-[min(15rem,100%)] min-w-[10.75rem] rounded-2xl border border-neutral-200/90 bg-gradient-to-br from-white to-neutral-50/95 px-3 py-2.5 text-left shadow-[0_1px_3px_rgb(0_0_0/0.06)] transition hover:border-neutral-300 hover:shadow-[0_4px_14px_rgb(0_0_0/0.08)]"
         >
-          <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-[#fff9e6] text-[0.66rem] font-semibold tracking-[0.08em] text-[#7f5a00] uppercase">
-            Note
-          </span>
-          <div className="min-w-0 flex-1">
-            <p
-              className="truncate text-[0.9rem] font-semibold tracking-[-0.02em] text-neutral-950"
-              style={{ fontFamily }}
-            >
-              {note.title}
-            </p>
-            <p
-              className="text-[0.72rem] leading-tight text-neutral-500"
-              style={{ fontFamily }}
-            >
-              {note.folderLabel} - Open in Notes
-            </p>
+          <div className="flex items-center gap-2.5">
+            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-[#fff9e6] text-[0.58rem] font-semibold tracking-[0.08em] text-[#7f5a00] uppercase">
+              Note
+            </span>
+            <div className="min-w-0 flex-1">
+              <p
+                className="truncate text-[0.84rem] font-semibold tracking-[-0.02em] text-neutral-950"
+                style={{ fontFamily }}
+              >
+                {note.title}
+              </p>
+              <p
+                className="text-[0.68rem] leading-tight text-neutral-500"
+                style={{ fontFamily }}
+              >
+                {note.folderLabel}
+              </p>
+            </div>
           </div>
-          <ArrowUpRight
-            className="size-4 shrink-0 text-neutral-400 transition group-hover:text-neutral-700"
-            strokeWidth={2.25}
-            aria-hidden
-          />
+          <div className="mt-2 inline-flex items-center gap-1 text-[0.68rem] font-semibold text-neutral-700">
+            <span style={{ fontFamily }}>Open in Notes</span>
+            <ArrowUpRight
+              className="size-3.5 shrink-0 text-neutral-400 transition group-hover:text-neutral-700"
+              strokeWidth={2.2}
+              aria-hidden
+            />
+          </div>
         </button>
       ))}
     </div>
@@ -248,6 +279,20 @@ function shouldShowAshSticker(
   return recentAssistantMessages.some((message) => message.sticker)
     ? null
     : sticker
+}
+
+function filterArtifactsForTurn(
+  artifacts: AshAiUiArtifact[],
+  messages: AshAiUiMessage[]
+) {
+  if (artifacts.length === 0) return artifacts
+  const shownArtifactIds = new Set(
+    messages
+      .filter((message) => message.role === "assistant")
+      .flatMap((message) => message.artifacts ?? [])
+      .map((artifact) => artifact.artifactId)
+  )
+  return artifacts.filter((artifact) => !shownArtifactIds.has(artifact.artifactId))
 }
 
 export function AshAiScreen({
@@ -417,10 +462,7 @@ export function AshAiScreen({
     setAwaitingReply(true)
 
     try {
-      const notesPrompt = [
-        "Live notes context (these can be referenced in `notes` by noteId):",
-        ashAiNotesContextBlock(),
-      ].join("\n")
+      const notesPrompt = buildAshAiSupplementalContext(historyForApi)
       const answer = await askAshAiStream(historyForApi, {
         signal: ac.signal,
         lastUserImageUrl,
@@ -442,6 +484,7 @@ export function AshAiScreen({
       })
       if (epoch !== chatEpochRef.current) return
       const sticker = shouldShowAshSticker(answer.sticker, nextMessages)
+      const artifacts = filterArtifactsForTurn(answer.artifacts, nextMessages)
       setMessages((current) => {
         const next = [...current]
         const last = next[next.length - 1]
@@ -452,7 +495,7 @@ export function AshAiScreen({
             sticker,
             links: answer.links.length ? answer.links : undefined,
             notes: answer.notes.length ? answer.notes : undefined,
-            artifacts: answer.artifacts.length ? answer.artifacts : undefined,
+            artifacts: artifacts.length ? artifacts : undefined,
             streaming: false,
           }
         }

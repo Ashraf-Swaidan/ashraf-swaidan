@@ -1,5 +1,7 @@
 import { useState } from "react"
 
+import { ViewportLoopVideo } from "@/components/media/ViewportLoopVideo"
+
 import {
   CASE_ASSETS,
   DISPLAY_FONT,
@@ -77,15 +79,10 @@ export function OrderSpineVideo() {
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-[var(--color-drh-ink)]/10 bg-black shadow-[0_28px_72px_rgb(10_10_10/0.16)]">
-      <video
+      <ViewportLoopVideo
         key={src}
         className="aspect-video w-full object-cover"
         src={src}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="metadata"
         onError={() => {
           if (!useFallback) setUseFallback(true)
         }}
@@ -127,14 +124,9 @@ export function FinanceVideoStrip() {
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-[var(--color-drh-ink)]/10 bg-black shadow-[0_22px_56px_rgb(10_10_10/0.12)]">
-      <video
+      <ViewportLoopVideo
         className="aspect-video w-full object-cover"
         src={CASE_ASSETS.financeClip}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="metadata"
         onError={() => setFailed(true)}
       />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent_40%,rgb(0_0_0/0.45)_100%)]" />

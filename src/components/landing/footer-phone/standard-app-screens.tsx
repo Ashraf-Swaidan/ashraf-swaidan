@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"
+import { ViewportLoopVideo } from "@/components/media/ViewportLoopVideo"
 
 import { BODY_FONT, DISPLAY_FONT, GMAIL_ADDRESS } from "./constants"
 import type { ProjectApp, StandardApp } from "./types"
@@ -9,14 +10,9 @@ export function ProjectScreen({ app }: { app: ProjectApp }) {
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-neutral-950 text-white">
       <div className="relative h-[47%] overflow-hidden bg-black">
-        <video
+        <ViewportLoopVideo
           className="absolute inset-0 h-full w-full object-cover"
           src={project.videoSrc}
-          muted
-          loop
-          autoPlay
-          playsInline
-          preload="metadata"
           aria-hidden
         />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_38%,rgb(0_0_0/0.78)_100%)]" />

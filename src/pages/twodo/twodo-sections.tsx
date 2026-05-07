@@ -1,7 +1,9 @@
 import type { RefObject } from "react"
 import { motion, useReducedMotion } from "motion/react"
 
+import { HeroLoopVideo } from "@/components/media/HeroLoopVideo"
 import { SELECTED_WORKS_PROJECTS } from "@/data/selectedWorks"
+import { useHoverPlayVideo } from "@/hooks/useHoverPlayVideo"
 
 import {
   TWODO_BODY_FONT,
@@ -26,6 +28,78 @@ const TWODO_RECOMMENDED_WORKS = SELECTED_WORKS_PROJECTS.filter((project) =>
     project.id as (typeof TWODO_RECOMMENDED_WORK_IDS)[number]
   )
 )
+
+function TwodoRecommendedWorkCard({
+  project,
+  index,
+}: {
+  project: (typeof TWODO_RECOMMENDED_WORKS)[number]
+  index: number
+}) {
+  const { videoRef, onPointerEnter, onPointerLeave } = useHoverPlayVideo()
+
+  return (
+    <a
+      href={project.href}
+      className={`group block overflow-hidden rounded-[1.65rem] border border-[var(--color-drh-ink)]/10 bg-[var(--color-drh-surface)] shadow-[0_28px_70px_rgb(10_10_10/0.1)] sm:rounded-[2rem] ${
+        index === 0 ? "lg:justify-self-end" : "lg:justify-self-start"
+      }`}
+    >
+      <article className="text-left">
+        <div
+          className="relative aspect-[16/11] w-full overflow-hidden bg-[var(--color-drh-ink)] lg:w-[min(40vw,34rem)]"
+          onPointerEnter={onPointerEnter}
+          onPointerLeave={onPointerLeave}
+        >
+          <img
+            src={project.imageSrc}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover opacity-95 transition duration-700 group-hover:scale-[1.035]"
+            loading="lazy"
+            decoding="async"
+            aria-hidden
+          />
+          <video
+            ref={videoRef}
+            className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-0 transition duration-500 group-hover:opacity-100"
+            src={project.videoSrc}
+            muted
+            loop
+            playsInline
+            preload="none"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgb(10_10_10/0.02),rgb(10_10_10/0.58))]"
+            aria-hidden
+          />
+          <img
+            src={project.logoSrc}
+            alt=""
+            className="absolute top-6 left-6 h-13 w-13 object-contain drop-shadow-[0_8px_18px_rgb(0_0_0/0.22)] sm:h-14 sm:w-14"
+            loading="lazy"
+            decoding="async"
+            aria-hidden
+          />
+          <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
+            <p
+              className="text-[clamp(2.45rem,6.2vw,4.45rem)] leading-[0.84] font-semibold text-white uppercase"
+              style={{ fontFamily: TWODO_DISPLAY_FONT }}
+            >
+              {project.title}
+            </p>
+            <span
+              className="mt-5 inline-flex rounded-full border border-white/24 bg-white/12 px-4 py-2 text-[0.68rem] font-semibold tracking-[0.16em] text-white/72 uppercase backdrop-blur-md"
+              style={{ fontFamily: TWODO_DISPLAY_FONT }}
+            >
+              Case study
+            </span>
+          </div>
+        </div>
+      </article>
+    </a>
+  )
+}
 
 export function TwodoHeroSection({
   heroNavRef,
@@ -156,15 +230,10 @@ export function TwodoHeroSection({
             aria-hidden
           />
           <div className="relative overflow-hidden rounded-xl border border-[var(--color-drh-ink)]/10 bg-neutral-100 shadow-[0_28px_64px_rgb(10_10_10/0.1)] sm:rounded-2xl">
-            <video
+            <HeroLoopVideo
               className="aspect-video w-full object-cover"
               src={TWODO_VIDEO_HERO}
               poster={TWODO_VIDEO_POSTER}
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="metadata"
             />
             <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgb(255_255_255/0.12),transparent_40%,rgb(10_10_10/0.06)_100%)]" />
           </div>
@@ -328,61 +397,11 @@ export function TwodoFooter() {
 
         <div className="mx-auto mt-10 grid max-w-7xl gap-10 px-5 sm:mt-12 sm:px-6 lg:grid-cols-2 lg:gap-24 lg:px-8">
           {TWODO_RECOMMENDED_WORKS.map((project, index) => (
-            <a
+            <TwodoRecommendedWorkCard
               key={project.id}
-              href={project.href}
-              className={`group block overflow-hidden rounded-[1.65rem] border border-[var(--color-drh-ink)]/10 bg-[var(--color-drh-surface)] shadow-[0_28px_70px_rgb(10_10_10/0.1)] sm:rounded-[2rem] ${
-                index === 0 ? "lg:justify-self-end" : "lg:justify-self-start"
-              }`}
-            >
-              <article className="text-left">
-                <div className="relative aspect-[16/11] w-full overflow-hidden bg-[var(--color-drh-ink)] lg:w-[min(40vw,34rem)]">
-                  <img
-                    src={project.imageSrc}
-                    alt=""
-                    className="absolute inset-0 h-full w-full object-cover opacity-95 transition duration-700 group-hover:scale-[1.035]"
-                    loading="lazy"
-                    decoding="async"
-                    aria-hidden
-                  />
-                  <video
-                    className="absolute inset-0 h-full w-full object-cover opacity-0 transition duration-500 group-hover:opacity-100"
-                    src={project.videoSrc}
-                    muted
-                    loop
-                    playsInline
-                    preload="metadata"
-                    aria-hidden
-                  />
-                  <div
-                    className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgb(10_10_10/0.02),rgb(10_10_10/0.58))]"
-                    aria-hidden
-                  />
-                  <img
-                    src={project.logoSrc}
-                    alt=""
-                    className="absolute top-6 left-6 h-13 w-13 object-contain drop-shadow-[0_8px_18px_rgb(0_0_0/0.22)] sm:h-14 sm:w-14"
-                    loading="lazy"
-                    decoding="async"
-                    aria-hidden
-                  />
-                  <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
-                    <p
-                      className="text-[clamp(2.45rem,6.2vw,4.45rem)] leading-[0.84] font-semibold text-white uppercase"
-                      style={{ fontFamily: TWODO_DISPLAY_FONT }}
-                    >
-                      {project.title}
-                    </p>
-                    <span
-                      className="mt-5 inline-flex rounded-full border border-white/24 bg-white/12 px-4 py-2 text-[0.68rem] font-semibold tracking-[0.16em] text-white/72 uppercase backdrop-blur-md"
-                      style={{ fontFamily: TWODO_DISPLAY_FONT }}
-                    >
-                      Case study
-                    </span>
-                  </div>
-                </div>
-              </article>
-            </a>
+              project={project}
+              index={index}
+            />
           ))}
         </div>
       </div>

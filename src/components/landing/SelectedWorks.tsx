@@ -1,4 +1,10 @@
-import { useRef, useState, type CSSProperties } from "react"
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react"
 import { flushSync } from "react-dom"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
@@ -66,6 +72,69 @@ const SCREEN_BOX_STYLE: CSSProperties = {
   top: `${(259 / 1200) * 100}%`,
   width: `${(830 / 1600) * 100}%`,
   height: `${(532 / 1200) * 100}%`,
+}
+
+type SelectedWorksCarouselVideoProps = {
+  videoSrc: string
+  preload: HTMLVideoElement["preload"]
+  inActivePair: boolean
+  reduceMotion: boolean
+}
+
+/**
+ * Inline laptop-screen loops: Safari (iOS) often ignores the `autoplay` attribute
+ * when `src` is present from first paint — program `play()` after attributes + load.
+ */
+function SelectedWorksCarouselVideo({
+  videoSrc,
+  preload,
+  inActivePair,
+  reduceMotion,
+}: SelectedWorksCarouselVideoProps) {
+  const ref = useRef<HTMLVideoElement>(null)
+  const shouldPlay = inActivePair && !reduceMotion
+
+  const tryPlay = useCallback(() => {
+    const video = ref.current
+    if (!video || !shouldPlay) return
+    void video.play().catch(() => {})
+  }, [shouldPlay])
+
+  useEffect(() => {
+    const video = ref.current
+    if (!video) return
+    video.setAttribute("playsinline", "")
+    video.setAttribute("webkit-playsinline", "")
+    video.defaultMuted = true
+    video.muted = true
+  }, [])
+
+  useEffect(() => {
+    const video = ref.current
+    if (!video) return
+    if (!shouldPlay) {
+      video.pause()
+      return
+    }
+    tryPlay()
+  }, [shouldPlay, tryPlay])
+
+  return (
+    <video
+      ref={ref}
+      className="absolute inset-0 h-full w-full object-cover"
+      src={videoSrc}
+      muted
+      defaultMuted
+      loop
+      playsInline
+      preload={preload}
+      autoPlay={shouldPlay}
+      onLoadedData={tryPlay}
+      onCanPlay={tryPlay}
+      aria-hidden
+    />
+  )
 }
 
 const DISPLAY_FONT = "'Barlow Condensed', sans-serif"
@@ -738,7 +807,15 @@ export function SelectedWorks() {
               >
                 <div className="relative overflow-hidden rounded-[1.65rem] border border-[var(--color-drh-ink)]/10 bg-[var(--color-drh-surface)]">
                   <div className="relative aspect-[1600/1200] w-full">
-                    {PROJECTS.map((item, index) => (
+                    {PROJECTS.map((item, index) => {
+                      const inActivePair =
+                        index === railPair.baseIndex ||
+                        index === railPair.nextIndex
+                      const preload =
+                        inActivePair && index === progressIndex
+                          ? "auto"
+                          : "metadata"
+                      return (
                       <div
                         key={item.id}
                         ref={(element) => {
@@ -773,15 +850,11 @@ export function SelectedWorks() {
                             className="absolute z-[2] overflow-hidden rounded-[0.28rem] bg-black"
                             style={SCREEN_BOX_STYLE}
                           >
-                            <video
-                              className="absolute inset-0 h-full w-full object-cover"
-                              src={item.videoSrc}
-                              muted
-                              loop
-                              autoPlay
-                              playsInline
-                              preload={index === 0 ? "auto" : "metadata"}
-                              aria-hidden
+                            <SelectedWorksCarouselVideo
+                              videoSrc={item.videoSrc}
+                              preload={preload}
+                              inActivePair={inActivePair}
+                              reduceMotion={reduceMotion}
                             />
                             <div
                               className="pointer-events-none absolute inset-0 mix-blend-screen"
@@ -794,7 +867,8 @@ export function SelectedWorks() {
                           </div>
                         </div>
                       </div>
-                    ))}
+                    );
+                    })}
 
                     <div
                       className="pointer-events-none absolute inset-0 z-[7] rounded-[inherit]"

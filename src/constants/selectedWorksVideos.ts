@@ -9,7 +9,7 @@ export const SELECTED_WORKS_VIDEOS = {
   twodo: "/assets/lap-animation-assets/twodo.mp4",
 } as const
 
-/** Matches carousel order: first = preload, rest = prefetch. */
+/** Carousel MP4 URLs in section order — equal `prefetch` hints for each {@link SELECTED_WORKS_VIDEOS}. */
 export const SELECTED_WORKS_VIDEO_PRELOAD_ORDER = [
   SELECTED_WORKS_VIDEOS.papion,
   SELECTED_WORKS_VIDEOS.duwit,

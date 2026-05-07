@@ -8,6 +8,8 @@ import {
   type KeyboardEvent,
 } from "react"
 
+import { ViewportLoopVideo } from "@/components/media/ViewportLoopVideo"
+
 import {
   BODY_FONT,
   CASE_ASSETS,
@@ -58,7 +60,7 @@ function ExplorerVideoBlock({
         isPortrait ? "flex justify-center py-6 sm:py-8" : ""
       }`}
     >
-      <video
+      <ViewportLoopVideo
         key={effectiveSrc}
         className={
           isPortrait
@@ -69,11 +71,6 @@ function ExplorerVideoBlock({
         }
         src={effectiveSrc}
         poster={posterSrc}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="metadata"
         onError={() => {
           if (!useHeroFallback && effectiveSrc !== PAPION_VIDEO_HERO) {
             setUseHeroFallback(true)

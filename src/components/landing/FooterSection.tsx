@@ -62,7 +62,12 @@ export function FooterSection() {
   const primaryStickerRef = useRef<HTMLDivElement>(null)
   const secondaryStickerRef = useRef<HTMLDivElement>(null)
   const prefersReducedMotion = useReducedMotion()
-  const [deviceMode, setDeviceMode] = useState<FooterDeviceMode>("phone")
+  const [deviceMode, setDeviceMode] = useState<FooterDeviceMode>(() => {
+    if (typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches) {
+      return "ipad"
+    }
+    return "phone"
+  })
   const isIpadMode = deviceMode === "ipad"
 
   useGSAP(
@@ -287,8 +292,19 @@ export function FooterSection() {
                 fontFamily: "'Cormorant Garamond', 'Fraunces Variable', serif",
               }}
             >
-              Tap around the phone, open a route, and choose the kind of hello
-              that fits what you want to build.
+              Learn about me from the notes app{" "}
+              <img
+                src="/assets/phone-apps/notes.svg"
+                alt="Notes app"
+                className="mb-0.5 inline-block size-4 align-middle"
+              />
+              , or ask the chatgpt App{" "}
+              <img
+                src="/assets/phone-apps/chatgpt.png"
+                alt="ChatGPT app"
+                className="mb-0.5 inline-block size-4 rounded-[0.35rem] align-middle"
+              />
+              , or have fun exploring other apps
             </p>
 
             <DecorativeSticker

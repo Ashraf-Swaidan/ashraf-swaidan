@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react"
 
 import {
   Camera,
@@ -36,7 +36,10 @@ import {
   visitorNotesInFolder,
   updateVisitorNote,
 } from "./notes-storage"
-import type { NotesDeepLinkDetail } from "@/lib/notesDeepLink"
+import {
+  requestNotesDeepLink,
+  type NotesDeepLinkDetail,
+} from "@/lib/notesDeepLink"
 
 const SCROLL_HIDE =
   "overscroll-contain [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:h-0 [&::-webkit-scrollbar]:w-0"
@@ -89,6 +92,58 @@ function previewBody(text: string, max = 80): string {
   const line = text.replace(/\s+/g, " ").trim()
   if (line.length <= max) return line
   return `${line.slice(0, max - 1)}…`
+}
+
+const INLINE_LINK_PATTERN = /\[([^\]]+)\]\(([^)\s]+)\)/g
+
+function renderNoteBody(text: string) {
+  const lines = text.split("\n")
+  return lines.map((line, lineIndex) => {
+    const segments: Array<string | { label: string; href: string }> = []
+    let lastIndex = 0
+    let match: RegExpExecArray | null = INLINE_LINK_PATTERN.exec(line)
+
+    while (match) {
+      const [full, label, href] = match
+      const start = match.index
+      if (start > lastIndex) segments.push(line.slice(lastIndex, start))
+      segments.push({ label, href })
+      lastIndex = start + full.length
+      match = INLINE_LINK_PATTERN.exec(line)
+    }
+
+    if (lastIndex < line.length) segments.push(line.slice(lastIndex))
+    INLINE_LINK_PATTERN.lastIndex = 0
+
+    if (segments.length === 0) segments.push(line)
+
+    return (
+      <Fragment key={`line-${lineIndex}`}>
+        {segments.map((segment, segIndex) =>
+          typeof segment === "string" ? (
+            <Fragment key={`text-${lineIndex}-${segIndex}`}>{segment}</Fragment>
+          ) : (
+            <a
+              key={`link-${lineIndex}-${segIndex}`}
+              href={segment.href}
+              className="font-semibold underline underline-offset-2"
+              style={{ color: NOTES_ACCENT }}
+              onClick={(e) => {
+                if (!segment.href.startsWith("note://")) return
+                e.preventDefault()
+                requestNotesDeepLink({
+                  noteId: segment.href.replace("note://", ""),
+                })
+              }}
+            >
+              {segment.label}
+            </a>
+          )
+        )}
+        {lineIndex < lines.length - 1 ? <br /> : null}
+      </Fragment>
+    )
+  })
 }
 
 export function NotesScreen({
@@ -623,7 +678,7 @@ export function NotesScreen({
               className="mt-4 whitespace-pre-wrap text-[1.05rem] leading-[1.45]"
               style={{ fontFamily: CHAT_APP_UI_FONT }}
             >
-              {noteBody(active)}
+              {renderNoteBody(noteBody(active))}
             </p>
             {active.source === "author" && active.note.tags?.length ? (
               <div className="mt-6 flex flex-wrap gap-2">

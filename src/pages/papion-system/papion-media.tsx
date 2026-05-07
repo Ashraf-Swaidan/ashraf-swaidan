@@ -19,12 +19,15 @@ export function CaseStudyFigure({
   caption,
   plannedLabel,
   className = "",
+  fetchPriority = "high",
 }: {
   src: string
   alt: string
   caption?: string
   plannedLabel: string
   className?: string
+  /** Spotlight / below-the-fold media can yield to critical route assets */
+  fetchPriority?: "high" | "low"
 }) {
   const [failed, setFailed] = useState(false)
 
@@ -38,6 +41,7 @@ export function CaseStudyFigure({
             className="aspect-[16/10] w-full object-cover object-top"
             loading="lazy"
             decoding="async"
+            fetchPriority={fetchPriority}
             onError={() => setFailed(true)}
           />
         ) : (

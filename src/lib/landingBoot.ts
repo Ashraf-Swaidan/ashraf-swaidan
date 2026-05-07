@@ -41,13 +41,17 @@ async function withTimeout(work: Promise<unknown>, ms: number): Promise<void> {
 }
 
 export function getLandingBootImageUrls(): readonly string[] {
-  const first = SELECTED_WORKS_PROJECTS[0]
-  const base = [
+  return SELECTED_WORKS_PROJECTS.flatMap((project) => [
+    project.imageSrc,
+    project.logoSrc,
+  ]) as readonly string[]
+}
+
+function stickerWarmupUrls(): readonly string[] {
+  return [
     HOMEPAGE_STICKERS.heroPrimary.src,
     HOMEPAGE_STICKERS.heroSecondary.src,
-  ] as const
-  if (!first) return base
-  return [...base, first.imageSrc, first.logoSrc]
+  ]
 }
 
 /** Never block the overlay longer than this, even if asset waits stall. */
@@ -82,10 +86,18 @@ async function runLandingBoot(options: { reduceMotion: boolean }): Promise<void>
     getLandingBootImageUrls().map((url) => loadImage(url)),
   )
 
-  const primaryVideo = SELECTED_WORKS_VIDEO_PRELOAD_ORDER[0]
+  for (const url of stickerWarmupUrls()) {
+    void loadImage(url)
+  }
+
+  const videoUrls = SELECTED_WORKS_VIDEO_PRELOAD_ORDER
   const videoTask =
-    VIDEO_TIMEOUT_MS > 0 && primaryVideo
-      ? withTimeout(primeVideoCanPlay(primaryVideo), VIDEO_TIMEOUT_MS)
+    VIDEO_TIMEOUT_MS > 0 && videoUrls.length > 0
+      ? Promise.all(
+          videoUrls.map((url) =>
+            withTimeout(primeVideoCanPlay(url), VIDEO_TIMEOUT_MS),
+          ),
+        )
       : Promise.resolve()
 
   await Promise.all([fontsTask, imagesTask, videoTask])

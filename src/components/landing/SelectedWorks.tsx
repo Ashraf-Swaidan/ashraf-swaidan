@@ -76,7 +76,6 @@ const SCREEN_BOX_STYLE: CSSProperties = {
 
 type SelectedWorksCarouselVideoProps = {
   videoSrc: string
-  preload: HTMLVideoElement["preload"]
   inActivePair: boolean
   reduceMotion: boolean
 }
@@ -87,7 +86,6 @@ type SelectedWorksCarouselVideoProps = {
  */
 function SelectedWorksCarouselVideo({
   videoSrc,
-  preload,
   inActivePair,
   reduceMotion,
 }: SelectedWorksCarouselVideoProps) {
@@ -128,7 +126,8 @@ function SelectedWorksCarouselVideo({
       defaultMuted
       loop
       playsInline
-      preload={preload}
+      preload="auto"
+      fetchPriority="high"
       autoPlay={shouldPlay}
       onLoadedData={tryPlay}
       onCanPlay={tryPlay}
@@ -811,10 +810,6 @@ export function SelectedWorks() {
                       const inActivePair =
                         index === railPair.baseIndex ||
                         index === railPair.nextIndex
-                      const preload =
-                        inActivePair && index === progressIndex
-                          ? "auto"
-                          : "metadata"
                       return (
                       <div
                         key={item.id}
@@ -844,6 +839,9 @@ export function SelectedWorks() {
                             src={item.imageSrc}
                             alt=""
                             aria-hidden
+                            fetchPriority="high"
+                            loading="eager"
+                            decoding="async"
                             className="absolute inset-0 h-full w-full object-cover"
                           />
                           <div
@@ -852,7 +850,6 @@ export function SelectedWorks() {
                           >
                             <SelectedWorksCarouselVideo
                               videoSrc={item.videoSrc}
-                              preload={preload}
                               inActivePair={inActivePair}
                               reduceMotion={reduceMotion}
                             />
@@ -943,7 +940,8 @@ export function SelectedWorks() {
                       height={160}
                       className="h-12 w-12 object-contain sm:h-16 sm:w-16 md:h-20 md:w-20"
                       aria-hidden
-                      loading="lazy"
+                      fetchPriority="high"
+                      loading="eager"
                       decoding="async"
                     />
                   </div>
@@ -985,7 +983,8 @@ export function SelectedWorks() {
                       height={160}
                       className="h-12 w-12 object-contain sm:h-16 sm:w-16 md:h-20 md:w-20"
                       aria-hidden
-                      loading="lazy"
+                      fetchPriority="high"
+                      loading="eager"
                       decoding="async"
                     />
                   </div>

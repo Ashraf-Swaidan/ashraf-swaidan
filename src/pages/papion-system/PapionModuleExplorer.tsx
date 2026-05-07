@@ -30,12 +30,14 @@ function ExplorerVideoBlock({
   posterSrc,
   alt,
   videoFraming = "landscape",
+  fetchPriority,
 }: {
   src: string
   posterPlannedLabel: string
   posterSrc: string
   alt: string
   videoFraming?: "landscape" | "portrait" | "tablet"
+  fetchPriority: "high" | "low"
 }) {
   const [usePoster, setUsePoster] = useState(false)
   const [useHeroFallback, setUseHeroFallback] = useState(false)
@@ -46,6 +48,7 @@ function ExplorerVideoBlock({
         src={posterSrc}
         alt={alt}
         plannedLabel={posterPlannedLabel}
+        fetchPriority={fetchPriority}
       />
     )
   }
@@ -71,6 +74,7 @@ function ExplorerVideoBlock({
         }
         src={effectiveSrc}
         poster={posterSrc}
+        fetchPriority={fetchPriority}
         onError={() => {
           if (!useHeroFallback && effectiveSrc !== PAPION_VIDEO_HERO) {
             setUseHeroFallback(true)
@@ -88,10 +92,12 @@ function ExplorerEntryMedia({
   media,
   alt,
   plannedMediaFallback,
+  fetchPriority,
 }: {
   media: ExplorerPrimaryMedia
   alt: string
   plannedMediaFallback: string
+  fetchPriority: "high" | "low"
 }) {
   if (media.kind === "image") {
     return (
@@ -100,6 +106,7 @@ function ExplorerEntryMedia({
         alt={alt}
         caption={media.caption}
         plannedLabel={plannedMediaFallback}
+        fetchPriority={fetchPriority}
       />
     )
   }
@@ -112,6 +119,7 @@ function ExplorerEntryMedia({
       posterPlannedLabel={plannedMediaFallback}
       alt={alt}
       videoFraming={media.videoFraming}
+      fetchPriority={fetchPriority}
     />
   )
 }
@@ -122,6 +130,7 @@ function ExplorerPrimaryMedia({ entry }: { entry: ExplorerModuleEntry }) {
       media={entry.primaryMedia}
       alt={`${entry.label} — Papion`}
       plannedMediaFallback={entry.plannedMediaFallback}
+      fetchPriority="high"
     />
   )
 }
@@ -151,12 +160,14 @@ function DemoAttachmentLightbox({
   src,
   alt,
   titleId,
+  fetchPriority = "high",
 }: {
   open: boolean
   onClose: () => void
   src: string
   alt: string
   titleId: string
+  fetchPriority?: "high" | "low"
 }) {
   const closeRef = useRef<HTMLButtonElement>(null)
 
@@ -226,6 +237,7 @@ function DemoAttachmentLightbox({
             className="mx-auto max-h-[min(85vh,900px)] w-auto max-w-full rounded-lg object-contain"
             loading="eager"
             decoding="async"
+            fetchPriority={fetchPriority}
           />
         </div>
       </div>
@@ -238,11 +250,13 @@ function DemoAttachmentMiniCard({
   label,
   imageAlt,
   onOpen,
+  fetchPriority = "high",
 }: {
   imageSrc: string
   label: string
   imageAlt: string
   onOpen: () => void
+  fetchPriority?: "high" | "low"
 }) {
   return (
     <button
@@ -258,6 +272,7 @@ function DemoAttachmentMiniCard({
           className="h-full w-full object-cover object-top transition duration-200 group-hover:scale-[1.02]"
           loading="lazy"
           decoding="async"
+          fetchPriority={fetchPriority}
         />
       </div>
       <div className="flex items-center gap-1.5 border-t border-[var(--color-drh-ink)]/08 px-1.5 py-1.5 text-[var(--color-drh-ink)]/55">
@@ -400,6 +415,7 @@ function ExplorerFeatureSpotlights({
                             }
                             label={item.demoAttachment.label}
                             imageAlt={item.demoAttachment.imageAlt}
+                            fetchPriority="low"
                             onOpen={() =>
                               setAttachmentLightbox({
                                 src: CASE_ASSETS[
@@ -416,6 +432,7 @@ function ExplorerFeatureSpotlights({
                           media={item.primaryMedia}
                           alt={`${item.title} — ${entry.label}`}
                           plannedMediaFallback={item.plannedMediaFallback}
+                          fetchPriority="low"
                         />
                       </div>
                     </div>
@@ -439,6 +456,7 @@ function ExplorerFeatureSpotlights({
         src={attachmentLightbox?.src ?? ""}
         alt={attachmentLightbox?.alt ?? ""}
         titleId={attachmentLightboxTitleId}
+        fetchPriority="low"
       />
     </section>
   )

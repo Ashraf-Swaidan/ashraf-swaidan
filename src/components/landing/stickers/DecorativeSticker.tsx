@@ -247,6 +247,7 @@ export const DecorativeSticker = forwardRef<
           alt={sticker.alt}
           draggable={false}
           loading={priority ? "eager" : "lazy"}
+          fetchPriority="high"
           decoding="async"
           className="block h-auto w-full drop-shadow-[0_18px_34px_rgb(10_10_10/0.14)]"
         />

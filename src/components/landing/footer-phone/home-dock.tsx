@@ -33,8 +33,9 @@ function AppIconImage({
         src={app.iconSrc}
         alt=""
         className={cn(bareImgClass, needsBoost && "scale-[1.14]")}
-        loading="lazy"
-        decoding="async"
+        loading="eager"
+        fetchPriority="high"
+        decoding="sync"
       />
     )
   }
@@ -58,8 +59,9 @@ function AppIconImage({
         src={app.iconSrc}
         alt=""
         className={cn("h-full w-full object-contain", needsBoost && "scale-[1.14]")}
-        loading="lazy"
-        decoding="async"
+        loading="eager"
+        fetchPriority="high"
+        decoding="sync"
       />
     </span>
   )
@@ -180,8 +182,9 @@ export function HomeWidgets({
               src={ashAiApp?.iconSrc ?? CHATGPT_MARK_SRC}
               alt=""
               className="h-6 w-6 object-contain"
-              loading="lazy"
-              decoding="async"
+              loading="eager"
+              fetchPriority="high"
+              decoding="sync"
             />
           </span>
           <p className="min-w-0 flex-1 font-sans text-[1.02rem] leading-tight font-semibold tracking-[-0.02em] text-neutral-900">

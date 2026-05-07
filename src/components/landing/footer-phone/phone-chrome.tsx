@@ -85,6 +85,9 @@ export function StatusBar({
           alt=""
           className="h-3.5 w-3.5 brightness-0 invert"
           aria-hidden
+          loading="eager"
+          fetchPriority="high"
+          decoding="sync"
         />
         <BatteryIcon />
       </span>

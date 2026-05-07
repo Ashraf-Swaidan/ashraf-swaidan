@@ -3,7 +3,7 @@ import type { ResponsiveStickerConfig } from "@/components/landing/stickers/type
 export const HOMEPAGE_STICKERS = {
   heroPrimary: {
     id: "hero-lets-go",
-    src: "/assets/ash-stickers/lets-go.png",
+    src: "/assets/ash-stickers/lets-go.webp",
     alt: "Lets go sticker",
     section: "hero",
     motionPreset: "hero-rise",
@@ -23,7 +23,7 @@ export const HOMEPAGE_STICKERS = {
   } satisfies ResponsiveStickerConfig,
   heroSecondary: {
     id: "hero-approved",
-    src: "/assets/ash-stickers/approved.png",
+    src: "/assets/ash-stickers/approved.webp",
     alt: "Approved sticker",
     section: "hero",
     motionPreset: "hero-rise",
@@ -43,7 +43,7 @@ export const HOMEPAGE_STICKERS = {
   } satisfies ResponsiveStickerConfig,
   manifestoPrimary: {
     id: "manifesto-focus",
-    src: "/assets/ash-stickers/focus.png",
+    src: "/assets/ash-stickers/focus.webp",
     alt: "Focus sticker",
     section: "manifesto",
     motionPreset: "scroll-note",
@@ -63,7 +63,7 @@ export const HOMEPAGE_STICKERS = {
   } satisfies ResponsiveStickerConfig,
   manifestoSecondary: {
     id: "manifesto-that-works",
-    src: "/assets/ash-stickers/that-works.png",
+    src: "/assets/ash-stickers/that-works.webp",
     alt: "That works sticker",
     section: "manifesto",
     motionPreset: "scroll-note",
@@ -83,7 +83,7 @@ export const HOMEPAGE_STICKERS = {
   } satisfies ResponsiveStickerConfig,
   selectedWorksPrimary: {
     id: "selected-works-done",
-    src: "/assets/ash-stickers/DONE.png",
+    src: "/assets/ash-stickers/DONE.webp",
     alt: "Done sticker",
     section: "selectedWorks",
     motionPreset: "scroll-note",
@@ -103,7 +103,7 @@ export const HOMEPAGE_STICKERS = {
   } satisfies ResponsiveStickerConfig,
   selectedWorksSecondary: {
     id: "selected-works-on-it",
-    src: "/assets/ash-stickers/On-it.png",
+    src: "/assets/ash-stickers/On-it.webp",
     alt: "On it sticker",
     section: "selectedWorks",
     motionPreset: "scroll-note",
@@ -123,7 +123,7 @@ export const HOMEPAGE_STICKERS = {
   } satisfies ResponsiveStickerConfig,
   footerPrimary: {
     id: "footer-got-it",
-    src: "/assets/ash-stickers/Got-it.png",
+    src: "/assets/ash-stickers/Got-it.webp",
     alt: "Got it sticker",
     section: "footer",
     motionPreset: "footer-settle",
@@ -143,7 +143,7 @@ export const HOMEPAGE_STICKERS = {
   } satisfies ResponsiveStickerConfig,
   footerSecondary: {
     id: "footer-impressed",
-    src: "/assets/ash-stickers/impressed.png",
+    src: "/assets/ash-stickers/impressed.webp",
     alt: "Impressed sticker",
     section: "footer",
     motionPreset: "footer-settle",

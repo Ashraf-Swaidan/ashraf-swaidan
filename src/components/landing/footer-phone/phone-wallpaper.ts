@@ -16,17 +16,17 @@ export const PHONE_WALLPAPERS: {
   {
     id: "wallpaper-1",
     label: "Studio",
-    src: `${PHONE_ASSET_ROOT}/phone-wallpaper.jpg`,
+    src: `${PHONE_ASSET_ROOT}/phone-wallpaper.webp`,
   },
   {
     id: "wallpaper-2",
     label: "Gradient",
-    src: `${PHONE_ASSET_ROOT}/phone-wallpaper-2.jpg`,
+    src: `${PHONE_ASSET_ROOT}/phone-wallpaper-2.webp`,
   },
   {
     id: "wallpaper-3",
     label: "Deep",
-    src: `${PHONE_ASSET_ROOT}/phone-wallpaper-3.jpg`,
+    src: `${PHONE_ASSET_ROOT}/phone-wallpaper-3.webp`,
   },
 ]
 

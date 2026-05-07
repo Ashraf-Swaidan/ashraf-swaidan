@@ -48,18 +48,18 @@ export type PhotosAlbum = {
 }
 
 const STICKER_FILES = [
-  "approved.png",
-  "DONE.png",
-  "focus.png",
-  "Got-it.png",
-  "hmm.png",
-  "impressed.png",
-  "lets-go.png",
-  "low-battery-me.png",
-  "Not-sure.png",
-  "On-it.png",
-  "that-works.png",
-  "wait-what.png",
+  "approved.webp",
+  "DONE.webp",
+  "focus.webp",
+  "Got-it.webp",
+  "hmm.webp",
+  "impressed.webp",
+  "lets-go.webp",
+  "low-battery-me.webp",
+  "Not-sure.webp",
+  "On-it.webp",
+  "that-works.webp",
+  "wait-what.webp",
 ] as const
 
 function rangeGen(
@@ -72,7 +72,7 @@ function rangeGen(
     return {
       id: `${prefix}-gen-${n}`,
       kind: "image" as const,
-      src: `${root}/gen-${n}.png`,
+      src: `${root}/gen-${n}.webp`,
       alt: `${prefix} screenshot ${n}`,
     }
   })
@@ -100,7 +100,7 @@ const PHOTOS_ALBUMS: PhotosAlbum[] = [
       id: `sticker-${file}`,
       kind: "image" as const,
       src: `${ASH_STICKER_ROOT}/${file}`,
-      alt: file.replace(/\.png$/i, "").replace(/-/g, " "),
+      alt: file.replace(/\.webp$/i, "").replace(/-/g, " "),
     })),
   },
   {
@@ -118,25 +118,25 @@ const PHOTOS_ALBUMS: PhotosAlbum[] = [
       {
         id: "papion-mob-1",
         kind: "image",
-        src: "/assets/papion-page/papion-screenshots/mob-1.png",
+        src: "/assets/papion-page/papion-screenshots/mob-1.webp",
         alt: "Papion mobile 1",
       },
       {
         id: "papion-mob-2",
         kind: "image",
-        src: "/assets/papion-page/papion-screenshots/mob-2.png",
+        src: "/assets/papion-page/papion-screenshots/mob-2.webp",
         alt: "Papion mobile 2",
       },
       {
         id: "papion-ipad-1",
         kind: "image",
-        src: "/assets/papion-page/papion-screenshots/ipad-1.png",
+        src: "/assets/papion-page/papion-screenshots/ipad-1.webp",
         alt: "Papion iPad",
       },
       {
         id: "papion-receipt",
         kind: "image",
-        src: "/assets/papion-page/papion-screenshots/reciept-sample.jpg",
+        src: "/assets/papion-page/papion-screenshots/reciept-sample.webp",
         alt: "Papion receipt sample",
       },
     ],

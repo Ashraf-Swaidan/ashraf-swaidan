@@ -689,7 +689,7 @@ export function AshAiScreen({
                       ) : null}
                       {message.sticker && !message.streaming ? (
                         <img
-                          src={`${ASH_STICKER_ROOT}/${message.sticker}.png`}
+                          src={`${ASH_STICKER_ROOT}/${message.sticker}.webp`}
                           alt=""
                           className="mt-2 h-24 w-24 rounded-[1rem] object-contain"
                           loading="lazy"

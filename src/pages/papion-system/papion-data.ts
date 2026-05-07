@@ -87,7 +87,7 @@ export const CASE_ASSETS = {
   financeClip: "/assets/lap-animation-assets/papion-finance-control.mp4",
   /** Poster / sample still for expense receipt upload clip */
   receiptSample:
-    "/assets/papion-page/papion-screenshots/reciept-sample.jpg",
+    "/assets/papion-page/papion-screenshots/reciept-sample.webp",
 } as const
 
 export type AtlasTabId =

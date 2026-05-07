@@ -1,31 +1,31 @@
 import { DISPLAY_FONT } from "./papion-data"
 import { PapionWordmark } from "./papion-ui"
 
-/** Five desktop captures, full-bleed inside frames (no object-cover cropping). */
+/** Five desktop captures, full-bleed inside frames (`gen-*.webp`). */
 const SHOTS = [
   {
     key: "gen-1",
-    src: "/assets/papion-page/papion-screenshots/gen-1.png",
+    src: "/assets/papion-page/papion-screenshots/gen-1.webp",
     alt: "Papion desktop, main view",
   },
   {
     key: "gen-2",
-    src: "/assets/papion-page/papion-screenshots/gen-2.png",
+    src: "/assets/papion-page/papion-screenshots/gen-2.webp",
     alt: "Papion desktop, workspace",
   },
   {
     key: "gen-3",
-    src: "/assets/papion-page/papion-screenshots/gen-3.png",
+    src: "/assets/papion-page/papion-screenshots/gen-3.webp",
     alt: "Papion desktop, module surface",
   },
   {
     key: "gen-4",
-    src: "/assets/papion-page/papion-screenshots/gen-4.png",
+    src: "/assets/papion-page/papion-screenshots/gen-4.webp",
     alt: "Papion desktop, operational detail",
   },
   {
     key: "gen-5",
-    src: "/assets/papion-page/papion-screenshots/gen-5.png",
+    src: "/assets/papion-page/papion-screenshots/gen-5.webp",
     alt: "Papion desktop, another module",
   },
 ] as const

@@ -1,4 +1,5 @@
 import type { AshStickerId } from "@/lib/ashAiContext"
+import { randomUuid } from "@/lib/randomUuid"
 import {
   artifactRefsForPersistence,
   rehydrateAshAiArtifactsFromStorage,
@@ -48,7 +49,7 @@ export type AshAiChatsStore = {
 }
 
 function newId(): string {
-  return crypto.randomUUID()
+  return randomUuid()
 }
 
 export function makeAshAiMessage(

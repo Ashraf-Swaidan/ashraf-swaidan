@@ -171,7 +171,7 @@ export function LandingNav() {
         }}
       >
         <img
-          src="/assets/ash-stickers/lets-go.png"
+          src="/assets/ash-stickers/lets-go.webp"
           alt=""
           className="mt-0.5 h-10 w-10 shrink-0 -rotate-6 object-contain drop-shadow-[0_10px_18px_rgb(10_10_10/0.12)]"
           loading="eager"

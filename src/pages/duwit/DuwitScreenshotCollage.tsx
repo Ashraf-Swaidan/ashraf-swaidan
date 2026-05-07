@@ -35,7 +35,7 @@ function ScreenshotFrame({
   )
 }
 
-/** Five captures — same layout as Papion collage; files in `public/assets/duwit-page/duwit-screenshots/`. */
+/** Five captures — same layout as Papion collage; files in `public/assets/duwit-page/duwit-screenshots/gen-*.webp`. */
 export function DuwitScreenshotCollage() {
   const [s1, s2, s3, s4, s5] = DUWIT_SCREENSHOTS
   const topLeft = s2

@@ -1,3 +1,5 @@
+import { randomUuid } from "@/lib/randomUuid"
+
 export const NOTES_VISITOR_STORAGE_KEY = "footer-phone-visitor-notes-v1"
 export const NOTES_VISITOR_SCHEMA_VERSION = 1
 export const NOTES_VISITOR_MAX_NOTES = 40
@@ -19,7 +21,7 @@ type VisitorNotesStore = {
 }
 
 function newId(): string {
-  return crypto.randomUUID()
+  return randomUuid()
 }
 
 function trimOldest(notes: VisitorNoteRecord[]): VisitorNoteRecord[] {

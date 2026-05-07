@@ -4,8 +4,10 @@ import { cn } from "@/lib/utils"
 
 export type ViewportLoopVideoProps = Omit<
   VideoHTMLAttributes<HTMLVideoElement>,
-  "preload" | "autoPlay"
+  /** React types omit newer media hints — we apply `fetchpriority` in an effect instead. */
+  "preload" | "autoPlay" | "fetchPriority"
 > & {
+  fetchPriority?: "high" | "low" | "auto"
   threshold?: number
   rootMargin?: string
 }
@@ -18,6 +20,7 @@ export function ViewportLoopVideo({
   className,
   threshold = 0.32,
   rootMargin = "0px 0px -12% 0px",
+  fetchPriority,
   onError,
   muted = true,
   loop = true,
@@ -26,6 +29,16 @@ export function ViewportLoopVideo({
   ...rest
 }: ViewportLoopVideoProps) {
   const ref = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    const video = ref.current
+    if (!video) return
+    if (fetchPriority) {
+      video.setAttribute("fetchpriority", fetchPriority)
+    } else {
+      video.removeAttribute("fetchpriority")
+    }
+  }, [fetchPriority])
 
   useEffect(() => {
     const video = ref.current

@@ -78,6 +78,7 @@ type SelectedWorksCarouselVideoProps = {
   videoSrc: string
   inActivePair: boolean
   reduceMotion: boolean
+  deferInactiveSrc?: boolean
 }
 
 /**
@@ -88,9 +89,11 @@ function SelectedWorksCarouselVideo({
   videoSrc,
   inActivePair,
   reduceMotion,
+  deferInactiveSrc = false,
 }: SelectedWorksCarouselVideoProps) {
   const ref = useRef<HTMLVideoElement>(null)
   const shouldPlay = inActivePair && !reduceMotion
+  const activeSrc = deferInactiveSrc && !shouldPlay ? undefined : videoSrc
 
   const tryPlay = useCallback(() => {
     const video = ref.current
@@ -103,6 +106,7 @@ function SelectedWorksCarouselVideo({
     if (!video) return
     video.setAttribute("playsinline", "")
     video.setAttribute("webkit-playsinline", "")
+    video.setAttribute("fetchpriority", "high")
     video.defaultMuted = true
     video.muted = true
   }, [])
@@ -121,13 +125,11 @@ function SelectedWorksCarouselVideo({
     <video
       ref={ref}
       className="absolute inset-0 h-full w-full object-cover"
-      src={videoSrc}
+      src={activeSrc}
       muted
-      defaultMuted
       loop
       playsInline
-      preload="auto"
-      fetchPriority="high"
+      preload={deferInactiveSrc && !shouldPlay ? "none" : "auto"}
       autoPlay={shouldPlay}
       onLoadedData={tryPlay}
       onCanPlay={tryPlay}
@@ -138,6 +140,28 @@ function SelectedWorksCarouselVideo({
 
 const DISPLAY_FONT = "'Barlow Condensed', sans-serif"
 const BODY_FONT = "var(--font-drh-body)"
+
+function useIsMobileSelectedWorks() {
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== "undefined"
+      ? window.matchMedia("(max-width: 767px)").matches
+      : false
+  )
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 767px)")
+    const sync = () => setIsMobile(media.matches)
+
+    sync()
+    media.addEventListener("change", sync)
+
+    return () => {
+      media.removeEventListener("change", sync)
+    }
+  }, [])
+
+  return isMobile
+}
 
 function clamp01(value: number) {
   return Math.max(0, Math.min(1, value))
@@ -306,7 +330,7 @@ function getSceneZoom(index: number, projectFloat: number): SceneZoom {
   }
 }
 
-export function SelectedWorks() {
+function SelectedWorksDesktop() {
   const rootRef = useRef<HTMLElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
   const titleRef = useRef<HTMLHeadingElement>(null)
@@ -1018,4 +1042,218 @@ export function SelectedWorks() {
       </div>
     </section>
   )
+}
+
+function SelectedWorksMobile() {
+  const carouselRef = useRef<HTMLDivElement>(null)
+  const prefersReducedMotion = useReducedMotion()
+  const reduceMotion = Boolean(prefersReducedMotion)
+  const [activeIndex, setActiveIndex] = useState(0)
+
+  const syncActiveIndex = useCallback(() => {
+    const carousel = carouselRef.current
+    if (!carousel) return
+
+    const slides = Array.from(
+      carousel.querySelectorAll<HTMLElement>("[data-selected-work-slide]")
+    )
+    const carouselCenter = carousel.scrollLeft + carousel.clientWidth / 2
+    let nearestIndex = 0
+    let nearestDistance = Number.POSITIVE_INFINITY
+
+    slides.forEach((slide, index) => {
+      const slideCenter = slide.offsetLeft + slide.clientWidth / 2
+      const distance = Math.abs(carouselCenter - slideCenter)
+
+      if (distance < nearestDistance) {
+        nearestDistance = distance
+        nearestIndex = index
+      }
+    })
+
+    setActiveIndex(nearestIndex)
+  }, [])
+
+  const scrollToProject = (index: number) => {
+    const carousel = carouselRef.current
+    const target = carousel?.querySelector<HTMLElement>(
+      `[data-selected-work-slide="${index}"]`
+    )
+
+    target?.scrollIntoView({
+      behavior: reduceMotion ? "auto" : "smooth",
+      block: "nearest",
+      inline: "center",
+    })
+  }
+
+  return (
+    <section
+      id="selected-works"
+      className={cn(
+        "relative isolate overflow-hidden scroll-mt-24 bg-[var(--color-drh-bg)] py-16 text-[var(--color-drh-ink)]",
+        "selection:bg-[var(--color-drh-accent-orange)]/18 selection:text-[var(--color-drh-ink)]"
+      )}
+      aria-labelledby="selected-works-heading"
+    >
+      <div
+        className="pointer-events-none absolute inset-0 opacity-70"
+        aria-hidden
+        style={{
+          background:
+            "linear-gradient(90deg, rgb(10 10 10 / 0.045) 1px, transparent 1px), linear-gradient(180deg, rgb(10 10 10 / 0.04) 1px, transparent 1px)",
+          backgroundSize: "48px 48px",
+        }}
+      />
+
+      <div className="relative z-[1]">
+        <div className="mx-auto mb-8 max-w-[36rem] px-4 text-center">
+          <h2
+            id="selected-works-heading"
+            className="text-[clamp(3.5rem,18vw,5rem)] leading-[0.82] font-semibold text-[var(--color-drh-ink)] uppercase"
+            style={{ fontFamily: DISPLAY_FONT, fontStretch: "condensed" }}
+          >
+            <span className="block">Selected</span>
+            <span className="block">Works</span>
+          </h2>
+          <p
+            className="mx-auto mt-4 max-w-[20rem] text-[1.02rem] leading-[1.55] text-[var(--color-drh-ink)]/64"
+            style={{
+              fontFamily: BODY_FONT,
+              fontVariationSettings: '"opsz" 64, "wght" 430',
+            }}
+          >
+            Works Made For the Better.
+          </p>
+        </div>
+
+        <div
+          ref={carouselRef}
+          className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          onScroll={syncActiveIndex}
+        >
+          {PROJECTS.map((project, index) => (
+            <article
+              key={project.id}
+              data-selected-work-slide={index}
+              className="min-w-[calc(100vw-2rem)] max-w-[26rem] snap-center overflow-hidden rounded-[0.5rem] border border-[var(--color-drh-ink)]/10 bg-[var(--color-drh-surface)] shadow-[0_18px_44px_rgb(10_10_10/0.08)]"
+            >
+              <div className="relative aspect-[1600/1200] overflow-hidden bg-[var(--color-drh-bg)]">
+                <img
+                  src={project.imageSrc}
+                  alt=""
+                  aria-hidden
+                  fetchPriority={index === 0 ? "high" : "low"}
+                  loading={index === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+                <div
+                  className="absolute z-[2] overflow-hidden rounded-[0.28rem] bg-black"
+                  style={SCREEN_BOX_STYLE}
+                >
+                  <SelectedWorksCarouselVideo
+                    videoSrc={project.videoSrc}
+                    inActivePair={activeIndex === index}
+                    reduceMotion={reduceMotion}
+                    deferInactiveSrc
+                  />
+                  <div
+                    className="pointer-events-none absolute inset-0 mix-blend-screen"
+                    aria-hidden
+                    style={{
+                      background:
+                        "linear-gradient(180deg, rgb(255 255 255 / 0.16) 0%, transparent 18%, transparent 82%, rgb(255 255 255 / 0.06) 100%)",
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div className="px-5 pt-5 pb-6">
+                <div className="mb-5 flex items-start gap-3">
+                  <p
+                    className="shrink-0 text-[2.2rem] leading-none text-[var(--color-drh-ink)]"
+                    style={{ fontFamily: DISPLAY_FONT }}
+                  >
+                    {String(index + 1).padStart(2, "0")}
+                  </p>
+                  <p
+                    className="pt-1.5 text-[0.9rem] leading-none text-[var(--color-drh-ink)]/42"
+                    style={{
+                      fontFamily: BODY_FONT,
+                      fontVariationSettings: '"opsz" 64, "wght" 420',
+                    }}
+                  >
+                    / {String(PROJECTS.length).padStart(2, "0")}
+                  </p>
+                  <div className="mt-4 h-px flex-1 bg-[var(--color-drh-ink)]/12" />
+                </div>
+
+                <div className="flex items-center gap-3.5">
+                  <img
+                    src={project.logoSrc}
+                    alt=""
+                    width={160}
+                    height={160}
+                    className="h-12 w-12 shrink-0 object-contain"
+                    aria-hidden
+                    loading={index === 0 ? "eager" : "lazy"}
+                    decoding="async"
+                  />
+                  <h3
+                    className="text-[clamp(1.9rem,9vw,2.55rem)] leading-[0.88] font-semibold text-[var(--color-drh-ink)] uppercase"
+                    style={{ fontFamily: DISPLAY_FONT }}
+                  >
+                    {project.title}
+                  </h3>
+                </div>
+
+                <p
+                  className="mt-5 text-[0.98rem] leading-[1.58] text-[var(--color-drh-ink)]/66"
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontVariationSettings: '"opsz" 64, "wght" 410',
+                  }}
+                >
+                  {project.description}
+                </p>
+
+                <a
+                  href={project.href}
+                  className="mt-6 inline-flex min-h-11 items-center rounded-full border border-[var(--color-drh-ink)] px-6 text-[0.84rem] leading-none font-semibold tracking-[0.16em] text-[var(--color-drh-ink)] uppercase transition active:scale-[0.98]"
+                  style={{ fontFamily: DISPLAY_FONT }}
+                >
+                  Read Use Case
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="mt-5 flex justify-center gap-2 px-4">
+          {PROJECTS.map((project, index) => (
+            <button
+              key={`${project.id}-mobile-dot`}
+              type="button"
+              className={cn(
+                "h-2.5 rounded-full transition-[width,background-color,opacity]",
+                activeIndex === index
+                  ? "w-8 bg-[var(--color-drh-accent-orange)] opacity-100"
+                  : "w-2.5 bg-[var(--color-drh-ink)]/28 opacity-80"
+              )}
+              aria-label={`Show ${project.title}`}
+              aria-current={activeIndex === index ? "true" : undefined}
+              onClick={() => scrollToProject(index)}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+export function SelectedWorks() {
+  const isMobile = useIsMobileSelectedWorks()
+
+  return isMobile ? <SelectedWorksMobile /> : <SelectedWorksDesktop />
 }

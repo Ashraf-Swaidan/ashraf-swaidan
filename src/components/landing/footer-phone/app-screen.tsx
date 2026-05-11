@@ -20,6 +20,8 @@ import { ProjectBrowserScreen } from "./project-browser-screen"
 import { PhotosScreen } from "./photos-screen"
 import { SettingsScreen } from "./settings-screen"
 import { SpotifyScreen } from "./spotify-screen"
+import { StickerStudioScreen } from "./sticker-studio-screen"
+import { TetaModeScreen } from "./teta-mode-screen"
 import { YouTubeScreen } from "./youtube-screen"
 import { SafariBrowserScreen } from "./safari-browser-screen"
 import {
@@ -154,6 +156,10 @@ export function AppScreen({
           deepLink={notesDeepLink ?? null}
           onConsumeDeepLink={onConsumeNotesDeepLink}
         />
+      ) : app.kind === "sticker-studio" ? (
+        <StickerStudioScreen />
+      ) : app.kind === "teta-mode" ? (
+        <TetaModeScreen />
       ) : app.id === "spotify" ? (
         spotifyPlayer ? (
           <SpotifyScreen

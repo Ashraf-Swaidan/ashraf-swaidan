@@ -101,6 +101,22 @@ export const STANDARD_APPS: StandardApp[] = [
     body: "Favorite photos and visual notes will sit here in small iOS-inspired albums.",
   },
   {
+    id: "sticker-studio",
+    kind: "sticker-studio",
+    label: "Sticker Lab",
+    iconSrc: `${PHONE_ASSET_ROOT}/sticker-studio.svg`,
+    title: "Sticker Lab",
+    body: "Generate sticker-style images from a prompt (optional photo).",
+  },
+  {
+    id: "teta-mode",
+    kind: "teta-mode",
+    label: "Teta Mode",
+    iconSrc: `${PHONE_ASSET_ROOT}/teta-mode.svg`,
+    title: "Teta Mode",
+    body: "Say anything. Teta will find something wrong with it.",
+  },
+  {
     id: "settings",
     kind: "settings",
     label: "Settings",

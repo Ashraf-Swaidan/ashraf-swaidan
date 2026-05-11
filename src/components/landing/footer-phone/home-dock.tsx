@@ -7,6 +7,8 @@ import type { FooterDeviceMode, PhoneApp } from "./types"
 function iconShellForApp(app: PhoneApp): "white" | "black" | "cream" | null {
   if (app.id === "spotify") return "black"
   if (app.id === "youtube") return "white"
+  if (app.id === "sticker-studio") return "white"
+  if (app.id === "teta-mode") return "cream"
   if (app.kind === "project") {
     if (app.project.id === "duwit") return "cream"
     return "white"

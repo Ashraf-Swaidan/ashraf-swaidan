@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+  <defs>
+    <linearGradient id="tetaBg" x1="6" y1="4" x2="60" y2="62" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFE3D2"/>
+      <stop offset="0.45" stop-color="#F7B7A5"/>
+      <stop offset="1" stop-color="#D98770"/>
+    </linearGradient>
+    <linearGradient id="tetaShine" x1="14" y1="6" x2="42" y2="34" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="tetaCoffee" cx="32" cy="36" r="9" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5B2A18"/>
+      <stop offset="1" stop-color="#2E1208"/>
+    </radialGradient>
+    <linearGradient id="tetaEye" x1="40" y1="14" x2="54" y2="28" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5BC5F0"/>
+      <stop offset="1" stop-color="#1E6FA8"/>
+    </linearGradient>
+    <filter id="tetaDrop" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.2" flood-color="#000000" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <!-- App tile -->
+  <rect width="64" height="64" rx="14" fill="url(#tetaBg)"/>
+  <rect width="64" height="64" rx="14" fill="url(#tetaShine)"/>
+
+  <!-- Steam wisps -->
+  <g opacity="0.7" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" fill="none">
+    <path d="M26 24c-1.6 2-1.6 3.6 0 5.6"/>
+    <path d="M32 22c-1.6 2.4-1.6 4.4 0 6.8"/>
+    <path d="M38 24c-1.6 2-1.6 3.6 0 5.6"/>
+  </g>
+
+  <!-- Finjan (coffee cup) saucer -->
+  <g filter="url(#tetaDrop)">
+    <ellipse cx="32" cy="52.5" rx="15" ry="3" fill="#FFFFFF" stroke="#1E1E1E" stroke-width="2"/>
+  </g>
+
+  <!-- Finjan body -->
+  <g filter="url(#tetaDrop)">
+    <path
+      d="M19.5 33.5h25l-2.4 14.6a3.5 3.5 0 0 1-3.45 2.9H25.35a3.5 3.5 0 0 1-3.45-2.9L19.5 33.5Z"
+      fill="#FFFFFF"
+      stroke="#1E1E1E"
+      stroke-width="2.25"
+      stroke-linejoin="round"
+    />
+    <!-- Coffee inside -->
+    <path
+      d="M22 36h20l-1.4 3.2H23.4L22 36Z"
+      fill="url(#tetaCoffee)"
+    />
+    <!-- Handle -->
+    <path
+      d="M44.5 36.5c3.4 0 5.4 2 5.4 4.8s-2 4.8-5.4 4.8"
+      stroke="#1E1E1E"
+      stroke-width="2.25"
+      stroke-linecap="round"
+      fill="none"
+    />
+  </g>
+
+  <!-- Evil-eye bead (top-right charm) -->
+  <g filter="url(#tetaDrop)" transform="translate(0 0)">
+    <circle cx="47" cy="20" r="6" fill="url(#tetaEye)" stroke="#1E1E1E" stroke-width="1.75"/>
+    <circle cx="47" cy="20" r="3.4" fill="#FFFFFF"/>
+    <circle cx="47" cy="20" r="1.7" fill="#1E1E1E"/>
+  </g>
+</svg>

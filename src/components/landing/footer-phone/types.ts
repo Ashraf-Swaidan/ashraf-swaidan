@@ -2,6 +2,8 @@ import type { WorkProject } from "@/data/selectedWorks"
 
 export type AppKind =
   | "chatgpt"
+  | "sticker-studio"
+  | "teta-mode"
   | "gmail"
   | "instagram"
   | "linkedin"

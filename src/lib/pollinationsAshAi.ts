@@ -163,7 +163,8 @@ type PollinationsResponse = {
   }
 }
 
-function getPollinationsKey() {
+/** Same key Ash AI and in-app image tools use (`VITE_` or `POLLINATIONS_` prefix via Vite). */
+export function getPollinationsKey() {
   return (
     import.meta.env.VITE_POLLINATIONS_API_KEY ??
     import.meta.env.POLLINATIONS_API_KEY ??

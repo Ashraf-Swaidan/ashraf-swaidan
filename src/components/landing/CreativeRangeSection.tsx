@@ -22,6 +22,7 @@ type HeroItem = {
   category: CreativeRangeCategory
   title: string
   headIndex: string
+  description: string
   mediaSrc: string
   mediaAlt: string
   /** Tailwind aspect class for the hero video frame */
@@ -52,7 +53,9 @@ const HERO_ITEM: HeroItem = {
   id: "teaching-main",
   category: "teaching",
   title: "Teaching / presenting",
-  headIndex: "01 / 06",
+  headIndex: "01 / 05",
+  description:
+    "I often find passion in teaching and presenting stuff, gotta calm down THAT body language :D",
   mediaSrc: "/assets/extra-work-assets/presenting-videos.mp4",
   mediaAlt: "Teaching and presentation video collage",
   aspectClassName: "aspect-video",
@@ -63,7 +66,7 @@ const REEL_ITEMS: ReelItem[] = [
     id: "premiere-edit",
     category: "premiere",
     title: "Video editing",
-    index: "02 / 06",
+    index: "02 / 05",
     accent: "cyan",
     mediaAspectClassName: "aspect-video",
     mediaSrc: "/assets/extra-work-assets/premiere-video.mp4",
@@ -74,7 +77,7 @@ const REEL_ITEMS: ReelItem[] = [
     id: "after-effects-loop",
     category: "after-effects",
     title: "Motion tests",
-    index: "03 / 06",
+    index: "03 / 05",
     accent: "plum",
     mediaAspectClassName: "aspect-[4/5]",
     mediaSrc: "/assets/extra-work-assets/ae-videos.mp4",
@@ -84,26 +87,22 @@ const REEL_ITEMS: ReelItem[] = [
     id: "photoshop-print-primary",
     category: "photoshop",
     title: "Print banners",
-    index: "04 / 06",
+    index: "04 / 05",
     accent: "orange",
     mediaAspectClassName: "aspect-[2/1]",
+    mediaSrc: "/assets/extra-work-assets/photoshop-sample.webp",
+    mediaAlt: "Photoshop print and layout sample work",
     cardSpan: 2,
   },
   {
     id: "illustrator-type",
     category: "illustrator",
     title: "Type merges",
-    index: "05 / 06",
+    index: "05 / 05",
     accent: "lime",
     mediaAspectClassName: "aspect-[4/5]",
-  },
-  {
-    id: "photoshop-print-secondary",
-    category: "photoshop",
-    title: "Campaign layouts",
-    index: "06 / 06",
-    accent: "orange",
-    mediaAspectClassName: "aspect-[4/5]",
+    mediaSrc: "/assets/extra-work-assets/illustrator-sample.png",
+    mediaAlt: "Illustrator type, lettering, and vector graphics collage",
   },
 ]
 
@@ -351,6 +350,11 @@ function usePointerDragScrollX(scrollRef: RefObject<HTMLDivElement | null>) {
   }, [scrollRef])
 }
 
+/** Static image URL (reel); video otherwise */
+function reelMediaIsRaster(src: string) {
+  return /\.(avif|webp|png|jpe?g|gif)(\?.*)?$/i.test(src)
+}
+
 function CreativeRangeVideo({
   src,
   alt,
@@ -374,6 +378,32 @@ function CreativeRangeVideo({
       playsInline
       autoPlay
       preload="metadata"
+    />
+  )
+}
+
+function ReelCardMedia({ item }: { item: ReelItem }) {
+  const src = item.mediaSrc
+  if (!src) return null
+
+  if (reelMediaIsRaster(src)) {
+    return (
+      <img
+        src={src}
+        alt={item.mediaAlt ?? ""}
+        className="absolute inset-0 h-full w-full object-cover"
+        loading="lazy"
+        decoding="async"
+        draggable={false}
+      />
+    )
+  }
+
+  return (
+    <CreativeRangeVideo
+      src={src}
+      alt={item.mediaAlt ?? ""}
+      aeScale={item.category === "after-effects"}
     />
   )
 }
@@ -428,20 +458,27 @@ function HeroBand({
         </div>
 
         <div className="flex flex-col gap-3 lg:max-w-md lg:pl-2 lg:pt-1">
-          <div className="creative-range-hero-copy">
-            <p
-              className="text-[0.68rem] font-semibold tracking-[0.32em] text-[var(--color-drh-ink)]/38 uppercase"
-              style={{ fontFamily: DISPLAY_FONT }}
-            >
-              {HERO_ITEM.headIndex}
-            </p>
-            <h3
-              className="mt-2 text-[clamp(1.45rem,2.6vw,2rem)] leading-[1.05] font-semibold tracking-[-0.02em] text-[var(--color-drh-ink)] uppercase"
-              style={{ fontFamily: DISPLAY_FONT }}
-            >
-              {HERO_ITEM.title}
-            </h3>
-          </div>
+          <p
+            className="creative-range-hero-copy text-[0.68rem] font-semibold tracking-[0.32em] text-[var(--color-drh-ink)]/38 uppercase"
+            style={{ fontFamily: DISPLAY_FONT }}
+          >
+            {HERO_ITEM.headIndex}
+          </p>
+          <h3
+            className="creative-range-hero-copy text-[clamp(1.45rem,2.6vw,2rem)] leading-[1.05] font-semibold tracking-[-0.02em] text-[var(--color-drh-ink)] uppercase"
+            style={{ fontFamily: DISPLAY_FONT }}
+          >
+            {HERO_ITEM.title}
+          </h3>
+          <p
+            className="creative-range-hero-copy text-[0.95rem] leading-relaxed text-[var(--color-drh-ink-muted)]"
+            style={{
+              fontFamily: "var(--font-drh-body)",
+              fontVariationSettings: '"opsz" 64, "wght" 420',
+            }}
+          >
+            {HERO_ITEM.description}
+          </p>
         </div>
       </div>
     </div>
@@ -477,11 +514,7 @@ function ReelCard({
         )}
       >
         {item.mediaSrc ? (
-          <CreativeRangeVideo
-            src={item.mediaSrc}
-            alt={item.mediaAlt ?? ""}
-            aeScale={item.category === "after-effects"}
-          />
+          <ReelCardMedia item={item} />
         ) : showPress ? (
           <PressSheetCard
             category={

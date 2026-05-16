@@ -455,6 +455,19 @@ function HeroBand({
             alt={HERO_ITEM.mediaAlt}
           />
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgb(0_0_0/0.18),transparent_42%,rgb(0_0_0/0.12))]" />
+          <div
+            className="pointer-events-none absolute top-3 left-3 z-10 inline-flex items-center gap-2 rounded-full border border-white/18 bg-black/28 px-3 py-1.5 text-[0.62rem] font-semibold tracking-[0.16em] text-white/88 uppercase shadow-[0_10px_28px_rgb(0_0_0/0.22)] backdrop-blur-md sm:top-4 sm:left-4 sm:text-[0.68rem]"
+            style={{ fontFamily: DISPLAY_FONT }}
+            aria-hidden
+          >
+            <span className="relative flex size-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400/70 motion-reduce:animate-none" />
+              <span className="relative inline-flex size-2 rounded-full bg-red-400" />
+            </span>
+            Live session
+            <span className="h-3 w-px bg-white/22" />
+            Project walkthrough
+          </div>
         </div>
 
         <div className="flex flex-col gap-3 lg:max-w-md lg:pl-2 lg:pt-1">

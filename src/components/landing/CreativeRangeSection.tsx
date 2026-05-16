@@ -4,6 +4,7 @@ import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useReducedMotion } from "motion/react"
 
+import { ViewportLoopVideo } from "@/components/media/ViewportLoopVideo"
 import { cn } from "@/lib/utils"
 
 gsap.registerPlugin(useGSAP, ScrollTrigger)
@@ -24,6 +25,7 @@ type HeroItem = {
   headIndex: string
   description: string
   mediaSrc: string
+  posterSrc?: string
   mediaAlt: string
   /** Tailwind aspect class for the hero video frame */
   aspectClassName: string
@@ -38,6 +40,7 @@ type ReelItem = {
   /** Media viewport aspect — premiere 16:9, AE 4:5, stills as prepared */
   mediaAspectClassName: string
   mediaSrc?: string
+  posterSrc?: string
   mediaAlt?: string
   /** Wide layout: horizontally equals two unit cards + track gap */
   cardSpan?: 1 | 2
@@ -56,7 +59,8 @@ const HERO_ITEM: HeroItem = {
   headIndex: "01 / 05",
   description:
     "I often find passion in teaching and presenting stuff, gotta calm down THAT body language :D",
-  mediaSrc: "/assets/extra-work-assets/presenting-videos.mp4",
+  mediaSrc: "/assets/extra-work-assets/presenting-videos-optimized.mp4",
+  posterSrc: "/assets/extra-work-assets/presenting-videos-poster.webp",
   mediaAlt: "Teaching and presentation video collage",
   aspectClassName: "aspect-video",
 }
@@ -69,7 +73,8 @@ const REEL_ITEMS: ReelItem[] = [
     index: "02 / 05",
     accent: "cyan",
     mediaAspectClassName: "aspect-video",
-    mediaSrc: "/assets/extra-work-assets/premiere-video.mp4",
+    mediaSrc: "/assets/extra-work-assets/premiere-video-optimized.mp4",
+    posterSrc: "/assets/extra-work-assets/premiere-video-poster.webp",
     mediaAlt: "Premiere Pro editing timeline video",
     cardSpan: 2,
   },
@@ -80,7 +85,8 @@ const REEL_ITEMS: ReelItem[] = [
     index: "03 / 05",
     accent: "plum",
     mediaAspectClassName: "aspect-[4/5]",
-    mediaSrc: "/assets/extra-work-assets/ae-videos.mp4",
+    mediaSrc: "/assets/extra-work-assets/ae-videos-optimized.mp4",
+    posterSrc: "/assets/extra-work-assets/ae-videos-poster.webp",
     mediaAlt: "After Effects motion work video collage",
   },
   {
@@ -357,27 +363,34 @@ function reelMediaIsRaster(src: string) {
 
 function CreativeRangeVideo({
   src,
+  poster,
   alt,
   className,
   aeScale,
+  fetchPriority = "low",
 }: {
   src: string
+  poster?: string
   alt: string
   className?: string
   aeScale?: boolean
+  fetchPriority?: "high" | "low" | "auto"
 }) {
   return (
-    <video
-      className={cn("absolute inset-0 h-full w-full object-cover", aeScale && "scale-[1.08]", className)}
+    <ViewportLoopVideo
+      className={cn(
+        "absolute inset-0 h-full w-full object-cover",
+        aeScale && "scale-[1.08]",
+        className
+      )}
       src={src}
+      poster={poster}
       aria-label={alt}
       draggable={false}
       onDragStart={(e) => e.preventDefault()}
-      muted
-      loop
-      playsInline
-      autoPlay
-      preload="metadata"
+      fetchPriority={fetchPriority}
+      rootMargin="320px 0px 180px 0px"
+      threshold={0.08}
     />
   )
 }
@@ -402,6 +415,7 @@ function ReelCardMedia({ item }: { item: ReelItem }) {
   return (
     <CreativeRangeVideo
       src={src}
+      poster={item.posterSrc}
       alt={item.mediaAlt ?? ""}
       aeScale={item.category === "after-effects"}
     />
@@ -452,7 +466,9 @@ function HeroBand({
         >
           <CreativeRangeVideo
             src={HERO_ITEM.mediaSrc}
+            poster={HERO_ITEM.posterSrc}
             alt={HERO_ITEM.mediaAlt}
+            fetchPriority="auto"
           />
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgb(0_0_0/0.18),transparent_42%,rgb(0_0_0/0.12))]" />
           <div

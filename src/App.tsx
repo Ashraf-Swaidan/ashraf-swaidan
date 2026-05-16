@@ -1,4 +1,5 @@
 import { SiteFooter } from "./components/SiteFooter"
+import { CreativeRangeSection } from "./components/landing/CreativeRangeSection"
 import { DesignRevisionHero } from "./components/landing/DesignRevisionHero"
 import { LandingBootGate } from "./components/landing/LandingBootGate"
 import { LandingNav } from "./components/landing/LandingNav"
@@ -65,6 +66,7 @@ export function App() {
 
         <ManifestoSection />
         <SelectedWorks />
+        <CreativeRangeSection />
         <FooterSection />
         <SiteFooter />
       </div>

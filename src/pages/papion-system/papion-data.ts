@@ -55,19 +55,6 @@ export const FRICTION_PILL_STYLES = [
   "bg-lime-200 text-lime-950",
 ] as const
 
-export function getFrictionPillDelay(index: number) {
-  if (index < 2) return 170
-  if (index < 5) return 115
-  if (index < 10) return 58
-  return 86
-}
-
-export function sleep(ms: number) {
-  return new Promise<void>((resolve) => {
-    setTimeout(resolve, ms)
-  })
-}
-
 /**
  * Case-study assets (see context-ai/works/papion-system/capture-guide.md).
  */
@@ -297,14 +284,20 @@ export type ExplorerPrimaryMedia =
       videoFraming?: "landscape" | "portrait" | "tablet"
     }
 
+/** Shared fields for expandable “uncommon beat” panels. */
+type ExplorerFeatureSpotlightBase = {
+  id: string
+  title: string
+  /** One line when the panel is collapsed */
+  teaser: string
+  body: readonly string[]
+  /** Vibrant pastel stripe; AI beats use a multi-stop gradient instead */
+  aiPowered?: boolean
+}
+
 /** Expandable “uncommon beat” with in-panel copy; optional media on the right when expanded. */
 export type ExplorerFeatureSpotlight =
-  | {
-      id: string
-      title: string
-      /** One line when the panel is collapsed */
-      teaser: string
-      body: readonly string[]
+  | (ExplorerFeatureSpotlightBase & {
       primaryMedia: ExplorerPrimaryMedia
       plannedMediaFallback: string
       /** Mini attachment card; opens full image (e.g. receipt vs video) */
@@ -313,13 +306,8 @@ export type ExplorerFeatureSpotlight =
         label: string
         imageAlt: string
       }
-    }
-  | {
-      id: string
-      title: string
-      teaser: string
-      body: readonly string[]
-    }
+    })
+  | ExplorerFeatureSpotlightBase
 
 export type ExplorerModuleEntry = {
   id: ExplorerModuleId
@@ -344,6 +332,7 @@ export const MODULE_EXPLORER_ENTRIES: ExplorerModuleEntry[] = [
       "Create orders from eight inventory domains in a single flow. Choose order type—instant, due date, or event. Pick customers quickly, scan barcodes when the counter is busy, take partial payment, and track what is still unpaid in its own place. Tasks sit beside the work, and sales insights go deep enough to steer without exporting.",
     rareFeatures: [
       "Eight inventories in one order flow",
+      "AI order prefill from text or voice",
       "Instant / due-date / event order types",
       "Partial pay, unpaid area, tasks, and deep sales insights",
     ],
@@ -357,6 +346,24 @@ export const MODULE_EXPLORER_ENTRIES: ExplorerModuleEntry[] = [
     plannedMediaFallback:
       "Screenshot or clip: order surface with mixed lines — `papion-module-sales.png` / `papion-workflow-order.mp4`",
     featureSpotlights: [
+      {
+        id: "order-ai-prefill",
+        title: "AI order prefill",
+        aiPowered: true,
+        teaser:
+          "Say or type what you sold and to whom — AI maps customer, lines, and payment into a ready order.",
+        body: [
+          "After a walk-in or phone sale, staff should not rebuild the cart field by field. Tell Papion what you sold and to whom — in text or by voice — and the AI extracts customer, products, quantities, and payment context, then lays out a full order you can review and submit.",
+          "It turns spoken shorthand into structured lines: fewer taps on busy shifts, less retyping from notes, and a faster path from conversation to confirmed order.",
+        ],
+        primaryMedia: {
+          kind: "video",
+          src: papionExplorerVideo("prefill-order-form.mp4"),
+          posterAssetKey: "sales",
+        },
+        plannedMediaFallback:
+          "Clip: AI order prefill from text or voice (`prefill-order-form.mp4`)",
+      },
       {
         id: "order-drafts",
         title: "Order drafts",
@@ -488,6 +495,7 @@ export const MODULE_EXPLORER_ENTRIES: ExplorerModuleEntry[] = [
       {
         id: "receipt-ai",
         title: "Receipt upload and AI prefill",
+        aiPowered: true,
         teaser:
           "Skip typing every field. Upload a receipt and let AI fill the form.",
         body: [

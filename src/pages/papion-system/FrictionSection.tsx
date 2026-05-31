@@ -2,7 +2,6 @@ import { useId } from "react"
 
 import {
   BODY_FONT,
-  DISPLAY_FONT,
   EXCEL_FOOTNOTE,
   EXCEL_ICON_SRC,
   FRICTION_CLOSING_1,

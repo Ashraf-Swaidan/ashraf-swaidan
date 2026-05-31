@@ -19,7 +19,6 @@ import {
   MODULE_EXPLORER_ENTRIES,
   PAPION_MODULE_EXPLORER_ID,
   PAPION_VIDEO_HERO,
-  type ExplorerFeatureSpotlight,
   type ExplorerModuleEntry,
   type ExplorerModuleId,
   type ExplorerPrimaryMedia,

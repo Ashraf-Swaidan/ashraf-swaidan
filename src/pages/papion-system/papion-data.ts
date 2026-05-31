@@ -622,16 +622,18 @@ export const MODULE_EXPLORER_ENTRIES: ExplorerModuleEntry[] = [
   {
     id: "ai",
     label: "AI",
-    headline: "Models on your operations—with the same permission story.",
+    headline:
+      "The AI hub—mockups, prefills, and guarded chat in one deliberate route.",
     intro:
-      "A beta route for strong models against real business data: deliberate access, role-aware answers, and no bolt-on iframe chat duct-taped to the side.",
+      "Papion treats AI as a first-class product area, not a sidebar widget. Generate on-brand mockup images for whole slices of inventory, let models prefill sales orders and expense forms from natural input, and converse against business data with the same role boundaries as everywhere else.",
     rareFeatures: [
-      "Business-grounded prompts instead of generic assistants",
-      "Guardrailed exposure by role and intent",
-      "Lives as a first-class route in the same product shell",
+      "Bulk product mockups with a locked visual strategy",
+      "AI order prefill from text or voice",
+      "Receipt upload and AI expense prefill",
+      "Guardrailed chat on a first-class route—not a bolt-on iframe",
     ],
     whyMatters:
-      "Useful AI fails fast when it cannot respect who is allowed to see what.",
+      "Useful AI fails fast when it cannot respect who is allowed to see what—and when batch work skips a quality gate.",
     primaryMedia: {
       kind: "video",
       src: papionExplorerVideo("AI-video.mp4"),
@@ -639,6 +641,71 @@ export const MODULE_EXPLORER_ENTRIES: ExplorerModuleEntry[] = [
     },
     plannedMediaFallback:
       "Screenshot: conversation UI with safe demo data — `papion-module-ai.png`",
+    featureSpotlights: [
+      {
+        id: "bulk-mockup-generation",
+        title: "Bulk product mockup images",
+        aiPowered: true,
+        teaser:
+          "Select catalog items, lock a mockup style with AI, approve one sample, then generate images for the whole batch.",
+        body: [
+          "Preparing mockup images for a large catalog is slow when you work SKU by SKU. This pipeline uses AI to generate mockup images for your inventory items in bulk, at the quality you set.",
+          "Step 1: Select inventory items.",
+          "Step 2: Discuss and lock a mockup style strategy with Papion AI.",
+          "Step 3: Generate one test image and approve it when it looks right.",
+          "Step 4: Press generate to create a matching mockup for every selected item, using the approved test sample as the reference.",
+        ],
+        primaryMedia: {
+          kind: "video",
+          src: papionExplorerVideo("mockup-ai-video.mp4"),
+          posterAssetKey: "inventory",
+        },
+        plannedMediaFallback:
+          "Clip: bulk product mockup generation (`mockup-ai-video.mp4`)",
+      },
+      {
+        id: "ai-order-prefill",
+        title: "AI order prefill",
+        aiPowered: true,
+        teaser:
+          "Say or type what you sold and to whom — AI maps customer, lines, and payment into a ready order.",
+        body: [
+          "After a walk-in or phone sale, staff should not rebuild the cart field by field. Tell Papion what you sold and to whom — in text or by voice — and the AI extracts customer, products, quantities, and payment context, then lays out a full order you can review and submit.",
+          "It turns spoken shorthand into structured lines: fewer taps on busy shifts, less retyping from notes, and a faster path from conversation to confirmed order.",
+        ],
+        primaryMedia: {
+          kind: "video",
+          src: papionExplorerVideo("prefill-order-form.mp4"),
+          posterAssetKey: "sales",
+        },
+        plannedMediaFallback:
+          "Clip: AI order prefill from text or voice (`prefill-order-form.mp4`)",
+      },
+      {
+        id: "ai-receipt-prefill",
+        title: "Receipt upload and AI prefill",
+        aiPowered: true,
+        teaser:
+          "Skip typing every field. Upload a receipt and let AI fill the form.",
+        body: [
+          "Instead of filling every expense field by hand, upload a receipt and let Papion AI read merchant, amounts, and line context into the form. Review, tweak anything that needs a human eye, then save.",
+        ],
+        primaryMedia: {
+          kind: "video",
+          src: papionExplorerVideo("expense-image-reciept.mp4"),
+          posterAssetKey: "receiptSample",
+          videoFraming: "tablet",
+        },
+        plannedMediaFallback:
+          "Clip: receipt upload and AI prefill (`expense-image-reciept.mp4`)",
+        demoAttachment: {
+          assetKey: "receiptSample",
+          label: "Attachment used",
+          imageAlt:
+            "Receipt image used in this demo. Compare it with the recording to verify amounts and merchant details.",
+        },
+      },
+    ],
   },
   {
     id: "insights",

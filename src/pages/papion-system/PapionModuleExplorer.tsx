@@ -679,9 +679,13 @@ function SpotlightChevron({
 function ExplorerFeatureSpotlights({
   baseId,
   entry,
+  sectionTitle = "Uncommon beats",
+  sectionLead = "Features you wouldn't see coming.",
 }: {
   baseId: string
   entry: ExplorerModuleEntry
+  sectionTitle?: string
+  sectionLead?: string
 }) {
   const spotlights = entry.featureSpotlights
   const reduceMotion = useReducedMotion() === true
@@ -739,13 +743,13 @@ function ExplorerFeatureSpotlights({
             fontVariationSettings: '"opsz" 72, "wght" 520',
           }}
         >
-          Uncommon beats
+          {sectionTitle}
         </h3>
         <p
           className="text-[0.98rem] leading-relaxed text-black sm:text-[1.08rem]"
           style={{ fontFamily: BODY_FONT }}
         >
-          Features you wouldn&apos;t see coming.
+          {sectionLead}
         </p>
       </header>
       <ul className="list-none flex flex-col gap-3 p-0 sm:gap-3.5">
@@ -1027,7 +1031,7 @@ export function PapionModuleExplorer() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: [0.22, 0.08, 0.19, 1] }}
-            className="border border-[var(--color-drh-ink)]/12 border-t-0 bg-white/95 px-5 py-10 shadow-[0_24px_64px_rgb(10_10_10/0.06)] backdrop-blur-sm sm:px-8 sm:py-12 lg:px-10"
+            className="border border-t-0 border-[var(--color-drh-ink)]/12 bg-white/95 px-5 py-10 shadow-[0_24px_64px_rgb(10_10_10/0.06)] backdrop-blur-sm sm:px-8 sm:py-12 lg:px-10"
           >
             <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-start lg:gap-14">
               <div className="min-w-0">
@@ -1090,6 +1094,14 @@ export function PapionModuleExplorer() {
                   key={`${active.id}-spotlights`}
                   baseId={baseId}
                   entry={active}
+                  sectionTitle={
+                    active.id === "ai" ? "AI capabilities" : undefined
+                  }
+                  sectionLead={
+                    active.id === "ai"
+                      ? "Mockups, prefills, and guarded chat—built into Papion, not bolted on."
+                      : undefined
+                  }
                 />
                 <p
                   className="mt-10 border-t border-[var(--color-drh-ink)]/08 pt-8 text-[0.88rem] leading-relaxed text-[var(--color-drh-ink)]/48 italic"

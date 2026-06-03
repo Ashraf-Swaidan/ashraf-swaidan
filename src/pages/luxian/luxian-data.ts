@@ -20,27 +20,27 @@ const LUXIAN_V = "/assets/luxian-page/luxian-videos"
 export const LUXIAN_SCREENSHOTS = [
   {
     key: "gen-1",
-    src: "/assets/luxian-page/gen-1.png",
+    src: "/assets/luxian-page/gen-1.webp",
     alt: "Luxian storefront, editorial homepage hero",
   },
   {
     key: "gen-2",
-    src: "/assets/luxian-page/gen-2.png",
+    src: "/assets/luxian-page/gen-2.webp",
     alt: "Luxian product detail with recommendations",
   },
   {
     key: "gen-3",
-    src: "/assets/luxian-page/gen-3.png",
+    src: "/assets/luxian-page/gen-3.webp",
     alt: "Luxian shop catalog grid",
   },
   {
     key: "gen-4",
-    src: "/assets/luxian-page/gen-4.png",
+    src: "/assets/luxian-page/gen-4.webp",
     alt: "Luxian admin operations dashboard",
   },
   {
     key: "gen-5",
-    src: "/assets/luxian-page/gen-5.png",
+    src: "/assets/luxian-page/gen-5.webp",
     alt: "Luxian admin homepage merchandising",
   },
 ] as const
@@ -120,7 +120,7 @@ export const LUXIAN_FEATURES: readonly LuxianFeature[] = [
     media: [
       {
         type: "image",
-        src: "/assets/luxian-page/luxian-personalization.png",
+        src: "/assets/luxian-page/luxian-personalization.webp",
         alt: "Luxian shop with Recommended for you based on recent browsing",
       },
     ],

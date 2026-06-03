@@ -112,7 +112,7 @@ const PHOTOS_ALBUMS: PhotosAlbum[] = [
       return {
         id: `luxian-gen-${n}`,
         kind: "image" as const,
-        src: `/assets/luxian-page/gen-${n}.png`,
+        src: `/assets/luxian-page/gen-${n}.webp`,
         alt: `Luxian screenshot ${n}`,
       }
     }),

@@ -7,6 +7,13 @@ import {
   type ExplorerFeatureSpotlight,
 } from "../pages/papion-system/papion-data.ts"
 import { DUWIT_DESKTOP_APP_URL, DUWIT_TRY_URL } from "../pages/duwit/duwit-data.ts"
+import {
+  LUXIAN_DEMO_ADMIN_EMAIL,
+  LUXIAN_DEMO_ADMIN_PASSWORD,
+  LUXIAN_LOGIN_URL,
+  LUXIAN_REPO_URL,
+  LUXIAN_TRY_URL,
+} from "../pages/luxian/luxian-data.ts"
 import { TWODO_TRY_URL } from "../pages/twodo/twodo-data.ts"
 
 export type AshAiKnowledgeKind = "profile" | "work" | "note"
@@ -289,10 +296,34 @@ const OTHER_PROJECT_SNIPPETS: AshAiKnowledgeSnippet[] = [
     },
   },
   {
+    id: "luxian-full",
+    kind: "work",
+    title: "Luxian full project text",
+    content: `Luxian is sculptural streetwear commerce built as one owned stack: editorial homepage and curated collections on the surface, NestJS + PostgreSQL + Next.js underneath. Shoppers browse a merchandised storefront, get behavior-driven recommendations, and checkout against real inventory. Operators get permission-scoped admin (homepage CMS without redeploys, profit-aware dashboard, supplier receiving tied to stock movements, staff roles). Checkout, payment recording, and stock decrements happen in one transaction.\n\nPublic live storefront: ${LUXIAN_TRY_URL}. Login: ${LUXIAN_LOGIN_URL}. Demo admin: ${LUXIAN_DEMO_ADMIN_EMAIL} / ${LUXIAN_DEMO_ADMIN_PASSWORD}. Source: ${LUXIAN_REPO_URL}. Payments are stub only.`,
+    sourceMeta: {
+      sourceLabel: "luxian project text",
+      workId: "luxian",
+      aliases: [
+        "luxian",
+        "fashion",
+        "e-commerce",
+        "ecommerce",
+        "storefront",
+        "shop",
+        "commerce",
+        "nestjs",
+        "next.js",
+        "inventory",
+        "checkout",
+        "admin",
+      ],
+    },
+  },
+  {
     id: "project-availability",
     kind: "work",
     title: "Project availability quick facts",
-    content: `Papion: public case study only, no public live website in the portfolio materials.\nDuwit: public case study, public live website ${DUWIT_TRY_URL}, desktop release ${DUWIT_DESKTOP_APP_URL}.\nTwodo: public case study, public live website ${TWODO_TRY_URL}.\nAK System: public case study only, no public live website in the portfolio materials.`,
+    content: `Papion: public case study only, no public live website in the portfolio materials.\nDuwit: public case study, public live website ${DUWIT_TRY_URL}, desktop release ${DUWIT_DESKTOP_APP_URL}.\nTwodo: public case study, public live website ${TWODO_TRY_URL}.\nAK System: public case study only, no public live website in the portfolio materials.\nLuxian: public case study, live site ${LUXIAN_TRY_URL}, admin demo ${LUXIAN_DEMO_ADMIN_EMAIL} / ${LUXIAN_DEMO_ADMIN_PASSWORD} at ${LUXIAN_LOGIN_URL}, repo ${LUXIAN_REPO_URL}.`,
     sourceMeta: {
       sourceLabel: "project availability facts",
       aliases: [

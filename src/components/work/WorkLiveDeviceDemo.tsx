@@ -5,7 +5,7 @@ import {
   Smartphone,
   Tablet,
 } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 
 import type { WorkProject } from "@/data/selectedWorks"
 import { cn } from "@/lib/utils"
@@ -13,18 +13,26 @@ import { usePhoneEmbedFullscreenGuard } from "@/components/landing/footer-phone/
 
 type WorkLiveDeviceTheme = {
   title: string
+  /** Override default display heading scale (e.g. smaller title above embed). */
+  titleClassName?: string
   accentClass: string
   glowClass: string
   surfaceClass: string
   displayFont: string
 }
 
+const DEFAULT_TITLE_CLASS =
+  "max-w-[13ch] text-balance text-[clamp(2.35rem,5.4vw,5rem)] leading-[0.88] font-semibold tracking-[-0.02em] text-[var(--color-drh-ink)] uppercase"
+
 export function WorkLiveDeviceDemo({
   project,
   theme,
+  accessNote,
 }: {
   project: WorkProject
   theme: WorkLiveDeviceTheme
+  /** Optional sign-in / demo hints shown above the device frame. */
+  accessNote?: ReactNode
 }) {
   const src = project.liveSiteUrl?.trim()
   const [loaded, setLoaded] = useState(false)
@@ -67,9 +75,11 @@ export function WorkLiveDeviceDemo({
       />
 
       <div className="relative z-10 mx-auto max-w-6xl">
-        <header className="mb-6 flex flex-col items-start justify-between gap-5 sm:flex-row sm:items-end">
+        <header className="mb-4 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
           <h2
-            className="max-w-[13ch] text-balance text-[clamp(2.35rem,5.4vw,5rem)] leading-[0.88] font-semibold tracking-[-0.02em] text-[var(--color-drh-ink)] uppercase"
+            className={cn(
+              theme.titleClassName ?? DEFAULT_TITLE_CLASS
+            )}
             style={{ fontFamily: theme.displayFont }}
           >
             {theme.title}
@@ -98,6 +108,8 @@ export function WorkLiveDeviceDemo({
             ) : null}
           </div>
         </header>
+
+        {accessNote ? <div className="mb-5">{accessNote}</div> : null}
 
         <div className="relative w-full">
           <div

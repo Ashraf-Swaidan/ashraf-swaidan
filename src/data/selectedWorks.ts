@@ -10,9 +10,23 @@ export type WorkProject = {
   href: string
   /** Public deploy URL — embedded in-phone when set; otherwise the portfolio case study `href`. */
   liveSiteUrl?: string
+  /** Highlights the project in Selected Works (e.g. newest case study). */
+  isNew?: boolean
 }
 
 export const SELECTED_WORKS_PROJECTS: WorkProject[] = [
+  {
+    id: "luxian",
+    title: "Luxian",
+    description:
+      "Full-stack tropical commerce on NestJS, PostgreSQL, and Next.js. Not a storefront template. Editorial discovery up front, operator-grade admin behind it, one inventory ledger holding both together. Shipped live.",
+    logoSrc: "/assets/selected-works-logos/luxian-logo.png",
+    imageSrc: "/assets/lap-animation-assets/luxian-lap.webp",
+    videoSrc: SELECTED_WORKS_VIDEOS.luxian,
+    href: "/works/luxian",
+    liveSiteUrl: "https://luxian-three.vercel.app/",
+    isNew: true,
+  },
   {
     id: "papion",
     title: "Papion System",

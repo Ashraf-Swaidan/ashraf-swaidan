@@ -72,12 +72,13 @@ run("keeps unknowns explicit when no strong match exists", () => {
   )
 })
 
-run("includes live-site facts for Duwit and Twodo", () => {
+run("includes live-site facts for Duwit, Twodo, and Luxian", () => {
   const context = buildAshAiSupplementalContext(
     ask("which projects have live websites?")
   )
   assert.match(context, /duwit-45a37\.web\.app/i)
   assert.match(context, /twodo\.ashraf-swaidan-10\.workers\.dev/i)
+  assert.match(context, /luxian-three\.vercel\.app/i)
   assert.match(context, /Papion: public case study only/i)
 })
 

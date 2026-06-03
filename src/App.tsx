@@ -10,6 +10,7 @@ import { AkPage } from "./pages/AkPage"
 import { DuwitPage } from "./pages/DuwitPage"
 import { PapionSystemPage } from "./pages/PapionSystemPage"
 import { TwodoPage } from "./pages/TwodoPage"
+import { LuxianPage } from "./pages/LuxianPage"
 
 export function App() {
   const path = window.location.pathname
@@ -17,6 +18,7 @@ export function App() {
   const isDuwitPage = path === "/works/duwit"
   const isAkPage = path === "/works/ak-system"
   const isTwodoPage = path === "/works/twodo"
+  const isLuxianPage = path === "/works/luxian"
 
   if (isPapionPage) {
     return (
@@ -53,6 +55,16 @@ export function App() {
       <>
         <LandingNav />
         <TwodoPage />
+        <SiteFooter />
+      </>
+    )
+  }
+
+  if (isLuxianPage) {
+    return (
+      <>
+        <LandingNav />
+        <LuxianPage />
         <SiteFooter />
       </>
     )

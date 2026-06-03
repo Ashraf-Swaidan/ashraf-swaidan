@@ -13,7 +13,10 @@ import { useReducedMotion } from "motion/react"
 
 import { DecorativeSticker } from "@/components/landing/stickers/DecorativeSticker"
 import { HOMEPAGE_STICKERS } from "@/data/homepageStickers"
-import { SELECTED_WORKS_PROJECTS } from "@/data/selectedWorks"
+import {
+  SELECTED_WORKS_PROJECTS,
+  type WorkProject,
+} from "@/data/selectedWorks"
 import { cn } from "@/lib/utils"
 
 gsap.registerPlugin(useGSAP, ScrollTrigger)
@@ -65,7 +68,7 @@ const RAIL_TEXT_TIMING = {
   incomingRevealEnd: 0.72,
 } as const
 
-const PROJECT_ZOOMS = [1.14, 1.03, 1.14, 1.03] as const
+const PROJECT_ZOOMS = [1.14, 1.03, 1.14, 1.03, 1.14] as const
 
 const SCREEN_BOX_STYLE: CSSProperties = {
   left: `${(385 / 1600) * 100}%`,
@@ -140,6 +143,37 @@ function SelectedWorksCarouselVideo({
 
 const DISPLAY_FONT = "'Barlow Condensed', sans-serif"
 const BODY_FONT = "var(--font-drh-body)"
+
+function SelectedWorksNewBadge() {
+  return (
+    <span
+      className="inline-flex shrink-0 rounded-full border border-[var(--color-drh-accent-orange)] bg-[var(--color-drh-accent-orange)] px-2.5 py-1 text-[0.62rem] leading-none font-semibold tracking-[0.22em] text-white uppercase shadow-[0_6px_16px_rgb(255_122_0/0.28)] sm:px-3 sm:py-1.5 sm:text-[0.68rem]"
+      style={{ fontFamily: DISPLAY_FONT }}
+    >
+      New
+    </span>
+  )
+}
+
+function SelectedWorksProjectTitle({
+  project,
+  titleClassName,
+}: {
+  project: WorkProject
+  titleClassName: string
+}) {
+  return (
+    <div className="flex min-w-0 flex-wrap items-center gap-2.5 sm:gap-3">
+      <p
+        className={titleClassName}
+        style={{ fontFamily: DISPLAY_FONT }}
+      >
+        {project.title}
+      </p>
+      {project.isNew ? <SelectedWorksNewBadge /> : null}
+    </div>
+  )
+}
 
 function useIsMobileSelectedWorks() {
   const [isMobile, setIsMobile] = useState(() =>
@@ -969,12 +1003,10 @@ function SelectedWorksDesktop() {
                       decoding="async"
                     />
                   </div>
-                  <p
-                    className="text-[clamp(1.8rem,8vw,2.4rem)] leading-[0.9] font-semibold tracking-[-0.02em] text-[var(--color-drh-ink)] uppercase md:text-[2.8rem] lg:text-[3.2rem] xl:text-[3.6rem] 2xl:text-[4.2rem]"
-                    style={{ fontFamily: DISPLAY_FONT }}
-                  >
-                    {currentProject.title}
-                  </p>
+                  <SelectedWorksProjectTitle
+                    project={currentProject}
+                    titleClassName="text-[clamp(1.8rem,8vw,2.4rem)] leading-[0.9] font-semibold tracking-[-0.02em] text-[var(--color-drh-ink)] uppercase md:text-[2.8rem] lg:text-[3.2rem] xl:text-[3.6rem] 2xl:text-[4.2rem]"
+                  />
                 </div>
                 <p
                   className="mt-6 max-w-[27rem] text-[0.96rem] leading-[1.6] text-[var(--color-drh-ink)]/66 sm:mt-8 md:mt-10 md:text-[1.08rem] xl:max-w-[31rem] xl:text-[1.18rem] xl:leading-[1.68] 2xl:max-w-[34rem] 2xl:text-[1.28rem]"
@@ -1012,12 +1044,10 @@ function SelectedWorksDesktop() {
                       decoding="async"
                     />
                   </div>
-                  <p
-                    className="text-[clamp(1.8rem,8vw,2.4rem)] leading-[0.9] font-semibold tracking-[-0.02em] text-[var(--color-drh-ink)] uppercase md:text-[2.8rem] lg:text-[3.2rem] xl:text-[3.6rem] 2xl:text-[4.2rem]"
-                    style={{ fontFamily: DISPLAY_FONT }}
-                  >
-                    {nextProject.title}
-                  </p>
+                  <SelectedWorksProjectTitle
+                    project={nextProject}
+                    titleClassName="text-[clamp(1.8rem,8vw,2.4rem)] leading-[0.9] font-semibold tracking-[-0.02em] text-[var(--color-drh-ink)] uppercase md:text-[2.8rem] lg:text-[3.2rem] xl:text-[3.6rem] 2xl:text-[4.2rem]"
+                  />
                 </div>
                 <p
                   className="mt-6 max-w-[27rem] text-[0.96rem] leading-[1.6] text-[var(--color-drh-ink)]/66 sm:mt-8 md:mt-10 md:text-[1.08rem] xl:max-w-[31rem] xl:text-[1.18rem] xl:leading-[1.68] 2xl:max-w-[34rem] 2xl:text-[1.28rem]"
@@ -1189,7 +1219,7 @@ function SelectedWorksMobile() {
                   <div className="mt-4 h-px flex-1 bg-[var(--color-drh-ink)]/12" />
                 </div>
 
-                <div className="flex items-center gap-3.5">
+                <div className="flex items-start gap-3.5">
                   <img
                     src={project.logoSrc}
                     alt=""
@@ -1200,12 +1230,10 @@ function SelectedWorksMobile() {
                     loading={index === 0 ? "eager" : "lazy"}
                     decoding="async"
                   />
-                  <h3
-                    className="text-[clamp(1.9rem,9vw,2.55rem)] leading-[0.88] font-semibold text-[var(--color-drh-ink)] uppercase"
-                    style={{ fontFamily: DISPLAY_FONT }}
-                  >
-                    {project.title}
-                  </h3>
+                  <SelectedWorksProjectTitle
+                    project={project}
+                    titleClassName="text-[clamp(1.9rem,9vw,2.55rem)] leading-[0.88] font-semibold text-[var(--color-drh-ink)] uppercase"
+                  />
                 </div>
 
                 <p

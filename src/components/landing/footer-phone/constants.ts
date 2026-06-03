@@ -4,7 +4,7 @@ import {
   MODULE_EXPLORER_ENTRIES,
 } from "@/pages/papion-system/papion-data"
 
-import type { PapionMobileTab, ProjectApp, StandardApp } from "./types"
+import type { PapionMobileTab, PhoneApp, ProjectApp, StandardApp } from "./types"
 
 export const DISPLAY_FONT = "'Barlow Condensed', sans-serif"
 export const BODY_FONT = "'Cormorant Garamond', 'Fraunces Variable', serif"
@@ -204,6 +204,8 @@ export const STANDARD_APPS: StandardApp[] = [
   },
 ]
 
+export const LUXIAN_PHONE_APP_ID = "project-luxian" as const
+
 export function makeProjectApps(): ProjectApp[] {
   return SELECTED_WORKS_PROJECTS.map((project) => ({
     id: `project-${project.id}`,
@@ -212,6 +214,27 @@ export function makeProjectApps(): ProjectApp[] {
     iconSrc: project.logoSrc,
     project,
   }))
+}
+
+export function getLuxianProjectApp(): ProjectApp | null {
+  return (
+    makeProjectApps().find((app) => app.project.id === "luxian") ?? null
+  )
+}
+
+/** Home grid: portfolio projects first (Luxian leading), then utility apps. */
+export function buildFooterHomeApps(allApps: PhoneApp[]): PhoneApp[] {
+  const hiddenHomeIds = new Set(["whatsapp", "linkedin", "camera"])
+  const filtered = allApps.filter(
+    (app) =>
+      !DOCK_IDS.includes(app.id as (typeof DOCK_IDS)[number]) &&
+      !hiddenHomeIds.has(app.id)
+  )
+  const projects = filtered.filter((app): app is ProjectApp => app.kind === "project")
+  const standard = filtered.filter((app) => app.kind !== "project")
+  const luxian = projects.find((app) => app.project.id === "luxian")
+  const otherProjects = projects.filter((app) => app.project.id !== "luxian")
+  return [...(luxian ? [luxian] : []), ...otherProjects, ...standard]
 }
 
 const PAPION_COPY = {

@@ -104,6 +104,20 @@ const PHOTOS_ALBUMS: PhotosAlbum[] = [
     })),
   },
   {
+    id: "luxian",
+    title: "Luxian",
+    subtitle: "Screenshots",
+    items: Array.from({ length: 5 }, (_, i) => {
+      const n = i + 1
+      return {
+        id: `luxian-gen-${n}`,
+        kind: "image" as const,
+        src: `/assets/luxian-page/gen-${n}.png`,
+        alt: `Luxian screenshot ${n}`,
+      }
+    }),
+  },
+  {
     id: "duwit",
     title: "Duwit",
     subtitle: "Screenshots",
@@ -158,6 +172,11 @@ const PHOTOS_ALBUMS: PhotosAlbum[] = [
     title: "Videos",
     subtitle: "Demos & motion",
     items: [
+      videoItem(
+        "vid-luxian-lap",
+        "/assets/lap-animation-assets/luxian-lap.mp4",
+        "Luxian — lap hero"
+      ),
       videoItem(
         "vid-papion-lap",
         "/assets/lap-animation-assets/papion.mp4",

@@ -285,6 +285,34 @@
   }
 }
 
+@keyframes luxian-demo-glow {
+  0%,
+  100% {
+    border-color: rgb(255 122 0 / 0.22);
+    box-shadow:
+      0 0 0 0 rgb(255 122 0 / 0),
+      0 4px 18px rgb(10 10 10 / 0.04);
+  }
+  50% {
+    border-color: rgb(255 122 0 / 0.62);
+    box-shadow:
+      0 0 28px 2px rgb(255 122 0 / 0.32),
+      0 8px 28px rgb(255 122 0 / 0.14);
+  }
+}
+
+.luxian-demo-credentials-glow {
+  animation: luxian-demo-glow 2.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .luxian-demo-credentials-glow {
+    animation: none;
+    border-color: rgb(255 122 0 / 0.38);
+    box-shadow: 0 0 18px 1px rgb(255 122 0 / 0.2);
+  }
+}
+
 /* Lenis: avoid fixed-height issues; keep native scroll inside [data-lenis-prevent] (e.g. iframes) */
 html.lenis,
 html.lenis body {

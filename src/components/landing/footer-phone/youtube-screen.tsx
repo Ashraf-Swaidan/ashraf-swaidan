@@ -41,8 +41,17 @@ export type YtVideo = {
   tags: ("demos" | "ai" | "ops")[]
 }
 
-/** Home feed order: Papion lap → Duwit → AK → Twodo → Papion feature demos */
+/** Home feed order: Luxian lap → Papion → Duwit → AK → Twodo → Papion feature demos */
 const YOUTUBE_VIDEOS: YtVideo[] = [
+  {
+    id: "luxian-lap",
+    title: "Luxian — lap hero",
+    src: SELECTED_WORKS_VIDEOS.luxian,
+    channelId: "luxian",
+    views: "3.8K views",
+    publishedAgo: "2 days ago",
+    tags: ["demos"],
+  },
   {
     id: "papion-lap",
     title: "Papion System — lap hero",
@@ -213,7 +222,15 @@ const SHORTS_FEATURE = VIDEO_BY_ID["papion-bulk-pay"]
 
 type BottomTabId = "home" | "shorts" | "subs" | "you"
 
-type ChipId = "all" | "papion" | "duwit" | "ak-system" | "twodo" | "demos" | "ai"
+type ChipId =
+  | "all"
+  | "papion"
+  | "duwit"
+  | "ak-system"
+  | "twodo"
+  | "luxian"
+  | "demos"
+  | "ai"
 
 const CHIPS: { id: ChipId; label: string }[] = [
   { id: "all", label: "All" },
@@ -221,6 +238,7 @@ const CHIPS: { id: ChipId; label: string }[] = [
   { id: "duwit", label: "Duwit" },
   { id: "ak-system", label: "AK System" },
   { id: "twodo", label: "Twodo" },
+  { id: "luxian", label: "Luxian" },
   { id: "demos", label: "Demos" },
   { id: "ai", label: "AI" },
 ]

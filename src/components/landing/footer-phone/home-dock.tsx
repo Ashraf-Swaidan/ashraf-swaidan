@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils"
 
 import { CHATGPT_MARK_SRC } from "./constants"
-import type { FooterDeviceMode, PhoneApp } from "./types"
+import type { FooterDeviceMode, PhoneApp, ProjectApp } from "./types"
 
 /** iOS-style home icon plate: squircle (softer % radius) + centered glyph. */
 function iconShellForApp(app: PhoneApp): "white" | "black" | "cream" | null {
@@ -141,59 +141,102 @@ export function HomeWidgets({
   day,
   dateLine,
   ashAiApp,
+  luxianApp,
   onOpenAshAi,
+  onOpenLuxian,
 }: {
   deviceMode?: FooterDeviceMode
   day: string
   dateLine: string
   ashAiApp?: PhoneApp
+  luxianApp?: ProjectApp
   onOpenAshAi: () => void
+  onOpenLuxian?: () => void
 }) {
+  const widgetMinH = deviceMode === "ipad" ? "min-h-[6rem]" : "min-h-[5.3rem]"
+
   return (
-    <div
-      className={cn(
-        "grid gap-2",
-        deviceMode === "ipad"
-          ? "grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:grid-cols-[1.08fr_0.92fr]"
-          : "grid-cols-[1fr_0.82fr]"
-      )}
-    >
+    <div className="flex flex-col gap-2">
       <div
         className={cn(
-          "rounded-[1.45rem] bg-black/24 px-3 py-3 font-sans text-white shadow-[0_14px_32px_rgb(0_0_0/0.18)] backdrop-blur-xl",
-          deviceMode === "ipad" ? "min-h-[6rem]" : "min-h-[5.3rem]"
+          "grid gap-2",
+          deviceMode === "ipad"
+            ? "grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]"
+            : "grid-cols-2"
         )}
       >
-        <p className="text-[0.68rem] tracking-[0.18em] text-white/64 uppercase">
-          Today
-        </p>
-        <p className="mt-1 text-[1.55rem] leading-none font-semibold">{day}</p>
-        <p className="mt-1 text-[0.92rem] text-white/70">{dateLine}</p>
-      </div>
-      <button
-        type="button"
-        onClick={onOpenAshAi}
-        className={cn(
-          "flex items-center rounded-[1.45rem] bg-white/78 px-3 py-3 text-left text-neutral-900 shadow-[0_14px_32px_rgb(0_0_0/0.08)] ring-1 ring-white/70 backdrop-blur-xl transition hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-neutral-400/55 focus-visible:ring-offset-2 focus-visible:ring-offset-black/15 focus-visible:outline-none",
-          deviceMode === "ipad" ? "min-h-[6rem]" : "min-h-[5.3rem]"
-        )}
-      >
-        <div className="flex w-full items-center gap-2.5">
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[0.85rem] bg-neutral-100/95 shadow-[inset_0_1px_0_rgb(255_255_255/0.9)] ring-1 ring-neutral-200/80">
-            <img
-              src={ashAiApp?.iconSrc ?? CHATGPT_MARK_SRC}
-              alt=""
-              className="h-6 w-6 object-contain"
-              loading="eager"
-              fetchPriority="high"
-              decoding="sync"
-            />
-          </span>
-          <p className="min-w-0 flex-1 font-sans text-[1.02rem] leading-tight font-semibold tracking-[-0.02em] text-neutral-900">
-            Ask anything
+        <div
+          className={cn(
+            "rounded-[1.45rem] bg-black/24 px-3 py-3 font-sans text-white shadow-[0_14px_32px_rgb(0_0_0/0.18)] backdrop-blur-xl",
+            widgetMinH
+          )}
+        >
+          <p className="text-[0.68rem] tracking-[0.18em] text-white/64 uppercase">
+            Today
           </p>
+          <p className="mt-1 text-[1.55rem] leading-none font-semibold">{day}</p>
+          <p className="mt-1 text-[0.92rem] text-white/70">{dateLine}</p>
         </div>
-      </button>
+
+        {luxianApp && onOpenLuxian ? (
+          <button
+            type="button"
+            onClick={onOpenLuxian}
+            className={cn(
+              "flex items-center rounded-[1.45rem] bg-[rgb(255_122_0/0.22)] px-3 py-3 text-left text-white shadow-[0_14px_32px_rgb(255_122_0/0.2)] ring-1 ring-[rgb(255_122_0/0.35)] backdrop-blur-xl transition hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-[rgb(255_122_0/0.55)] focus-visible:ring-offset-2 focus-visible:ring-offset-black/15 focus-visible:outline-none",
+              widgetMinH
+            )}
+            aria-label="Open Luxian live storefront"
+          >
+            <div className="flex w-full items-center gap-2.5">
+              <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-[0.85rem] bg-white p-1 shadow-[inset_0_1px_0_rgb(255_255_255/0.9)] ring-1 ring-white/80">
+                <img
+                  src={luxianApp.iconSrc}
+                  alt=""
+                  className="h-full w-full object-contain"
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="sync"
+                />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="font-sans text-[1.02rem] leading-tight font-semibold tracking-[-0.02em]">
+                  Luxian
+                </p>
+                <p className="mt-0.5 font-sans text-[0.72rem] leading-tight text-white/72">
+                  Open live shop
+                </p>
+              </div>
+            </div>
+          </button>
+        ) : null}
+
+        <button
+          type="button"
+          onClick={onOpenAshAi}
+          className={cn(
+            "flex items-center rounded-[1.45rem] bg-white/78 px-3 py-3 text-left text-neutral-900 shadow-[0_14px_32px_rgb(0_0_0/0.08)] ring-1 ring-white/70 backdrop-blur-xl transition hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-neutral-400/55 focus-visible:ring-offset-2 focus-visible:ring-offset-black/15 focus-visible:outline-none",
+            widgetMinH,
+            deviceMode === "phone" && luxianApp ? "col-span-2" : ""
+          )}
+        >
+          <div className="flex w-full items-center gap-2.5">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[0.85rem] bg-neutral-100/95 shadow-[inset_0_1px_0_rgb(255_255_255/0.9)] ring-1 ring-neutral-200/80">
+              <img
+                src={ashAiApp?.iconSrc ?? CHATGPT_MARK_SRC}
+                alt=""
+                className="h-6 w-6 object-contain"
+                loading="eager"
+                fetchPriority="high"
+                decoding="sync"
+              />
+            </span>
+            <p className="min-w-0 flex-1 font-sans text-[1.02rem] leading-tight font-semibold tracking-[-0.02em] text-neutral-900">
+              Ask anything
+            </p>
+          </div>
+        </button>
+      </div>
     </div>
   )
 }

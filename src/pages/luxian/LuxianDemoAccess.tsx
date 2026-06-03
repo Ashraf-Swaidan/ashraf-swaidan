@@ -6,6 +6,7 @@ import {
   LUXIAN_DEMO_ADMIN_EMAIL,
   LUXIAN_DEMO_ADMIN_PASSWORD,
   LUXIAN_DISPLAY_FONT,
+  LUXIAN_LOGIN_URL,
 } from "./luxian-data"
 
 function InlineCopy({
@@ -55,10 +56,21 @@ export function LuxianDemoAccess({ className = "" }: { className?: string }) {
       className={`luxian-demo-credentials-glow rounded-2xl border border-[var(--color-drh-accent-orange)]/25 bg-[rgb(255_122_0/0.06)] px-4 py-3 text-left sm:px-5 sm:py-3.5 ${className}`}
     >
       <p
-        className="text-[0.72rem] leading-snug text-[var(--color-drh-ink)]/68 sm:text-[0.78rem]"
+        className="text-[0.72rem] leading-relaxed text-[var(--color-drh-ink)]/68 sm:text-[0.78rem]"
         style={{ fontFamily: LUXIAN_BODY_FONT }}
       >
-        Use this email and password to try the full admin experience.
+        Use this email and password for the seeded admin demo. You will not stay
+        signed in inside the preview below: Luxian&apos;s auth cookies are locked
+        down, and browsers will not hold a session in our embedded portfolio view.{" "}
+        <a
+          href={LUXIAN_LOGIN_URL}
+          target="_blank"
+          rel="noreferrer noopener"
+          className="font-medium text-[var(--color-drh-accent-orange)] underline decoration-[var(--color-drh-accent-orange)]/35 underline-offset-[3px] transition hover:decoration-[var(--color-drh-accent-orange)]"
+        >
+          Open Luxian in a new tab
+        </a>
+        . Sign in on the live site, then explore the full back office.
       </p>
       <p
         className="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-1.5"

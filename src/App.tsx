@@ -9,6 +9,7 @@ import { SelectedWorks } from "./components/landing/SelectedWorks"
 import { AkPage } from "./pages/AkPage"
 import { DuwitPage } from "./pages/DuwitPage"
 import { PapionSystemPage } from "./pages/PapionSystemPage"
+import { SmartarPage } from "./pages/SmartarPage"
 import { TwodoPage } from "./pages/TwodoPage"
 import { LuxianPage } from "./pages/LuxianPage"
 
@@ -19,6 +20,7 @@ export function App() {
   const isAkPage = path === "/works/ak-system"
   const isTwodoPage = path === "/works/twodo"
   const isLuxianPage = path === "/works/luxian"
+  const isSmartarPage = path === "/works/smartar"
 
   if (isPapionPage) {
     return (
@@ -65,6 +67,16 @@ export function App() {
       <>
         <LandingNav />
         <LuxianPage />
+        <SiteFooter />
+      </>
+    )
+  }
+
+  if (isSmartarPage) {
+    return (
+      <>
+        <LandingNav />
+        <SmartarPage />
         <SiteFooter />
       </>
     )

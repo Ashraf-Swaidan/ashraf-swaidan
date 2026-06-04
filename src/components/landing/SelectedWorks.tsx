@@ -68,7 +68,7 @@ const RAIL_TEXT_TIMING = {
   incomingRevealEnd: 0.72,
 } as const
 
-const PROJECT_ZOOMS = [1.14, 1.03, 1.14, 1.03, 1.14] as const
+const PROJECT_ZOOMS = [1.14, 1.03, 1.14, 1.03, 1.14, 1.03] as const
 
 const SCREEN_BOX_STYLE: CSSProperties = {
   left: `${(385 / 1600) * 100}%`,
@@ -155,6 +155,17 @@ function SelectedWorksNewBadge() {
   )
 }
 
+function SelectedWorksInProgressBadge() {
+  return (
+    <span
+      className="inline-flex shrink-0 rounded-full border border-[var(--color-drh-ink)]/14 bg-[var(--color-drh-surface)] px-2.5 py-1 text-[0.62rem] leading-none font-semibold tracking-[0.18em] text-[var(--color-drh-ink)]/62 uppercase shadow-[0_4px_12px_rgb(10_10_10/0.06)] sm:px-3 sm:py-1.5 sm:text-[0.68rem]"
+      style={{ fontFamily: DISPLAY_FONT }}
+    >
+      In progress
+    </span>
+  )
+}
+
 function SelectedWorksProjectTitle({
   project,
   titleClassName,
@@ -171,7 +182,53 @@ function SelectedWorksProjectTitle({
         {project.title}
       </p>
       {project.isNew ? <SelectedWorksNewBadge /> : null}
+      {project.caseStudyInProgress ? (
+        <SelectedWorksInProgressBadge />
+      ) : null}
     </div>
+  )
+}
+
+function SelectedWorksProjectTags({ project }: { project: WorkProject }) {
+  if (!project.tags?.length) return null
+
+  return (
+    <div
+      className="mt-4 flex flex-wrap items-center gap-2 sm:mt-5 sm:gap-2.5"
+      style={{ fontFamily: DISPLAY_FONT }}
+    >
+      {project.tags.map(({ label, className }) => (
+        <span
+          key={label}
+          className={`rounded-none px-3 py-2 text-[0.62rem] font-semibold tracking-[0.12em] uppercase shadow-[0_6px_16px_rgb(10_10_10/0.06)] sm:text-[0.68rem] ${className}`}
+        >
+          {label}
+        </span>
+      ))}
+    </div>
+  )
+}
+
+function SelectedWorksReadUseCaseLink({
+  project,
+  variant = "desktop",
+}: {
+  project: WorkProject
+  variant?: "desktop" | "mobile"
+}) {
+  const className =
+    variant === "mobile"
+      ? "mt-6 inline-flex min-h-11 items-center rounded-full border border-[var(--color-drh-ink)] px-6 text-[0.84rem] leading-none font-semibold tracking-[0.16em] text-[var(--color-drh-ink)] uppercase transition active:scale-[0.98]"
+      : "mt-6 inline-flex rounded-full border border-[var(--color-drh-ink)] px-6 py-2.5 text-[0.82rem] leading-none font-semibold tracking-[0.16em] text-[var(--color-drh-ink)] uppercase transition hover:border-[var(--color-drh-accent-orange)] hover:bg-[var(--color-drh-accent-orange)] hover:text-white sm:mt-8 sm:px-7 sm:py-3 sm:text-[0.9rem]"
+
+  return (
+    <a
+      href={project.href}
+      className={className}
+      style={{ fontFamily: DISPLAY_FONT }}
+    >
+      Read Use Case
+    </a>
   )
 }
 
@@ -1008,6 +1065,7 @@ function SelectedWorksDesktop() {
                     titleClassName="text-[clamp(1.8rem,8vw,2.4rem)] leading-[0.9] font-semibold tracking-[-0.02em] text-[var(--color-drh-ink)] uppercase md:text-[2.8rem] lg:text-[3.2rem] xl:text-[3.6rem] 2xl:text-[4.2rem]"
                   />
                 </div>
+                <SelectedWorksProjectTags project={currentProject} />
                 <p
                   className="mt-6 max-w-[27rem] text-[0.96rem] leading-[1.6] text-[var(--color-drh-ink)]/66 sm:mt-8 md:mt-10 md:text-[1.08rem] xl:max-w-[31rem] xl:text-[1.18rem] xl:leading-[1.68] 2xl:max-w-[34rem] 2xl:text-[1.28rem]"
                   style={{
@@ -1017,13 +1075,7 @@ function SelectedWorksDesktop() {
                 >
                   {currentProject.description}
                 </p>
-                <a
-                  href={currentProject.href}
-                  className="mt-6 inline-flex rounded-full border border-[var(--color-drh-ink)] px-6 py-2.5 text-[0.82rem] leading-none font-semibold tracking-[0.16em] text-[var(--color-drh-ink)] uppercase transition hover:border-[var(--color-drh-accent-orange)] hover:bg-[var(--color-drh-accent-orange)] hover:text-white sm:mt-8 sm:px-7 sm:py-3 sm:text-[0.9rem]"
-                  style={{ fontFamily: DISPLAY_FONT }}
-                >
-                  Read Use Case
-                </a>
+                <SelectedWorksReadUseCaseLink project={currentProject} />
               </div>
 
               <div
@@ -1049,6 +1101,7 @@ function SelectedWorksDesktop() {
                     titleClassName="text-[clamp(1.8rem,8vw,2.4rem)] leading-[0.9] font-semibold tracking-[-0.02em] text-[var(--color-drh-ink)] uppercase md:text-[2.8rem] lg:text-[3.2rem] xl:text-[3.6rem] 2xl:text-[4.2rem]"
                   />
                 </div>
+                <SelectedWorksProjectTags project={nextProject} />
                 <p
                   className="mt-6 max-w-[27rem] text-[0.96rem] leading-[1.6] text-[var(--color-drh-ink)]/66 sm:mt-8 md:mt-10 md:text-[1.08rem] xl:max-w-[31rem] xl:text-[1.18rem] xl:leading-[1.68] 2xl:max-w-[34rem] 2xl:text-[1.28rem]"
                   style={{
@@ -1058,13 +1111,7 @@ function SelectedWorksDesktop() {
                 >
                   {nextProject.description}
                 </p>
-                <a
-                  href={nextProject.href}
-                  className="mt-6 inline-flex rounded-full border border-[var(--color-drh-ink)] px-6 py-2.5 text-[0.82rem] leading-none font-semibold tracking-[0.16em] text-[var(--color-drh-ink)] uppercase transition hover:border-[var(--color-drh-accent-orange)] hover:bg-[var(--color-drh-accent-orange)] hover:text-white sm:mt-8 sm:px-7 sm:py-3 sm:text-[0.9rem]"
-                  style={{ fontFamily: DISPLAY_FONT }}
-                >
-                  Read Use Case
-                </a>
+                <SelectedWorksReadUseCaseLink project={nextProject} />
               </div>
             </div>
           </aside>
@@ -1236,6 +1283,8 @@ function SelectedWorksMobile() {
                   />
                 </div>
 
+                <SelectedWorksProjectTags project={project} />
+
                 <p
                   className="mt-5 text-[0.98rem] leading-[1.58] text-[var(--color-drh-ink)]/66"
                   style={{
@@ -1246,13 +1295,7 @@ function SelectedWorksMobile() {
                   {project.description}
                 </p>
 
-                <a
-                  href={project.href}
-                  className="mt-6 inline-flex min-h-11 items-center rounded-full border border-[var(--color-drh-ink)] px-6 text-[0.84rem] leading-none font-semibold tracking-[0.16em] text-[var(--color-drh-ink)] uppercase transition active:scale-[0.98]"
-                  style={{ fontFamily: DISPLAY_FONT }}
-                >
-                  Read Use Case
-                </a>
+                <SelectedWorksReadUseCaseLink project={project} variant="mobile" />
               </div>
             </article>
           ))}

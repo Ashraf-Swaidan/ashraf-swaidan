@@ -4,6 +4,7 @@
  */
 export const SELECTED_WORKS_VIDEOS = {
   papion: "/assets/lap-animation-assets/papion.mp4",
+  smartar: "/assets/lap-animation-assets/Smartar-lap.mp4",
   duwit: "/assets/lap-animation-assets/duwit.mp4",
   ak: "/assets/lap-animation-assets/ak.mp4",
   twodo: "/assets/lap-animation-assets/twodo.mp4",
@@ -14,6 +15,7 @@ export const SELECTED_WORKS_VIDEOS = {
 export const SELECTED_WORKS_VIDEO_PRELOAD_ORDER = [
   SELECTED_WORKS_VIDEOS.luxian,
   SELECTED_WORKS_VIDEOS.papion,
+  SELECTED_WORKS_VIDEOS.smartar,
   SELECTED_WORKS_VIDEOS.duwit,
   SELECTED_WORKS_VIDEOS.ak,
   SELECTED_WORKS_VIDEOS.twodo,

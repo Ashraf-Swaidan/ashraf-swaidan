@@ -19,8 +19,15 @@ export function requestAshAiHandoff(detail: AshAiHandoffDetail) {
 export function absolutizePublicAssetUrl(src: string): string {
   if (src.startsWith("http://") || src.startsWith("https://")) return src
   if (typeof window === "undefined") return src
+
+  const basePath = import.meta.env.BASE_URL.replace(/\/$/, "")
+  if (basePath && (src === basePath || src.startsWith(`${basePath}/`))) {
+    return `${window.location.origin}${src}`
+  }
+
   const path = src.startsWith("/") ? src : `/${src}`
-  return `${window.location.origin}${path}`
+  const rooted = basePath && !path.startsWith(basePath) ? `${basePath}${path}` : path
+  return `${window.location.origin}${rooted}`
 }
 
 function blobToDataUrl(blob: Blob): Promise<string> {

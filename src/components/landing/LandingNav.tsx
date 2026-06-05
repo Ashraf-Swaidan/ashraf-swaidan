@@ -2,6 +2,7 @@ import { Menu, X } from "lucide-react"
 import { type MouseEvent, useCallback, useEffect, useState } from "react"
 
 import { useLenis } from "@/components/SmoothScroll"
+import { appPath, getAppPathname } from "@/lib/appPaths"
 import { cn } from "@/lib/utils"
 
 const LINKS = [
@@ -77,7 +78,7 @@ export function LandingNav() {
   }, [open, close])
 
   useEffect(() => {
-    if (window.location.pathname !== "/" || !window.location.hash) return
+    if (getAppPathname() !== "/" || !window.location.hash) return
 
     const id = window.location.hash.slice(1)
     if (!id) return
@@ -120,8 +121,8 @@ export function LandingNav() {
 
   const scrollToHash = useCallback(
     (href: string) => {
-      if (window.location.pathname !== "/") {
-        window.location.assign(`/${href}`)
+      if (getAppPathname() !== "/") {
+        window.location.assign(appPath(href))
         return
       }
 

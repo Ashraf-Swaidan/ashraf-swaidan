@@ -12,9 +12,10 @@ import { PapionSystemPage } from "./pages/PapionSystemPage"
 import { SmartarPage } from "./pages/SmartarPage"
 import { TwodoPage } from "./pages/TwodoPage"
 import { LuxianPage } from "./pages/LuxianPage"
+import { getAppPathname } from "@/lib/appPaths"
 
 export function App() {
-  const path = window.location.pathname
+  const path = getAppPathname()
   const isPapionPage = path === "/works/papion-system"
   const isDuwitPage = path === "/works/duwit"
   const isAkPage = path === "/works/ak-system"

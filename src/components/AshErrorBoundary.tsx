@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from "react"
 
+import { appPath } from "@/lib/appPaths"
 import { cn } from "@/lib/utils"
 
 type AshErrorBoundaryProps = {
@@ -44,7 +45,7 @@ export class AshErrorBoundary extends Component<
   }
 
   private handleHome = () => {
-    window.location.href = "/"
+    window.location.href = appPath("/")
   }
 
   override render() {

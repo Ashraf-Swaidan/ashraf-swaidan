@@ -1,18 +1,55 @@
+import { lazy, Suspense, type ReactNode } from "react"
+
 import { SiteFooter } from "./components/SiteFooter"
-import { CreativeRangeSection } from "./components/landing/CreativeRangeSection"
-import { DesignRevisionHero } from "./components/landing/DesignRevisionHero"
-import { LandingBootGate } from "./components/landing/LandingBootGate"
 import { LandingNav } from "./components/landing/LandingNav"
-import { FooterSection } from "./components/landing/FooterSection"
-import { ManifestoSection } from "./components/landing/ManifestoSection"
-import { SelectedWorks } from "./components/landing/SelectedWorks"
-import { AkPage } from "./pages/AkPage"
-import { DuwitPage } from "./pages/DuwitPage"
-import { PapionSystemPage } from "./pages/PapionSystemPage"
-import { SmartarPage } from "./pages/SmartarPage"
-import { TwodoPage } from "./pages/TwodoPage"
-import { LuxianPage } from "./pages/LuxianPage"
 import { getAppPathname } from "@/lib/appPaths"
+
+const HomePage = lazy(() => import("./pages/HomePage"))
+const PapionSystemPage = lazy(() =>
+  import("./pages/PapionSystemPage").then(({ PapionSystemPage }) => ({
+    default: PapionSystemPage,
+  }))
+)
+const DuwitPage = lazy(() =>
+  import("./pages/DuwitPage").then(({ DuwitPage }) => ({ default: DuwitPage }))
+)
+const AkPage = lazy(() =>
+  import("./pages/AkPage").then(({ AkPage }) => ({ default: AkPage }))
+)
+const TwodoPage = lazy(() =>
+  import("./pages/TwodoPage").then(({ TwodoPage }) => ({ default: TwodoPage }))
+)
+const LuxianPage = lazy(() =>
+  import("./pages/LuxianPage").then(({ LuxianPage }) => ({ default: LuxianPage }))
+)
+const SmartarPage = lazy(() =>
+  import("./pages/SmartarPage").then(({ SmartarPage }) => ({
+    default: SmartarPage,
+  }))
+)
+
+function RouteFallback() {
+  return (
+    <div
+      className="grid min-h-svh place-items-center bg-(--color-drh-bg) px-6 text-center text-(--color-drh-ink)"
+      role="status"
+    >
+      <span className="text-[0.68rem] font-semibold tracking-[0.38em] uppercase opacity-45">
+        Loading
+      </span>
+    </div>
+  )
+}
+
+function CaseStudyShell({ children }: { children: ReactNode }) {
+  return (
+    <>
+      <LandingNav />
+      <Suspense fallback={<RouteFallback />}>{children}</Suspense>
+      <SiteFooter />
+    </>
+  )
+}
 
 export function App() {
   const path = getAppPathname()
@@ -25,77 +62,56 @@ export function App() {
 
   if (isPapionPage) {
     return (
-      <>
-        <LandingNav />
+      <CaseStudyShell>
         <PapionSystemPage />
-        <SiteFooter />
-      </>
+      </CaseStudyShell>
     )
   }
 
   if (isDuwitPage) {
     return (
-      <>
-        <LandingNav />
+      <CaseStudyShell>
         <DuwitPage />
-        <SiteFooter />
-      </>
+      </CaseStudyShell>
     )
   }
 
   if (isAkPage) {
     return (
-      <>
-        <LandingNav />
+      <CaseStudyShell>
         <AkPage />
-        <SiteFooter />
-      </>
+      </CaseStudyShell>
     )
   }
 
   if (isTwodoPage) {
     return (
-      <>
-        <LandingNav />
+      <CaseStudyShell>
         <TwodoPage />
-        <SiteFooter />
-      </>
+      </CaseStudyShell>
     )
   }
 
   if (isLuxianPage) {
     return (
-      <>
-        <LandingNav />
+      <CaseStudyShell>
         <LuxianPage />
-        <SiteFooter />
-      </>
+      </CaseStudyShell>
     )
   }
 
   if (isSmartarPage) {
     return (
-      <>
-        <LandingNav />
+      <CaseStudyShell>
         <SmartarPage />
-        <SiteFooter />
-      </>
+      </CaseStudyShell>
     )
   }
 
   return (
-    <LandingBootGate>
-      <div className="min-h-svh bg-background text-foreground">
-        <LandingNav />
-        <DesignRevisionHero />
-
-        <ManifestoSection />
-        <SelectedWorks />
-        <CreativeRangeSection />
-        <FooterSection />
-        <SiteFooter />
-      </div>
-    </LandingBootGate>
+    <Suspense fallback={<RouteFallback />}>
+      <HomePage />
+    </Suspense>
   )
 }
 

@@ -368,7 +368,7 @@ export function DesignRevisionHero() {
       role="banner"
       aria-label="Introduction"
       className={cn(
-        "relative isolate min-h-[78svh] cursor-default overflow-hidden scroll-mt-24",
+        "relative isolate min-h-[78svh] cursor-default overflow-hidden scroll-mt-24 bg-[var(--color-drh-bg)]",
         "text-[var(--color-drh-ink)]",
         "selection:bg-[var(--color-drh-accent-orange)]/18",
       )}

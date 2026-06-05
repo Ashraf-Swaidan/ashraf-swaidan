@@ -5,9 +5,13 @@ import App from "./App.tsx"
 import { AshErrorBoundary } from "@/components/AshErrorBoundary"
 import { SmoothScroll } from "@/components/SmoothScroll.tsx"
 import { ThemeProvider } from "@/components/theme-provider.tsx"
-import { injectLandingResourceHints } from "@/lib/injectLandingResourceHints"
+import { getAppPathname } from "@/lib/appPaths"
 
-injectLandingResourceHints()
+if (getAppPathname() === "/") {
+  void import("@/lib/injectLandingResourceHints").then(
+    ({ injectLandingResourceHints }) => injectLandingResourceHints()
+  )
+}
 
 createRoot(document.getElementById("root")!).render(
   <ThemeProvider>

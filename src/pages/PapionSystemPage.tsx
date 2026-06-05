@@ -11,6 +11,7 @@ import {
 import { PapionModuleExplorer } from "./papion-system/PapionModuleExplorer"
 import { PapionScreenshotCollage } from "./papion-system/PapionScreenshotCollage"
 import { DISPLAY_FONT, PAPION_LOGO } from "./papion-system/papion-data"
+import { appPath } from "@/lib/appPaths"
 
 gsap.registerPlugin(useGSAP, ScrollTrigger)
 
@@ -87,7 +88,7 @@ export function PapionSystemPage() {
         >
           <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 sm:px-6">
             <a
-              href="/"
+              href={appPath("/")}
               className="text-[0.68rem] font-medium tracking-[0.16em] text-[var(--color-drh-ink)]/42 uppercase transition hover:text-[var(--color-drh-ink)]"
               style={{ fontFamily: DISPLAY_FONT }}
             >

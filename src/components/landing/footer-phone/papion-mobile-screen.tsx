@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 
 import { cn } from "@/lib/utils"
+import { appPath } from "@/lib/appPaths"
 
 import { BODY_FONT, DISPLAY_FONT, PAPION_MOBILE_TABS } from "./constants"
 import type { PapionMobileTab, PapionMobileTabId, ProjectApp } from "./types"
@@ -262,7 +263,7 @@ export function PapionMobileScreen({ app }: { app: ProjectApp }) {
         </div>
 
         <a
-          href={app.project.href}
+          href={appPath(app.project.href)}
           className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-[var(--color-drh-ink)] px-5 py-3 text-center text-[0.74rem] font-semibold tracking-[0.18em] text-white uppercase transition hover:-translate-y-[1px]"
           style={{ fontFamily: DISPLAY_FONT }}
         >

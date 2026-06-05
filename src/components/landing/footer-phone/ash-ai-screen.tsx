@@ -17,6 +17,7 @@ import {
   type AshAiHandoffDetail,
   requestAshAiHandoff,
 } from "@/lib/ashAiVisualContext"
+import { appPath } from "@/lib/appPaths"
 import { cn } from "@/lib/utils"
 
 import {
@@ -49,6 +50,9 @@ function AshAiArtifactCards({
   artifacts: AshAiUiArtifact[]
   fontFamily: string
 }) {
+  const resolveHref = (href: string) =>
+    href.startsWith("/") || href.startsWith("#") ? appPath(href) : href
+
   const askAbout = (artifact: AshAiUiArtifact) => {
     requestAshAiHandoff({
       userText: `Tell me more about “${artifact.title}” and how it shows up in Ash’s work.`,
@@ -111,7 +115,7 @@ function AshAiArtifactCards({
             <div className="mt-2 flex flex-wrap items-center gap-2">
               {artifact.href ? (
                 <a
-                  href={artifact.href}
+                  href={resolveHref(artifact.href)}
                   className="inline-flex items-center gap-1 rounded-full bg-neutral-950 px-3 py-1.5 text-[0.72rem] font-semibold text-white"
                   style={{ fontFamily }}
                 >
@@ -177,7 +181,7 @@ function AshAiWorkLinkCards({
           </div>
           <div className="mt-2 flex flex-wrap gap-1.5">
             <a
-              href={link.href}
+              href={appPath(link.href)}
               aria-label={`Open ${link.title} case study`}
               className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[0.68rem] font-semibold text-neutral-800 transition hover:border-neutral-300"
               style={{ fontFamily }}

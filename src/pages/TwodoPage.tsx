@@ -5,6 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger"
 
 import { WorkLiveDeviceDemo } from "@/components/work/WorkLiveDeviceDemo"
 import { SELECTED_WORKS_PROJECTS } from "@/data/selectedWorks"
+import { appPath } from "@/lib/appPaths"
 import { TWODO_DISPLAY_FONT, TWODO_LOGO } from "./twodo/twodo-data"
 import { TwodoScreenshotCollage } from "./twodo/TwodoScreenshotCollage"
 import {
@@ -95,7 +96,7 @@ export function TwodoPage() {
         >
           <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 sm:px-6">
             <a
-              href="/"
+              href={appPath("/")}
               className="text-[0.68rem] font-medium tracking-[0.16em] text-[var(--color-drh-ink)]/42 uppercase transition hover:text-[var(--color-drh-ink)]"
               style={{ fontFamily: TWODO_DISPLAY_FONT }}
             >

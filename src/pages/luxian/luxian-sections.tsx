@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "motion/react"
 import { HeroLoopVideo } from "@/components/media/HeroLoopVideo"
 import { SELECTED_WORKS_PROJECTS } from "@/data/selectedWorks"
 import { useHoverPlayVideo } from "@/hooks/useHoverPlayVideo"
+import { appPath } from "@/lib/appPaths"
 
 import {
   LUXIAN_BODY_FONT,
@@ -40,7 +41,7 @@ function LuxianRecommendedWorkCard({
 
   return (
     <a
-      href={project.href}
+      href={appPath(project.href)}
       className={`group block overflow-hidden rounded-[1.65rem] border border-[var(--color-drh-ink)]/10 bg-[var(--color-drh-surface)] shadow-[0_28px_70px_rgb(10_10_10/0.1)] sm:rounded-[2rem] ${
         index === 0 ? "lg:justify-self-end" : "lg:justify-self-start"
       }`}
@@ -124,7 +125,7 @@ export function LuxianHeroSection({
           className="mb-14 flex items-center justify-between gap-4 sm:mb-16"
         >
           <a
-            href="/"
+            href={appPath("/")}
             className="shrink-0 text-[0.68rem] font-medium tracking-[0.16em] text-[var(--color-drh-ink)]/42 uppercase transition hover:text-[var(--color-drh-ink)]"
             style={{ fontFamily: LUXIAN_DISPLAY_FONT }}
           >
@@ -309,7 +310,7 @@ export function LuxianFooter() {
             More work
           </p>
           <a
-            href="/"
+            href={appPath("/")}
             className="inline-flex w-fit rounded-full border border-[var(--color-drh-ink)]/14 px-5 py-2.5 text-[0.74rem] font-semibold tracking-[0.16em] text-[var(--color-drh-ink)] uppercase transition hover:border-[var(--color-drh-accent-orange)] hover:bg-[rgb(255_122_0/0.08)]"
             style={{ fontFamily: LUXIAN_DISPLAY_FONT }}
           >

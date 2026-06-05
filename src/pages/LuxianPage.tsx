@@ -5,6 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger"
 
 import { WorkLiveDeviceDemo } from "@/components/work/WorkLiveDeviceDemo"
 import { SELECTED_WORKS_PROJECTS } from "@/data/selectedWorks"
+import { appPath } from "@/lib/appPaths"
 import { LuxianDemoAccess } from "./luxian/LuxianDemoAccess"
 import { LUXIAN_DISPLAY_FONT, LUXIAN_LOGO } from "./luxian/luxian-data"
 import { LuxianFeaturesShowcase } from "./luxian/LuxianFeaturesShowcase"
@@ -93,7 +94,7 @@ export function LuxianPage() {
         >
           <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 sm:px-6">
             <a
-              href="/"
+              href={appPath("/")}
               className="text-[0.68rem] font-medium tracking-[0.16em] text-[var(--color-drh-ink)]/42 uppercase transition hover:text-[var(--color-drh-ink)]"
               style={{ fontFamily: LUXIAN_DISPLAY_FONT }}
             >

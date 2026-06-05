@@ -3,6 +3,7 @@ import { OneSystemFlow } from "@/components/landing/one-system-flow/OneSystemFlo
 import { HeroLoopVideo } from "@/components/media/HeroLoopVideo"
 import { SELECTED_WORKS_PROJECTS } from "@/data/selectedWorks"
 import { useHoverPlayVideo } from "@/hooks/useHoverPlayVideo"
+import { appPath } from "@/lib/appPaths"
 
 import { BranchInventoryMap } from "./BranchInventoryMap"
 import {
@@ -86,7 +87,7 @@ function PapionRecommendedWorkCard({
             {project.title}
           </p>
           <a
-            href={project.href}
+            href={appPath(project.href)}
             className="mt-5 inline-flex rounded-full border border-white/24 bg-white/12 px-4 py-2 text-[0.68rem] font-semibold tracking-[0.16em] text-white/78 uppercase backdrop-blur-md transition hover:border-white/45 hover:bg-white/20 hover:text-white"
             style={{ fontFamily: DISPLAY_FONT }}
             aria-label={`Open ${project.title} case study`}
@@ -131,7 +132,7 @@ export function PapionHeroSection({
           className="mb-14 flex items-center justify-between gap-4 sm:mb-16"
         >
           <a
-            href="/"
+            href={appPath("/")}
             className="shrink-0 text-[0.68rem] font-medium tracking-[0.16em] text-[var(--color-drh-ink)]/42 uppercase transition hover:text-[var(--color-drh-ink)]"
             style={{ fontFamily: DISPLAY_FONT }}
           >
@@ -470,7 +471,7 @@ export function PapionFooter() {
             Check other projects
           </p>
           <a
-            href="/"
+            href={appPath("/")}
             className="inline-flex w-fit rounded-full border border-[var(--color-drh-ink)]/30 px-5 py-2.5 text-[0.74rem] font-semibold tracking-[0.16em] text-[var(--color-drh-ink)] uppercase transition hover:border-[var(--color-drh-accent-orange)] hover:bg-[var(--color-drh-accent-orange)] hover:text-white"
             style={{ fontFamily: DISPLAY_FONT }}
           >

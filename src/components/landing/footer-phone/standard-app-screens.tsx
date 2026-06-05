@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils"
 import { ViewportLoopVideo } from "@/components/media/ViewportLoopVideo"
+import { appPath } from "@/lib/appPaths"
 
 import { BODY_FONT, DISPLAY_FONT, GMAIL_ADDRESS } from "./constants"
 import type { ProjectApp, StandardApp } from "./types"
@@ -42,7 +43,7 @@ export function ProjectScreen({ app }: { app: ProjectApp }) {
           {project.description}
         </p>
         <a
-          href={project.href}
+          href={appPath(project.href)}
           className="mt-auto inline-flex w-max rounded-full bg-white px-4 py-2 text-[0.72rem] font-semibold tracking-[0.18em] text-black uppercase transition hover:-translate-y-[1px]"
           style={{ fontFamily: DISPLAY_FONT }}
         >

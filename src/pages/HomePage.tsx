@@ -10,7 +10,7 @@ import { SelectedWorks } from "@/components/landing/SelectedWorks"
 export function HomePage() {
   return (
     <LandingBootGate>
-      <div className="min-h-svh bg-[var(--color-drh-bg)] text-[var(--color-drh-ink)]">
+      <div className="min-h-svh bg-(--color-drh-bg) text-(--color-drh-ink)">
         <LandingNav />
         <DesignRevisionHero />
 

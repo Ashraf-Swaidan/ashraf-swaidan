@@ -17,6 +17,7 @@ import {
   SELECTED_WORKS_PROJECTS,
   type WorkProject,
 } from "@/data/selectedWorks"
+import { appPath } from "@/lib/appPaths"
 import { cn } from "@/lib/utils"
 
 gsap.registerPlugin(useGSAP, ScrollTrigger)
@@ -223,7 +224,7 @@ function SelectedWorksReadUseCaseLink({
 
   return (
     <a
-      href={project.href}
+      href={appPath(project.href)}
       className={className}
       style={{ fontFamily: DISPLAY_FONT }}
     >

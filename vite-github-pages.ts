@@ -18,7 +18,6 @@ export function prefixAbsolutePathsPlugin(base: string): Plugin {
       let next = code
 
       next = next.replace(/(["'`])\/assets\//g, (_, quote) => `${quote}${prefix("/assets/")}`)
-      next = next.replace(/(["'`])\/works\//g, (_, quote) => `${quote}${prefix("/works/")}`)
       next = next.replace(/(["'`])\/fonts\//g, (_, quote) => `${quote}${prefix("/fonts/")}`)
       next = next.replace(/href="\/"/g, `href="${base}"`)
       next = next.replace(/href='\/'/g, `href='${base}'`)

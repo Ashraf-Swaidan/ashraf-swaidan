@@ -19,10 +19,8 @@ import {
 import { AppScreen } from "./footer-phone/app-screen"
 import {
   DOCK_IDS,
-  LUXIAN_PHONE_APP_ID,
   STANDARD_APPS,
   buildFooterHomeApps,
-  getLuxianProjectApp,
   makeProjectApps,
 } from "./footer-phone/constants"
 import { usePhoneWallpaper } from "./footer-phone/phone-wallpaper"
@@ -67,7 +65,6 @@ export function FooterPhone({
     () => buildFooterHomeApps(allApps),
     [allApps]
   )
-  const luxianApp = useMemo(() => getLuxianProjectApp(), [])
   const [homeApps, setHomeApps] = useState<PhoneApp[]>(initialHomeApps)
 
   useEffect(() => {
@@ -76,9 +73,6 @@ export function FooterPhone({
       const currentIds = new Set(current.map((app) => app.id))
       const missing = built.filter((app) => !currentIds.has(app.id))
       if (!missing.length) return current
-      const luxianMissing = missing.find((app) => app.id === LUXIAN_PHONE_APP_ID)
-      const restMissing = missing.filter((app) => app.id !== LUXIAN_PHONE_APP_ID)
-      if (luxianMissing) return [luxianMissing, ...current, ...restMissing]
       return [...current, ...missing]
     })
   }, [allApps])
@@ -380,9 +374,7 @@ export function FooterPhone({
               day={day}
               dateLine={dateLine}
               ashAiApp={ashAiApp ?? undefined}
-              luxianApp={luxianApp ?? undefined}
               onOpenAshAi={() => setActiveAppId("chatgpt")}
-              onOpenLuxian={() => setActiveAppId(LUXIAN_PHONE_APP_ID)}
             />
 
             <div

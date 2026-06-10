@@ -20,6 +20,7 @@ import { ProjectBrowserScreen } from "./project-browser-screen"
 import { PhotosScreen } from "./photos-screen"
 import { SettingsScreen } from "./settings-screen"
 import { SpotifyScreen } from "./spotify-screen"
+import { ClipLabScreen } from "./clip-lab-screen"
 import { StickerStudioScreen } from "./sticker-studio-screen"
 import { TetaModeScreen } from "./teta-mode-screen"
 import { YouTubeScreen } from "./youtube-screen"
@@ -73,6 +74,8 @@ export function AppScreen({
     isAshAi ||
     app.kind === "youtube" ||
     app.kind === "settings" ||
+    app.kind === "clip-lab" ||
+    app.kind === "sticker-studio" ||
     app.id === "spotify"
 
   const appContentPtClass =
@@ -98,7 +101,17 @@ export function AppScreen({
             ? cn("bg-[#f2f2f7]", deviceMode === "ipad" ? "pt-[3.05rem]" : "pt-[3.35rem]")
             : app.id === "spotify"
               ? cn("bg-[#121212]", deviceMode === "ipad" ? "pt-[3.05rem]" : "pt-[3.35rem]")
-              : cn("bg-white", appContentPtClass)
+              : app.kind === "clip-lab"
+                ? cn(
+                    "bg-[#0a0812]",
+                    deviceMode === "ipad" ? "pt-[3.05rem]" : "pt-[3.35rem]"
+                  )
+                : app.kind === "sticker-studio"
+                  ? cn(
+                      "bg-[#fff9f0]",
+                      deviceMode === "ipad" ? "pt-[3.05rem]" : "pt-[3.35rem]"
+                    )
+                  : cn("bg-white", appContentPtClass)
       )}
     >
       {!hideChrome ? (
@@ -157,7 +170,9 @@ export function AppScreen({
           onConsumeDeepLink={onConsumeNotesDeepLink}
         />
       ) : app.kind === "sticker-studio" ? (
-        <StickerStudioScreen />
+        <StickerStudioScreen onClose={onClose} />
+      ) : app.kind === "clip-lab" ? (
+        <ClipLabScreen onClose={onClose} />
       ) : app.kind === "teta-mode" ? (
         <TetaModeScreen />
       ) : app.id === "spotify" ? (

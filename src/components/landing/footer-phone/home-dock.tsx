@@ -1,14 +1,22 @@
 import { cn } from "@/lib/utils"
 
 import { CHATGPT_MARK_SRC } from "./constants"
-import type { FooterDeviceMode, PhoneApp, ProjectApp } from "./types"
+import type { FooterDeviceMode, PhoneApp } from "./types"
+
+/** Custom SVG tiles ship with their own background — render full-bleed, no extra plate. */
+function isFullTileAppIcon(app: PhoneApp): boolean {
+  return (
+    app.id === "sticker-studio" ||
+    app.id === "clip-lab" ||
+    app.id === "teta-mode"
+  )
+}
 
 /** iOS-style home icon plate: squircle (softer % radius) + centered glyph. */
 function iconShellForApp(app: PhoneApp): "white" | "black" | "cream" | null {
+  if (isFullTileAppIcon(app)) return null
   if (app.id === "spotify") return "black"
   if (app.id === "youtube") return "white"
-  if (app.id === "sticker-studio") return "white"
-  if (app.id === "teta-mode") return "cream"
   if (app.kind === "project") {
     if (app.project.id === "duwit") return "cream"
     return "white"
@@ -28,13 +36,20 @@ function AppIconImage({
   bareImgClass: string
 }) {
   const shell = iconShellForApp(app)
+  const fullTile = isFullTileAppIcon(app)
   const needsBoost = app.id === "instagram" || app.id === "gmail"
   if (!shell) {
     return (
       <img
         src={app.iconSrc}
         alt=""
-        className={cn(bareImgClass, needsBoost && "scale-[1.14]")}
+        className={cn(
+          bareImgClass,
+          fullTile
+            ? "object-cover shadow-[0_6px_16px_rgb(0_0_0/0.16)]"
+            : "object-contain",
+          needsBoost && !fullTile && "scale-[1.14]"
+        )}
         loading="eager"
         fetchPriority="high"
         decoding="sync"
@@ -141,30 +156,19 @@ export function HomeWidgets({
   day,
   dateLine,
   ashAiApp,
-  luxianApp,
   onOpenAshAi,
-  onOpenLuxian,
 }: {
   deviceMode?: FooterDeviceMode
   day: string
   dateLine: string
   ashAiApp?: PhoneApp
-  luxianApp?: ProjectApp
   onOpenAshAi: () => void
-  onOpenLuxian?: () => void
 }) {
   const widgetMinH = deviceMode === "ipad" ? "min-h-[6rem]" : "min-h-[5.3rem]"
 
   return (
     <div className="flex flex-col gap-2">
-      <div
-        className={cn(
-          "grid gap-2",
-          deviceMode === "ipad"
-            ? "grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]"
-            : "grid-cols-2"
-        )}
-      >
+      <div className="grid grid-cols-2 gap-2">
         <div
           className={cn(
             "rounded-[1.45rem] bg-black/24 px-3 py-3 font-sans text-white shadow-[0_14px_32px_rgb(0_0_0/0.18)] backdrop-blur-xl",
@@ -178,46 +182,12 @@ export function HomeWidgets({
           <p className="mt-1 text-[0.92rem] text-white/70">{dateLine}</p>
         </div>
 
-        {luxianApp && onOpenLuxian ? (
-          <button
-            type="button"
-            onClick={onOpenLuxian}
-            className={cn(
-              "flex items-center rounded-[1.45rem] bg-[rgb(255_122_0/0.22)] px-3 py-3 text-left text-white shadow-[0_14px_32px_rgb(255_122_0/0.2)] ring-1 ring-[rgb(255_122_0/0.35)] backdrop-blur-xl transition hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-[rgb(255_122_0/0.55)] focus-visible:ring-offset-2 focus-visible:ring-offset-black/15 focus-visible:outline-none",
-              widgetMinH
-            )}
-            aria-label="Open Luxian live storefront"
-          >
-            <div className="flex w-full items-center gap-2.5">
-              <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-[0.85rem] bg-white p-1 shadow-[inset_0_1px_0_rgb(255_255_255/0.9)] ring-1 ring-white/80">
-                <img
-                  src={luxianApp.iconSrc}
-                  alt=""
-                  className="h-full w-full object-contain"
-                  loading="eager"
-                  fetchPriority="high"
-                  decoding="sync"
-                />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="font-sans text-[1.02rem] leading-tight font-semibold tracking-[-0.02em]">
-                  Luxian
-                </p>
-                <p className="mt-0.5 font-sans text-[0.72rem] leading-tight text-white/72">
-                  Open live shop
-                </p>
-              </div>
-            </div>
-          </button>
-        ) : null}
-
         <button
           type="button"
           onClick={onOpenAshAi}
           className={cn(
             "flex items-center rounded-[1.45rem] bg-white/78 px-3 py-3 text-left text-neutral-900 shadow-[0_14px_32px_rgb(0_0_0/0.08)] ring-1 ring-white/70 backdrop-blur-xl transition hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-neutral-400/55 focus-visible:ring-offset-2 focus-visible:ring-offset-black/15 focus-visible:outline-none",
-            widgetMinH,
-            deviceMode === "phone" && luxianApp ? "col-span-2" : ""
+            widgetMinH
           )}
         >
           <div className="flex w-full items-center gap-2.5">

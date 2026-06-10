@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 
-import { PanelRightOpen, Plus, Settings } from "lucide-react"
+import { AudioLines, PanelRightOpen, Plus, Settings } from "lucide-react"
 
 import type { AshAiHandoffDetail } from "@/lib/ashAiVisualContext"
 import { cn } from "@/lib/utils"
@@ -16,6 +16,7 @@ import {
   setActiveChat,
   type AshAiChatsStore,
 } from "./ash-ai-chat-storage"
+import { AshAiCallOverlay } from "./ash-ai-call-overlay"
 import { AshAiScreen } from "./ash-ai-screen"
 import {
   ASH_AI_NEW_CHAT_TITLE,
@@ -40,6 +41,7 @@ export function AshAiWorkspace({
   const [store, setStore] = useState<AshAiChatsStore>(loadAshAiChatsStore)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [callOpen, setCallOpen] = useState(false)
 
   useEffect(() => {
     persistAshAiChatsStore(store)
@@ -106,6 +108,18 @@ export function AshAiWorkspace({
         <div className="flex shrink-0 items-center justify-end gap-0.5 justify-self-end">
           <button
             type="button"
+            onClick={() => {
+              setSidebarOpen(false)
+              setSettingsOpen(false)
+              setCallOpen(true)
+            }}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-neutral-950 transition hover:bg-neutral-200/70 focus-visible:ring-2 focus-visible:ring-neutral-400/40 focus-visible:outline-none"
+            aria-label="Start voice call"
+          >
+            <AudioLines className="size-[1.05rem]" strokeWidth={2.25} aria-hidden />
+          </button>
+          <button
+            type="button"
             onClick={openNewChat}
             className="flex h-9 w-9 items-center justify-center rounded-full text-neutral-950 transition hover:bg-neutral-200/70 focus-visible:ring-2 focus-visible:ring-neutral-400/40 focus-visible:outline-none"
             aria-label="New chat"
@@ -168,6 +182,8 @@ export function AshAiWorkspace({
         bootstrapHandoff={bootstrapHandoff ?? null}
         onConsumeBootstrapHandoff={onConsumeBootstrapHandoff}
       />
+
+      <AshAiCallOverlay open={callOpen} onClose={() => setCallOpen(false)} />
     </>
   )
 }

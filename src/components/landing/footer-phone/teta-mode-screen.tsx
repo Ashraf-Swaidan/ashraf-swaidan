@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils"
 import { translateToTeta } from "@/lib/pollinationsTetaMode"
 
 import { BODY_FONT, DISPLAY_FONT, PHONE_ASSET_ROOT } from "./constants"
+import { PollinationsBalanceLabel } from "./pollinations-balance-label"
 
 gsap.registerPlugin(useGSAP)
 
@@ -239,10 +240,17 @@ export function TetaModeScreen() {
             Teta Mode
           </h2>
           <p
-            className="mt-0.5 truncate text-[0.74rem] italic text-neutral-600"
+            className="mt-0.5 flex min-w-0 items-center gap-1.5 truncate text-[0.74rem] italic text-neutral-600"
             style={{ fontFamily: BODY_FONT }}
           >
-            she's just worried about you
+            <span className="truncate">she&apos;s just worried about you</span>
+            <span className="not-italic text-neutral-300" aria-hidden>
+              ·
+            </span>
+            <PollinationsBalanceLabel
+              variant="light"
+              className="not-italic text-[0.68rem]"
+            />
           </p>
         </div>
         {exchange ? (

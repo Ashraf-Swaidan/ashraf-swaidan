@@ -109,6 +109,14 @@ export const STANDARD_APPS: StandardApp[] = [
     body: "Generate sticker-style images from a prompt (optional photo).",
   },
   {
+    id: "clip-lab",
+    kind: "clip-lab",
+    label: "Clip Lab",
+    iconSrc: `${PHONE_ASSET_ROOT}/clip-lab.svg`,
+    title: "Clip Lab",
+    body: "Roll short lo-fi clips with LTX-2 — mood presets, one prompt, vertical reel.",
+  },
+  {
     id: "teta-mode",
     kind: "teta-mode",
     label: "Teta Mode",
@@ -204,8 +212,6 @@ export const STANDARD_APPS: StandardApp[] = [
   },
 ]
 
-export const LUXIAN_PHONE_APP_ID = "project-luxian" as const
-
 export function makeProjectApps(): ProjectApp[] {
   return SELECTED_WORKS_PROJECTS.map((project) => ({
     id: `project-${project.id}`,
@@ -216,15 +222,15 @@ export function makeProjectApps(): ProjectApp[] {
   }))
 }
 
-export function getLuxianProjectApp(): ProjectApp | null {
-  return (
-    makeProjectApps().find((app) => app.project.id === "luxian") ?? null
-  )
-}
-
 /** Home grid: portfolio projects first (Luxian leading), then utility apps. */
 export function buildFooterHomeApps(allApps: PhoneApp[]): PhoneApp[] {
-  const hiddenHomeIds = new Set(["whatsapp", "linkedin", "camera"])
+  const hiddenHomeIds = new Set([
+    "whatsapp",
+    "linkedin",
+    "camera",
+    "app-store",
+    "project-smartar",
+  ])
   const filtered = allApps.filter(
     (app) =>
       !DOCK_IDS.includes(app.id as (typeof DOCK_IDS)[number]) &&

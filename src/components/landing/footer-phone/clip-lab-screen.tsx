@@ -23,6 +23,7 @@ import {
   Paperclip,
   Play,
   Plus,
+  Settings,
   Trash2,
   X,
 } from "lucide-react"
@@ -36,12 +37,19 @@ import {
 } from "@/lib/clipLabStorage"
 import { cn } from "@/lib/utils"
 import {
-  CLIP_LAB_DURATIONS,
   CLIP_LAB_PLACEHOLDER_HINTS,
   type ClipLabDuration,
+  type ClipLabModelId,
   generateClipLabVideo,
+  getClipLabDurationsForModel,
+  getClipLabModelShortLabel,
+  getStoredClipLabModel,
+  normalizeClipLabDuration,
+  readStoredClipLabDuration,
+  writeStoredClipLabDuration,
 } from "@/lib/pollinationsClipLab"
 
+import { ClipLabSettingsPanel } from "./clip-lab-settings-panel"
 import { DISPLAY_FONT, PHONE_ASSET_ROOT } from "./constants"
 import { PollinationsBalanceLabel } from "./pollinations-balance-label"
 import {
@@ -54,8 +62,6 @@ gsap.registerPlugin(useGSAP)
 const IOS_SANS =
   "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif"
 const IOS_BLUE = "#5e8cff"
-const DURATION_KEY = "clip-lab-duration-v4"
-const DEFAULT_DURATION: ClipLabDuration = 4
 
 /** Horizontal strips — scrollbar fully suppressed (incl. overlay bleed). */
 const SCROLL_X_CLASS =
@@ -64,12 +70,15 @@ const SCROLL_X_CLASS =
 const TEXTAREA_CLASS =
   "max-h-[4.5rem] min-h-[2.35rem] flex-1 resize-none overflow-y-auto bg-transparent px-1.5 py-2 text-[0.92rem] leading-snug text-white placeholder:text-white/38 focus:outline-none disabled:opacity-60 selection:bg-[#5e8cff] selection:text-white [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:h-0 [&::-webkit-scrollbar]:w-0"
 
-const RENDER_STAGES = [
-  "Warming up LTX-2…",
+const RENDER_STAGE_TAILS = [
   "Rolling film…",
   "Mixing the mood…",
   "Almost there…",
 ] as const
+
+function clipLabRenderStages(model: ClipLabModelId): readonly string[] {
+  return [`Warming up ${getClipLabModelShortLabel(model)}…`, ...RENDER_STAGE_TAILS]
+}
 
 type Phase = "idle" | "generating" | "ready"
 
@@ -78,29 +87,6 @@ type SessionClip = {
   scene: string
   objectUrl: string
   createdAt: number
-}
-
-function readDuration(): ClipLabDuration {
-  if (typeof window === "undefined") return DEFAULT_DURATION
-  try {
-    const raw = window.sessionStorage.getItem(DURATION_KEY)
-    if (!raw) return DEFAULT_DURATION
-    const parsed = JSON.parse(raw) as { duration?: unknown }
-    return CLIP_LAB_DURATIONS.includes(parsed.duration as ClipLabDuration)
-      ? (parsed.duration as ClipLabDuration)
-      : DEFAULT_DURATION
-  } catch {
-    return DEFAULT_DURATION
-  }
-}
-
-function writeDuration(duration: ClipLabDuration) {
-  if (typeof window === "undefined") return
-  try {
-    window.sessionStorage.setItem(DURATION_KEY, JSON.stringify({ duration }))
-  } catch {
-    /* ignore */
-  }
 }
 
 function formatClipAge(createdAt: number): string {
@@ -334,9 +320,13 @@ function ClipLabHistorySheet({
 
 export function ClipLabScreen({ onClose }: { onClose: () => void }) {
   const prefersReducedMotion = useReducedMotion()
+  const [model, setModel] = useState<ClipLabModelId>(getStoredClipLabModel)
   const [prompt, setPrompt] = useState("")
   const [referenceDataUrl, setReferenceDataUrl] = useState<string | null>(null)
-  const [duration, setDuration] = useState<ClipLabDuration>(readDuration)
+  const [duration, setDuration] = useState<ClipLabDuration>(() =>
+    readStoredClipLabDuration(getStoredClipLabModel())
+  )
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
   const [hydrated, setHydrated] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -361,6 +351,13 @@ export function ClipLabScreen({ onClose }: { onClose: () => void }) {
     () => session.find((clip) => clip.id === activeId) ?? session[0] ?? null,
     [session, activeId]
   )
+
+  const durationOptions = useMemo(
+    () => getClipLabDurationsForModel(model),
+    [model]
+  )
+
+  const renderStages = useMemo(() => clipLabRenderStages(model), [model])
 
   const phase: Phase = useMemo(() => {
     if (busy) return "generating"
@@ -396,14 +393,14 @@ export function ClipLabScreen({ onClose }: { onClose: () => void }) {
   }, [])
 
   useEffect(() => {
-    if (!historyOpen && hydrated) {
+    if (!historyOpen && !settingsOpen && hydrated) {
       textareaRef.current?.focus()
     }
-  }, [historyOpen, hydrated])
+  }, [historyOpen, settingsOpen, hydrated])
 
   useEffect(() => {
-    writeDuration(duration)
-  }, [duration])
+    writeStoredClipLabDuration(model, duration)
+  }, [model, duration])
 
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -415,10 +412,10 @@ export function ClipLabScreen({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     if (!busy) return
     const id = window.setInterval(() => {
-      setRenderStageIdx((i) => (i + 1) % RENDER_STAGES.length)
+      setRenderStageIdx((i) => (i + 1) % renderStages.length)
     }, 3200)
     return () => window.clearInterval(id)
-  }, [busy])
+  }, [busy, renderStages.length])
 
   useEffect(() => {
     const ta = textareaRef.current
@@ -428,7 +425,7 @@ export function ClipLabScreen({ onClose }: { onClose: () => void }) {
     const padY = 18
     const maxH = lineHeight * 3 + padY
     ta.style.height = `${Math.min(ta.scrollHeight, maxH)}px`
-  }, [prompt, historyOpen, referenceDataUrl])
+  }, [prompt, historyOpen, settingsOpen, referenceDataUrl])
 
   useEffect(() => {
     if (!error) return
@@ -512,11 +509,17 @@ export function ClipLabScreen({ onClose }: { onClose: () => void }) {
     }
   }, [])
 
+  const handleModelChange = useCallback((nextModel: ClipLabModelId) => {
+    setModel(nextModel)
+    setDuration((current) => normalizeClipLabDuration(nextModel, current))
+  }, [])
+
   const runGenerate = useCallback(
     async (
       scene: string,
       durationSeconds: ClipLabDuration,
-      referenceImageDataUrl: string | null
+      referenceImageDataUrl: string | null,
+      videoModel: ClipLabModelId
     ) => {
       const generation = ++generationRef.current
       setError(null)
@@ -524,12 +527,14 @@ export function ClipLabScreen({ onClose }: { onClose: () => void }) {
       setBusy(true)
       setRenderStageIdx(0)
       setHistoryOpen(false)
+      setSettingsOpen(false)
       abortRef.current?.abort()
       const controller = new AbortController()
       abortRef.current = controller
 
       try {
         const result = await generateClipLabVideo({
+          model: videoModel,
           scene,
           durationSeconds,
           referenceImageDataUrl,
@@ -605,7 +610,7 @@ export function ClipLabScreen({ onClose }: { onClose: () => void }) {
     const ref = referenceDataUrl?.trim() ?? null
     const text = prompt.trim()
     if (!text && !ref) return
-    void runGenerate(text, duration, ref)
+    void runGenerate(text, duration, ref, model)
   }
 
   const handleClearAll = () => {
@@ -710,7 +715,8 @@ export function ClipLabScreen({ onClose }: { onClose: () => void }) {
           </div>
         ) : phase === "generating" ? (
           <GeneratingStage
-            stageLabel={RENDER_STAGES[renderStageIdx]}
+            stageLabel={renderStages[renderStageIdx]}
+            modelLabel={getClipLabModelShortLabel(model)}
             prefersReducedMotion={prefersReducedMotion}
           />
         ) : (
@@ -739,7 +745,9 @@ export function ClipLabScreen({ onClose }: { onClose: () => void }) {
               Clip Lab
             </h2>
             <p className="flex min-w-0 items-center gap-1.5 truncate text-[0.72rem] text-white/62">
-              <span className="truncate">LTX-2 · {duration}s</span>
+              <span className="truncate">
+                {getClipLabModelShortLabel(model)} · {duration}s
+              </span>
               <span className="text-white/28" aria-hidden>
                 ·
               </span>
@@ -751,7 +759,21 @@ export function ClipLabScreen({ onClose }: { onClose: () => void }) {
           </div>
           <button
             type="button"
-            onClick={() => setHistoryOpen(true)}
+            onClick={() => {
+              setHistoryOpen(false)
+              setSettingsOpen(true)
+            }}
+            className="grid size-9 shrink-0 place-items-center rounded-full bg-black/35 text-white/85 backdrop-blur-md transition hover:bg-black/50 active:scale-[0.97]"
+            aria-label="Open settings"
+          >
+            <Settings className="size-[1.05rem]" strokeWidth={2.2} />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setSettingsOpen(false)
+              setHistoryOpen(true)
+            }}
             className="grid size-9 shrink-0 place-items-center rounded-full bg-black/35 text-white/85 backdrop-blur-md transition hover:bg-black/50 active:scale-[0.97]"
             aria-label="Open clip history"
           >
@@ -839,7 +861,7 @@ export function ClipLabScreen({ onClose }: { onClose: () => void }) {
                 role="list"
                 aria-label="Clip length"
               >
-                {CLIP_LAB_DURATIONS.map((seconds) => (
+                {durationOptions.map((seconds) => (
                   <Chip
                     key={seconds}
                     selected={duration === seconds}
@@ -944,6 +966,13 @@ export function ClipLabScreen({ onClose }: { onClose: () => void }) {
             </div>
           </div>
         </div>
+
+        <ClipLabSettingsPanel
+          open={settingsOpen}
+          model={model}
+          onClose={() => setSettingsOpen(false)}
+          onModelChange={handleModelChange}
+        />
 
         <ClipLabHistorySheet
           open={historyOpen}
@@ -1072,9 +1101,11 @@ function IdleStage({ placeholder }: { placeholder: string }) {
 
 function GeneratingStage({
   stageLabel,
+  modelLabel,
   prefersReducedMotion,
 }: {
   stageLabel: string
+  modelLabel: string
   prefersReducedMotion: boolean | null
 }) {
   return (
@@ -1101,7 +1132,7 @@ function GeneratingStage({
         {stageLabel}
       </p>
       <p className="relative z-[1] mt-1.5 max-w-[14rem] text-center text-[0.74rem] text-white/45">
-        LTX-2 can take up to a minute on cold start
+        {modelLabel} can take up to a minute on cold start
       </p>
       <style>{`
         @keyframes clipLabShimmer {

@@ -7,7 +7,7 @@ export const SMARTAR_VIDEO_HERO = "/assets/lap-animation-assets/Smartar-lap.mp4"
 export const SMARTAR_VIDEO_POSTER = "/assets/lap-animation-assets/smartar-lap.webp"
 export const SMARTAR_AI_VIDEO = "/assets/Smartar-page/ai-smartar.mp4"
 
-export const SMARTAR_STORE_URL = "https://vxjspu-kw.myshopify.com/"
+export const SMARTAR_STORE_URL = "https://smartar-avdenwy1.myshopify.com/"
 export const SMARTAR_ENTRY_PASSWORD = "ashraf123"
 
 export const SMARTAR_SCREENSHOTS = [

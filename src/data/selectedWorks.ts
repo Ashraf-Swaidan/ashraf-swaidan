@@ -55,7 +55,7 @@ export const SELECTED_WORKS_PROJECTS: WorkProject[] = [
     imageSrc: "/assets/lap-animation-assets/smartar-lap.webp",
     videoSrc: SELECTED_WORKS_VIDEOS.smartar,
     href: "/works/smartar",
-    liveSiteUrl: "https://vxjspu-kw.myshopify.com/",
+    liveSiteUrl: "https://smartar-avdenwy1.myshopify.com/",
     caseStudyInProgress: true,
     tags: [
       {
